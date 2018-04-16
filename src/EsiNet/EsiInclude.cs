@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
 namespace EsiNet
@@ -8,28 +9,36 @@ namespace EsiNet
         private readonly EsiBodyParser _esiBodyParser;
         private readonly HttpClient _httpClient;
         private readonly string _url;
+        private readonly EsiFragmentCache _cache;
 
-        public EsiInclude(EsiBodyParser esiBodyParser, HttpClient httpClient, string url)
+        public EsiInclude(EsiFragmentCache cache, EsiBodyParser esiBodyParser, HttpClient httpClient, string url)
         {
             _esiBodyParser = esiBodyParser;
             _httpClient = httpClient;
             _url = url;
+            _cache = cache;
         }
 
         public async Task<string> Execute()
         {
-            var content = await MakeRequest();
-            return await _esiBodyParser.Parse(content).Execute();
+            var fragment = await _cache.GetOrAddWithHeader(_url, RequestAndParse);
+            return await fragment.Execute();
         }
 
-        private async Task<string> MakeRequest()
+        private async Task<(IEsiFragment, CacheControlHeaderValue)> RequestAndParse()
+        {
+            var response = await MakeRequest();
+            response.EnsureSuccessStatusCode();
+            var content = await response.Content.ReadAsStringAsync();
+            var fragment = _esiBodyParser.Parse(content);
+            return (fragment, response.Headers.CacheControl);
+        }
+
+        private async Task<HttpResponseMessage> MakeRequest()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, _url);
             request.Headers.Add("X-Esi", "true");
-            var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-            var content = await response.Content.ReadAsStringAsync();
-            return content;
+            return await _httpClient.SendAsync(request);
         }
     }
 }
