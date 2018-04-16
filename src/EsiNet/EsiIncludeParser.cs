@@ -16,7 +16,7 @@ namespace EsiNet
 
         public IEsiFragment Parse(IReadOnlyDictionary<string, string> attributes, string body)
         {
-            var src = attributes["src"].Trim('"');
+            var src = attributes["src"];
 
             return new EsiInclude(_esiBodyParser, _httpClient, src);
         }
