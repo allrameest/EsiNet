@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Sample.Controllers
 {
@@ -7,8 +9,10 @@ namespace Sample.Controllers
     {
         [HttpGet("{id}")]
         [ResponseCache(Duration = 60*30)]
-        public IActionResult Index(int id)
+        public async Task<IActionResult> Index(int id)
         {
+            await Task.Delay(100);
+
             var product = new Product
             {
                 Id = id,
