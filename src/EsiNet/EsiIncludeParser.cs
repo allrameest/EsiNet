@@ -7,11 +7,11 @@ namespace EsiNet
     {
         private readonly EsiFragmentCache _cache;
         private readonly EsiBodyParser _esiBodyParser;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpLoader _httpLoader;
 
-        public EsiIncludeParser(EsiFragmentCache cache, EsiBodyParser esiBodyParser, HttpClient httpClient)
+        public EsiIncludeParser(EsiFragmentCache cache, EsiBodyParser esiBodyParser, IHttpLoader httpLoader)
         {
-            _httpClient = httpClient;
+            _httpLoader = httpLoader;
             _cache = cache;
             _esiBodyParser = esiBodyParser;
         }
@@ -20,7 +20,7 @@ namespace EsiNet
         {
             var src = attributes["src"];
 
-            return new EsiInclude(_cache, _esiBodyParser, _httpClient, src);
+            return new EsiInclude(_cache, _httpLoader, _esiBodyParser, src);
         }
     }
 }
