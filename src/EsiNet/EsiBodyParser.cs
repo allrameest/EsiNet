@@ -11,7 +11,7 @@ namespace EsiNet
         private const int AttributesGroupIndex = 2;
         private const int TagBodyIndex = 3;
         private const int AttributeNameGroupIndex = 1;
-        private const int AttributeValueGroupIndex = 1;
+        private const int AttributeValueGroupIndex = 2;
 
         private static readonly Regex EsiTagRegex = new Regex(@"
 <
