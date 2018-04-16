@@ -1,7 +1,16 @@
 ﻿@model object
 
-<h1>ESI Sample</h1>
+<html>
+<head>
+    <title>ESI Sample</title>
+</head>
+<body>
 
-<esi:include src="http://localhost:57780/cart.html"></esi:include>
+<esi:include src="http://localhost:57780/header.html" />
 
-<esi:include src="http://localhost:57780/product/123"/>
+<esi:include src="http://localhost:57780/product/123" />
+
+<esi:include src="http://localhost:57780/footer.html" />
+
+</body>
+</html>

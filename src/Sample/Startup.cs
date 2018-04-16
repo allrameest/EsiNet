@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
 
 namespace Sample
 {
@@ -22,7 +23,17 @@ namespace Sample
             }
 
 
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                OnPrepareResponse = ctx =>
+                {
+                    if (!ctx.File.Name.EndsWith(".html")) return;
+                    const int durationInSeconds = 60 * 60 * 24;
+                    ctx.Context.Response.Headers[HeaderNames.CacheControl] =
+                        $"public,max-age={durationInSeconds}";
+                }
+            });
+
             app.UseEsi();
             app.UseMvc();
         }
