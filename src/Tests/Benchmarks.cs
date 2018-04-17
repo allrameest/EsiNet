@@ -132,7 +132,7 @@ namespace Tests
 
                     var lvl2Url = $"/{i}/{j}";
                     lvl1.Add($@"<esi:include src=""{lvl2Url}""/>");
-                    urlContentMap[lvl2Url] = (string.Join(">>>>>", lvl2), maxAge);
+                    urlContentMap[lvl2Url] = (string.Join("", lvl2), maxAge);
                 }
 
                 var lvl1Url = $"/{i}";
