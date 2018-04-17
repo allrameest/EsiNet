@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using EsiNet.Caching;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;

@@ -2,7 +2,7 @@
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 
-namespace EsiNet
+namespace EsiNet.Caching
 {
     public interface IEsiFragmentCache
     {

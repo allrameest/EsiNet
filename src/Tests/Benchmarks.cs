@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using EsiNet;
 using EsiNet.AspNetCore;
+using EsiNet.Caching;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Net.Http.Headers;
 using Xunit;
