@@ -11,13 +11,13 @@ namespace EsiNet.AspNetCore
         private readonly RequestDelegate _next;
         private readonly EsiBodyParser _parser;
         private readonly EsiFragmentExecutor _executor;
-        private readonly EsiFragmentCache _cache;
+        private readonly IEsiFragmentCache _cache;
 
         public EsiMiddleware(
             RequestDelegate next,
             EsiBodyParser parser,
             EsiFragmentExecutor executor,
-            EsiFragmentCache cache)
+            IEsiFragmentCache cache)
         {
             _next = next;
             _parser = parser;

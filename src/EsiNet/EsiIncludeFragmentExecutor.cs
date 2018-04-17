@@ -5,13 +5,13 @@ namespace EsiNet
 {
     public class EsiIncludeFragmentExecutor
     {
-        private readonly EsiFragmentCache _cache;
+        private readonly IEsiFragmentCache _cache;
         private readonly IHttpLoader _httpLoader;
         private readonly EsiBodyParser _esiBodyParser;
         private readonly EsiFragmentExecutor _fragmentExecutor;
 
         public EsiIncludeFragmentExecutor(
-            EsiFragmentCache cache,
+            IEsiFragmentCache cache,
             IHttpLoader httpLoader,
             EsiBodyParser esiBodyParser,
             EsiFragmentExecutor fragmentExecutor)
