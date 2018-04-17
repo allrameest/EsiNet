@@ -53,7 +53,8 @@ namespace Tests
         private async Task<string> BenchmarkEsi(Dictionary<string, (string, int?)> urlContentMap)
         {
             var cache = CreateCache();
-            var parser = CreateParser(cache, urlContentMap);
+            var parser = CreateParser();
+            var executor = CreateExecutor(cache, urlContentMap, parser);
 
             return await Benchmark(async () =>
             {
@@ -75,7 +76,7 @@ namespace Tests
                     fragment = parser.Parse(rootContent);
                 }
 
-                return await fragment.Execute();
+                return await executor.Execute(fragment);
             });
         }
 
@@ -86,12 +87,20 @@ namespace Tests
                     new MemoryCacheOptions()));
         }
 
-        private static EsiBodyParser CreateParser(
-            EsiFragmentCache cache, Dictionary<string, (string, int?)> urlContentMap)
+        private static EsiBodyParser CreateParser()
         {
-            return EsiParserFactory.Create(
+            return EsiParserFactory.Create();
+        }
+
+        private static EsiFragmentExecutor CreateExecutor(
+            EsiFragmentCache cache,
+            Dictionary<string, (string, int?)> urlContentMap,
+            EsiBodyParser parser)
+        {
+            return EsiExecutorFactory.Create(
                 cache,
-                new FakeStaticHttpLoader(urlContentMap));
+                new FakeStaticHttpLoader(urlContentMap),
+                parser);
         }
 
         private async Task<T> Benchmark<T>(Func<Task<T>> action, int count = 1000)

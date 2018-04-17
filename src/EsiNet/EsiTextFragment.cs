@@ -1,19 +1,12 @@
-﻿using System.Threading.Tasks;
-
-namespace EsiNet
+﻿namespace EsiNet
 {
     public class EsiTextFragment : IEsiFragment
     {
-        private readonly string _body;
-
         public EsiTextFragment(string body)
         {
-            _body = body;
+            Body = body;
         }
 
-        public Task<string> Execute()
-        {
-            return Task.FromResult(_body);
-        }
+        public string Body { get; }
     }
 }
