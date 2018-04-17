@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using EsiNet;
 using EsiNet.AspNetCore;
 using EsiNet.Caching;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Xunit;
 using Xunit.Abstractions;
@@ -83,9 +85,10 @@ namespace Tests
 
         private static IEsiFragmentCache CreateCache()
         {
-            return new MemoryEsiFragmentCache(
-                new MemoryCache(
-                    new MemoryCacheOptions()));
+            return new DistributedEsiFragmentCache(
+                new MemoryDistributedCache(
+                    new OptionsWrapper<MemoryDistributedCacheOptions>(
+                        new MemoryDistributedCacheOptions())));
         }
 
         private static EsiBodyParser CreateParser()

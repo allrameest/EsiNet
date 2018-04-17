@@ -2,7 +2,7 @@
 using System.Net.Http;
 using EsiNet.Caching;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EsiNet.AspNetCore
@@ -13,7 +13,8 @@ namespace EsiNet.AspNetCore
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
-            services.AddSingleton<IEsiFragmentCache>(sp => new MemoryEsiFragmentCache(sp.GetService<IMemoryCache>()));
+            services.AddSingleton<IEsiFragmentCache>(sp =>
+                new DistributedEsiFragmentCache(sp.GetService<IDistributedCache>()));
             services.AddSingleton(sp => EsiParserFactory.Create());
             services.AddSingleton(sp =>
             {

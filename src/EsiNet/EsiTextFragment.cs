@@ -1,5 +1,8 @@
-﻿namespace EsiNet
+﻿using System;
+
+namespace EsiNet
 {
+    [Serializable]
     public class EsiTextFragment : IEsiFragment
     {
         public EsiTextFragment(string body)
