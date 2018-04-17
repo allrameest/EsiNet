@@ -5,11 +5,11 @@ using Microsoft.Extensions.Caching.Memory;
 
 namespace EsiNet
 {
-    public class EsiFragmentCache
+    public class MemoryEsiFragmentCache : IEsiFragmentCache
     {
         private readonly IMemoryCache _cache;
 
-        public EsiFragmentCache(IMemoryCache cache)
+        public MemoryEsiFragmentCache(IMemoryCache cache)
         {
             _cache = cache;
         }

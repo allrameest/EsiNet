@@ -6,7 +6,7 @@ namespace EsiNet.AspNetCore
 {
     public static class EsiExecutorFactory
     {
-        public static EsiFragmentExecutor Create(EsiFragmentCache cache, IHttpLoader httpLoader, EsiBodyParser parser)
+        public static EsiFragmentExecutor Create(IEsiFragmentCache cache, IHttpLoader httpLoader, EsiBodyParser parser)
         {
             var executors = new Dictionary<Type, Func<IEsiFragment, Task<string>>>();
 

@@ -80,9 +80,9 @@ namespace Tests
             });
         }
 
-        private static EsiFragmentCache CreateCache()
+        private static IEsiFragmentCache CreateCache()
         {
-            return new EsiFragmentCache(
+            return new MemoryEsiFragmentCache(
                 new MemoryCache(
                     new MemoryCacheOptions()));
         }
@@ -93,7 +93,7 @@ namespace Tests
         }
 
         private static EsiFragmentExecutor CreateExecutor(
-            EsiFragmentCache cache,
+            IEsiFragmentCache cache,
             Dictionary<string, (string, int?)> urlContentMap,
             EsiBodyParser parser)
         {
