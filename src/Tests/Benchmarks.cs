@@ -158,7 +158,8 @@ namespace Tests
         {
             var (content, maxAge) = _urlContentMap[url];
             var response = new HttpResponseMessage(HttpStatusCode.OK) {Content = new StringContent(content)};
-            response.Headers.Add(HeaderNames.CacheControl, maxAge.HasValue ? $"public,max-age={maxAge.Value}" : "private");
+            var cacheHeader = maxAge.HasValue ? $"public,max-age={maxAge.Value}" : "private";
+            response.Headers.Add(HeaderNames.CacheControl, cacheHeader);
 
             return Task.FromResult(response);
         }
