@@ -4,21 +4,17 @@ namespace EsiNet.AspNetCore
 {
     public static class EsiParserFactory
     {
-        public static EsiBodyParser Create(EsiFragmentCache cache, IHttpLoader httpLoader)
+        public static EsiBodyParser Create()
         {
-            var parsers = new Dictionary<string, IEsiParser>();
+            var parsers = new Dictionary<string, IEsiParser>
+            {
+                ["esi:include"] = new EsiIncludeParser(),
+                ["esi:remove"] = new EsiIgnoreParser(),
+                ["esi:comment"] = new EsiIgnoreParser(),
+                ["esi:text"] = new EsiTextParser()
+            };
 
-            var bodyParser = new EsiBodyParser(parsers);
-            var includeParser = new EsiIncludeParser(cache, bodyParser, httpLoader);
-            var ignoreParser = new EsiIgnoreParser();
-            var textParser = new EsiTextParser();
-
-            parsers.Add("esi:include", includeParser);
-            parsers.Add("esi:remove", ignoreParser);
-            parsers.Add("esi:comment", ignoreParser);
-            parsers.Add("esi:text", textParser);
-
-            return bodyParser;
+            return new EsiBodyParser(parsers);
         }
     }
 }

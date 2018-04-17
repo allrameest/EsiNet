@@ -10,12 +10,18 @@ namespace EsiNet.AspNetCore
     {
         private readonly RequestDelegate _next;
         private readonly EsiBodyParser _parser;
+        private readonly EsiFragmentExecutor _executor;
         private readonly EsiFragmentCache _cache;
 
-        public EsiMiddleware(RequestDelegate next, EsiBodyParser parser, EsiFragmentCache cache)
+        public EsiMiddleware(
+            RequestDelegate next,
+            EsiBodyParser parser,
+            EsiFragmentExecutor executor,
+            EsiFragmentCache cache)
         {
             _next = next;
             _parser = parser;
+            _executor = executor;
             _cache = cache;
         }
 
@@ -53,7 +59,7 @@ namespace EsiNet.AspNetCore
                 return Task.FromResult(result);
             });
 
-            var content = await esiFragment.Execute();
+            var content = await _executor.Execute(esiFragment);
             await context.Response.WriteAsync(content);
         }
     }

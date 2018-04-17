@@ -13,12 +13,15 @@ namespace EsiNet.AspNetCore
             if (services == null) throw new ArgumentNullException(nameof(services));
 
             services.AddSingleton(sp => new EsiFragmentCache(sp.GetService<IMemoryCache>()));
+            services.AddSingleton(sp => EsiParserFactory.Create());
             services.AddSingleton(sp =>
             {
                 var cache = sp.GetService<EsiFragmentCache>();
+                var parser = sp.GetService<EsiBodyParser>();
                 var httpClient = new HttpClient();
                 var httpLoader = new HttpLoader(httpClient);
-                return EsiParserFactory.Create(cache, httpLoader);
+
+                return EsiExecutorFactory.Create(cache, httpLoader, parser);
             });
 
             return services;

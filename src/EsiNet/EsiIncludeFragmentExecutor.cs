@@ -1,0 +1,42 @@
+﻿using System.Net.Http.Headers;
+using System.Threading.Tasks;
+
+namespace EsiNet
+{
+    public class EsiIncludeFragmentExecutor
+    {
+        private readonly EsiFragmentCache _cache;
+        private readonly IHttpLoader _httpLoader;
+        private readonly EsiBodyParser _esiBodyParser;
+        private readonly EsiFragmentExecutor _fragmentExecutor;
+
+        public EsiIncludeFragmentExecutor(
+            EsiFragmentCache cache,
+            IHttpLoader httpLoader,
+            EsiBodyParser esiBodyParser,
+            EsiFragmentExecutor fragmentExecutor)
+        {
+            _cache = cache;
+            _httpLoader = httpLoader;
+            _esiBodyParser = esiBodyParser;
+            _fragmentExecutor = fragmentExecutor;
+        }
+
+        public async Task<string> Execute(EsiIncludeFragment fragment)
+        {
+            var remoteFragment = await _cache.GetOrAddWithHeader(fragment.Url, () => RequestAndParse(fragment.Url));
+            return await _fragmentExecutor.Execute(remoteFragment);
+        }
+
+        private async Task<(IEsiFragment, CacheControlHeaderValue)> RequestAndParse(string url)
+        {
+            var response = await _httpLoader.Get(url);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            var fragment = _esiBodyParser.Parse(content);
+
+            return (fragment, response.Headers.CacheControl);
+        }
+    }
+}
