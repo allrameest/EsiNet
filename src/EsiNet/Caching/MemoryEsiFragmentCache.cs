@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 
-namespace EsiNet
+namespace EsiNet.Caching
 {
     public class MemoryEsiFragmentCache : IEsiFragmentCache
     {

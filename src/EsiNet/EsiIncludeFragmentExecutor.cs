@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using EsiNet.Caching;
 
 namespace EsiNet
 {
