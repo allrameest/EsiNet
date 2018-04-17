@@ -55,7 +55,10 @@ namespace EsiNet
             foreach (Match match in matches)
             {
                 var beforeContent = body.Substring(lastIndex, match.Index - lastIndex);
-                fragments.Add(new EsiTextFragment(beforeContent));
+                if (beforeContent.Length > 0)
+                {
+                    fragments.Add(new EsiTextFragment(beforeContent));
+                }
 
                 var fragment = ParseTag(match);
                 fragments.Add(fragment);
@@ -64,7 +67,10 @@ namespace EsiNet
             }
 
             var lastContent = body.Substring(lastIndex, body.Length - lastIndex);
-            fragments.Add(new EsiTextFragment(lastContent));
+            if (lastContent.Length > 0)
+            {
+                fragments.Add(new EsiTextFragment(lastContent));
+            }
 
             return new EsiCompositeFragment(fragments);
         }
