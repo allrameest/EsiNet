@@ -4,7 +4,7 @@ namespace EsiNet.AspNetCore
 {
     public static class EsiParserFactory
     {
-        public static EsiBodyParser Create(EsiFragmentCache cache, HttpLoader httpLoader)
+        public static EsiBodyParser Create(EsiFragmentCache cache, IHttpLoader httpLoader)
         {
             var parsers = new Dictionary<string, IEsiParser>();
 
