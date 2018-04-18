@@ -88,7 +88,8 @@ namespace Tests
             return new DistributedEsiFragmentCache(
                 new MemoryDistributedCache(
                     new OptionsWrapper<MemoryDistributedCacheOptions>(
-                        new MemoryDistributedCacheOptions())));
+                        new MemoryDistributedCacheOptions())),
+                Serializer.Wire<IEsiFragment>());
         }
 
         private static EsiBodyParser CreateParser()

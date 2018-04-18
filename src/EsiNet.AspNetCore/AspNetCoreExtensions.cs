@@ -14,7 +14,9 @@ namespace EsiNet.AspNetCore
             if (services == null) throw new ArgumentNullException(nameof(services));
 
             services.AddSingleton<IEsiFragmentCache>(sp =>
-                new DistributedEsiFragmentCache(sp.GetService<IDistributedCache>()));
+                new DistributedEsiFragmentCache(
+                    sp.GetService<IDistributedCache>(),
+                    Serializer.Wire<IEsiFragment>().GZip()));
             services.AddSingleton(sp => EsiParserFactory.Create());
             services.AddSingleton(sp =>
             {
