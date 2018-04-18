@@ -6,15 +6,17 @@ namespace EsiNet.AspNetCore
     {
         public static EsiBodyParser Create()
         {
-            var parsers = new Dictionary<string, IEsiParser>
-            {
-                ["esi:include"] = new EsiIncludeParser(),
-                ["esi:remove"] = new EsiIgnoreParser(),
-                ["esi:comment"] = new EsiIgnoreParser(),
-                ["esi:text"] = new EsiTextParser()
-            };
+            var parsers = new Dictionary<string, IEsiParser>();
 
-            return new EsiBodyParser(parsers);
+            var bodyParser = new EsiBodyParser(parsers);
+
+            parsers["esi:include"] = new EsiIncludeParser();
+            parsers["esi:remove"] = new EsiIgnoreParser();
+            parsers["esi:comment"] = new EsiIgnoreParser();
+            parsers["esi:text"] = new EsiTextParser();
+            parsers["esi:try"] = new EsiTryParser(bodyParser);
+
+            return bodyParser;
         }
     }
 }

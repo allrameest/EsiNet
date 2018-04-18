@@ -16,11 +16,13 @@ namespace EsiNet.AspNetCore
             var ignoreExecutor = new EsiIgnoreFragmentExecutor();
             var textExecutor = new EsiTextFragmentExecutor();
             var compositeExecutor = new EsiCompositeFragmentExecutor(fragmentExecutor);
+            var tryExecutor = new EsiTryFragmentExecutor(fragmentExecutor);
 
             executors.Add(typeof(EsiIncludeFragment), f => includeExecutor.Execute((EsiIncludeFragment) f));
             executors.Add(typeof(EsiIgnoreFragment), f => ignoreExecutor.Execute((EsiIgnoreFragment) f));
             executors.Add(typeof(EsiTextFragment), f => textExecutor.Execute((EsiTextFragment) f));
             executors.Add(typeof(EsiCompositeFragment), f => compositeExecutor.Execute((EsiCompositeFragment) f));
+            executors.Add(typeof(EsiTryFragment), f => tryExecutor.Execute((EsiTryFragment) f));
 
             return fragmentExecutor;
         }
