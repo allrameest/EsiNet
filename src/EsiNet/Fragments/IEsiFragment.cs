@@ -1,4 +1,4 @@
-﻿namespace EsiNet
+﻿namespace EsiNet.Fragments
 {
     public interface IEsiFragment
     {

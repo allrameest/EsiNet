@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 
-namespace EsiNet
+namespace EsiNet.Fragments
 {
     public class EsiCompositeFragmentExecutor
     {

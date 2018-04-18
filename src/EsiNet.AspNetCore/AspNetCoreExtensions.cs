@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Net.Http;
 using EsiNet.Caching;
+using EsiNet.Fragments;
+using EsiNet.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +19,9 @@ namespace EsiNet.AspNetCore
                 new DistributedEsiFragmentCache(
                     sp.GetService<IDistributedCache>(),
                     Serializer.Wire<IEsiFragment>().GZip()));
+
             services.AddSingleton(sp => EsiParserFactory.Create());
+
             services.AddSingleton(sp =>
             {
                 var cache = sp.GetService<IEsiFragmentCache>();

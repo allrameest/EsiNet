@@ -1,8 +1,9 @@
 ﻿using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EsiNet.Caching;
+using EsiNet.Http;
 
-namespace EsiNet
+namespace EsiNet.Fragments
 {
     public class EsiIncludeFragmentExecutor
     {

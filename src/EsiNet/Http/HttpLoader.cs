@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace EsiNet
+namespace EsiNet.Http
 {
     public class HttpLoader : IHttpLoader
     {

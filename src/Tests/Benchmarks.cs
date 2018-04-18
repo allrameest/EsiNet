@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using EsiNet;
 using EsiNet.AspNetCore;
 using EsiNet.Caching;
+using EsiNet.Fragments;
+using EsiNet.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using EsiNet.Caching;
+using EsiNet.Fragments;
+using EsiNet.Http;
 
 namespace EsiNet.AspNetCore
 {

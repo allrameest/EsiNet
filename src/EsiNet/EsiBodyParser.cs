@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using EsiNet.Fragments;
 
 namespace EsiNet
 {
@@ -34,9 +35,9 @@ namespace EsiNet
 ",
             RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
-        private readonly IReadOnlyDictionary<string, IEsiParser> _parsers;
+        private readonly IReadOnlyDictionary<string, IEsiFragmentParser> _parsers;
 
-        public EsiBodyParser(IReadOnlyDictionary<string, IEsiParser> parsers)
+        public EsiBodyParser(IReadOnlyDictionary<string, IEsiFragmentParser> parsers)
         {
             _parsers = parsers;
         }
