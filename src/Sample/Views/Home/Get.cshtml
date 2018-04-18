@@ -12,5 +12,15 @@
 
 <esi:include src="http://localhost:57780/footer.html" />
 
+<esi:try>
+    <esi:attempt>
+        ATTEMPT
+        <esi:include src="http://localhost:57780/fail.html" />
+    </esi:attempt>
+    <esi:except>
+        EXCEPT
+    </esi:except>
+</esi:try>
+
 </body>
 </html>
