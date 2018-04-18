@@ -6,5 +6,10 @@
         {
             return new BinarySerializer<T>();
         }
+
+        public static ISerializer<T> Wire<T>()
+        {
+            return new WireSerializer<T>();
+        }
     }
 }

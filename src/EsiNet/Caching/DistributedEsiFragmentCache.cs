@@ -10,9 +10,9 @@ namespace EsiNet.Caching
         private readonly IDistributedCache _cache;
         private readonly ISerializer<IEsiFragment> _serializer;
 
-        public DistributedEsiFragmentCache(IDistributedCache cache)
+        public DistributedEsiFragmentCache(IDistributedCache cache, ISerializer<IEsiFragment> serializer)
         {
-            _serializer = Serializer.Binary<IEsiFragment>().GZip();
+            _serializer = serializer;
             _cache = cache;
         }
 
