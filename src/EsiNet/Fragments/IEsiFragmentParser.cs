@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace EsiNet
+namespace EsiNet.Fragments
 {
-    public interface IEsiParser
+    public interface IEsiFragmentParser
     {
         IEsiFragment Parse(IReadOnlyDictionary<string, string> attributes, string body);
     }

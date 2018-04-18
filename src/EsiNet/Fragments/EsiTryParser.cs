@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace EsiNet
+namespace EsiNet.Fragments
 {
-    public class EsiTryParser : IEsiParser
+    public class EsiTryParser : IEsiFragmentParser
     {
         private readonly EsiBodyParser _bodyParser;
 

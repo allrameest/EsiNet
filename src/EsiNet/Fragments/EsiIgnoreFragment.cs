@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace EsiNet
+namespace EsiNet.Fragments
 {
     [Serializable]
     public class EsiIgnoreFragment : IEsiFragment

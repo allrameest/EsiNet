@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace EsiNet
+namespace EsiNet.Fragments
 {
     public class EsiIgnoreFragmentExecutor
     {

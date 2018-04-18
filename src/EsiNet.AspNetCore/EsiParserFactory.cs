@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EsiNet.Fragments;
 
 namespace EsiNet.AspNetCore
 {
@@ -6,7 +7,7 @@ namespace EsiNet.AspNetCore
     {
         public static EsiBodyParser Create()
         {
-            var parsers = new Dictionary<string, IEsiParser>();
+            var parsers = new Dictionary<string, IEsiFragmentParser>();
 
             var bodyParser = new EsiBodyParser(parsers);
 
