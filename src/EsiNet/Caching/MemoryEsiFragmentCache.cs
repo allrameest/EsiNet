@@ -15,7 +15,7 @@ namespace EsiNet.Caching
             _cache = cache;
         }
 
-        public async Task<IEsiFragment> GetOrAddWithHeader(string url,
+        public async Task<IEsiFragment> GetOrAdd(string url,
             Func<Task<(IEsiFragment, CacheControlHeaderValue)>> valueFactory)
         {
             if (_cache.TryGetValue<IEsiFragment>(url, out var cachedFragment))
@@ -32,21 +32,6 @@ namespace EsiNet.Caching
 
             var absoluteExpiration = DateTimeOffset.UtcNow.Add(maxAge.Value);
             _cache.Set(url, fragment, absoluteExpiration);
-
-            return fragment;
-        }
-
-        public async Task<IEsiFragment> GetOrAdd(string url,
-            Func<Task<(IEsiFragment, TimeSpan)>> valueFactory)
-        {
-            if (_cache.TryGetValue<IEsiFragment>(url, out var cachedFragment))
-            {
-                return cachedFragment;
-            }
-
-            var (fragment, cacheExpiration) = await valueFactory();
-
-            _cache.Set(url, fragment, cacheExpiration);
 
             return fragment;
         }
