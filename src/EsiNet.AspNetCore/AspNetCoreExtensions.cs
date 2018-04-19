@@ -5,6 +5,7 @@ using EsiNet.Fragments;
 using EsiNet.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EsiNet.AspNetCore
@@ -16,7 +17,8 @@ namespace EsiNet.AspNetCore
             if (services == null) throw new ArgumentNullException(nameof(services));
 
             services.AddSingleton<IEsiFragmentCache>(sp =>
-                new DistributedEsiFragmentCache(
+                new TwoStageEsiFragmentCache(
+                    sp.GetService<IMemoryCache>(),
                     sp.GetService<IDistributedCache>(),
                     Serializer.Wire<IEsiFragment>().GZip()));
 

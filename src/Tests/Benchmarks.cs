@@ -87,7 +87,9 @@ namespace Tests
 
         private static IEsiFragmentCache CreateCache()
         {
-            return new DistributedEsiFragmentCache(
+            return new TwoStageEsiFragmentCache(
+                new MemoryCache(
+                    new MemoryCacheOptions()), 
                 new MemoryDistributedCache(
                     new OptionsWrapper<MemoryDistributedCacheOptions>(
                         new MemoryDistributedCacheOptions())),
