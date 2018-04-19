@@ -105,7 +105,8 @@ namespace Tests
             return EsiExecutorFactory.Create(
                 cache,
                 new FakeStaticHttpLoader(urlContentMap),
-                parser);
+                parser,
+                (level, exception, message) => {});
         }
 
         private async Task<T> Benchmark<T>(Func<Task<T>> action, int count = 1000)

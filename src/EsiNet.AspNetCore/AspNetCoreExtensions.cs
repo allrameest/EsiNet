@@ -3,10 +3,13 @@ using System.Net.Http;
 using EsiNet.Caching;
 using EsiNet.Fragments;
 using EsiNet.Http;
+using EsiNet.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 namespace EsiNet.AspNetCore
 {
@@ -22,16 +25,19 @@ namespace EsiNet.AspNetCore
                     sp.GetService<IDistributedCache>(),
                     Serializer.Wire<IEsiFragment>().GZip()));
 
+            services.AddSingleton(sp => CreateLog(sp.GetService<ILoggerFactory>().CreateLogger("EsiNet")));
+
             services.AddSingleton(sp => EsiParserFactory.Create());
 
             services.AddSingleton(sp =>
             {
                 var cache = sp.GetService<IEsiFragmentCache>();
                 var parser = sp.GetService<EsiBodyParser>();
+                var log = sp.GetService<Log>();
                 var httpClient = new HttpClient();
                 var httpLoader = new HttpLoader(httpClient);
 
-                return EsiExecutorFactory.Create(cache, httpLoader, parser);
+                return EsiExecutorFactory.Create(cache, httpLoader, parser, log);
             });
 
             return services;
@@ -41,6 +47,32 @@ namespace EsiNet.AspNetCore
         {
             app.UseMiddleware<EsiMiddleware>();
             return app;
+        }
+
+        private static Log CreateLog(ILogger logger)
+        {
+            return (esiLevel, exception, message) =>
+            {
+                var msLevel = MapLevel(esiLevel);
+                logger.Log(msLevel, 0, (object) null, exception, (o, ex) => message());
+            };
+        }
+
+        private static LogLevel MapLevel(Logging.LogLevel esiLevel)
+        {
+            switch (esiLevel)
+            {
+                case Logging.LogLevel.Debug:
+                    return LogLevel.Debug;
+                case Logging.LogLevel.Information:
+                    return LogLevel.Information;
+                case Logging.LogLevel.Warning:
+                    return LogLevel.Warning;
+                case Logging.LogLevel.Error:
+                    return LogLevel.Error;
+                default:
+                    throw new NotSupportedException($"Unknown level '{esiLevel}'.");
+            }
         }
     }
 }

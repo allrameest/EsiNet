@@ -4,12 +4,14 @@ using System.Threading.Tasks;
 using EsiNet.Caching;
 using EsiNet.Fragments;
 using EsiNet.Http;
+using EsiNet.Logging;
 
 namespace EsiNet.AspNetCore
 {
     public static class EsiExecutorFactory
     {
-        public static EsiFragmentExecutor Create(IEsiFragmentCache cache, IHttpLoader httpLoader, EsiBodyParser parser)
+        public static EsiFragmentExecutor Create(
+            IEsiFragmentCache cache, IHttpLoader httpLoader, EsiBodyParser parser, Log log)
         {
             var executors = new Dictionary<Type, Func<IEsiFragment, Task<string>>>();
 
@@ -18,7 +20,7 @@ namespace EsiNet.AspNetCore
             var ignoreExecutor = new EsiIgnoreFragmentExecutor();
             var textExecutor = new EsiTextFragmentExecutor();
             var compositeExecutor = new EsiCompositeFragmentExecutor(fragmentExecutor);
-            var tryExecutor = new EsiTryFragmentExecutor(fragmentExecutor);
+            var tryExecutor = new EsiTryFragmentExecutor(fragmentExecutor, log);
 
             executors[typeof(EsiIncludeFragment)] = f => includeExecutor.Execute((EsiIncludeFragment) f);
             executors[typeof(EsiIgnoreFragment)] = f => ignoreExecutor.Execute((EsiIgnoreFragment) f);
