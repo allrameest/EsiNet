@@ -15,6 +15,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using Xunit;
 using Xunit.Abstractions;
+using CacheControlHeaderValue = System.Net.Http.Headers.CacheControlHeaderValue;
 
 namespace Tests
 {
@@ -64,22 +65,17 @@ namespace Tests
             return await Benchmark(async () =>
             {
                 var (rootContent, rootCache) = urlContentMap["/"];
+                var cacheControl = rootCache.HasValue
+                    ? CacheControlHeaderValue.Parse($"public,max-age={rootCache.Value}")
+                    : null;
 
-                IEsiFragment fragment;
-                if (rootCache.HasValue)
-                {
-                    fragment = await cache.GetOrAdd("/",
-                        () =>
-                        {
-                            var esiFragment = parser.Parse(rootContent);
-                            var result = (esiFragment, TimeSpan.FromSeconds(rootCache.GetValueOrDefault()));
-                            return Task.FromResult(result);
-                        });
-                }
-                else
-                {
-                    fragment = parser.Parse(rootContent);
-                }
+                var fragment = await cache.GetOrAdd("/",
+                    () =>
+                    {
+                        var esiFragment = parser.Parse(rootContent);
+                        var result = (esiFragment, cacheControl);
+                        return Task.FromResult(result);
+                    });
 
                 return await executor.Execute(fragment);
             });

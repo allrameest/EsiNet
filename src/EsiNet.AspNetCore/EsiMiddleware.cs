@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EsiNet.Caching;
 using Microsoft.AspNetCore.Http;
@@ -53,10 +54,13 @@ namespace EsiNet.AspNetCore
 
             context.Response.Body = originBody;
 
+            CacheControlHeaderValue.TryParse(
+                context.Response.Headers["Cache-Control"], out var cacheControl);
+
             var esiFragment = await _cache.GetOrAdd(context.Request.GetDisplayUrl(), () =>
             {
                 var fragment = _parser.Parse(body);
-                var result = (fragment, TimeSpan.FromMinutes(5));
+                var result = (fragment, cacheControl);
                 return Task.FromResult(result);
             });
 

@@ -17,7 +17,7 @@ namespace EsiNet.Caching
             _cache = cache;
         }
 
-        public async Task<IEsiFragment> GetOrAddWithHeader(string url,
+        public async Task<IEsiFragment> GetOrAdd(string url,
             Func<Task<(IEsiFragment, CacheControlHeaderValue)>> valueFactory)
         {
             var cachedFragment = await _cache.GetAsync(url);
@@ -34,22 +34,6 @@ namespace EsiNet.Caching
             }
 
             await SetCache(url, maxAge.Value, fragment);
-
-            return fragment;
-        }
-
-        public async Task<IEsiFragment> GetOrAdd(string url,
-            Func<Task<(IEsiFragment, TimeSpan)>> valueFactory)
-        {
-            var cachedFragment = await _cache.GetAsync(url);
-            if (cachedFragment != null)
-            {
-                return _serializer.DeserializeBytes(cachedFragment);
-            }
-
-            var (fragment, cacheExpiration) = await valueFactory();
-
-            await SetCache(url, cacheExpiration, fragment);
 
             return fragment;
         }
