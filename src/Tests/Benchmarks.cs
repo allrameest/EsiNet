@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using EsiNet;
 using EsiNet.AspNetCore;
@@ -85,7 +87,7 @@ namespace Tests
         {
             return new TwoStageEsiFragmentCache(
                 new MemoryCache(
-                    new MemoryCacheOptions()), 
+                    new MemoryCacheOptions()),
                 new MemoryDistributedCache(
                     new OptionsWrapper<MemoryDistributedCacheOptions>(
                         new MemoryDistributedCacheOptions())),
@@ -106,7 +108,7 @@ namespace Tests
                 cache,
                 new FakeStaticHttpLoader(urlContentMap),
                 parser,
-                (level, exception, message) => {});
+                (level, exception, message) => { }, NullPipeline);
         }
 
         private async Task<T> Benchmark<T>(Func<Task<T>> action, int count = 1000)
@@ -119,26 +121,28 @@ namespace Tests
             {
                 await action();
             }
+
             sw.Stop();
             _output.WriteLine($"{Math.Round(sw.Elapsed.TotalMilliseconds, 3)} ms");
 
             return result;
         }
 
-        private static Dictionary<string, (string, int?)> Create3LevelsOfUrls(int level1Count, int level2Count, int level3Count, int? maxAge = 60)
+        private static Dictionary<string, (string, int?)> Create3LevelsOfUrls(int level1Count, int level2Count,
+            int level3Count, int? maxAge = 60)
         {
             var urlContentMap = new Dictionary<string, (string, int?)>();
 
             var root = new List<string>();
-            for (int i = 0; i < level1Count; i++)
+            for (var i = 0; i < level1Count; i++)
             {
                 var lvl1 = new List<string>();
 
-                for (int j = 0; j < level2Count; j++)
+                for (var j = 0; j < level2Count; j++)
                 {
                     var lvl2 = new List<string>();
 
-                    for (int k = 0; k < level3Count; k++)
+                    for (var k = 0; k < level3Count; k++)
                     {
                         var lvl3Url = $"/{i}/{j}/{k}";
                         lvl2.Add($@"<esi:include src=""{lvl3Url}""/>");
@@ -157,6 +161,19 @@ namespace Tests
 
             urlContentMap["/"] = (string.Join("-----", root), maxAge);
             return urlContentMap;
+        }
+
+        private static object NullPipeline(Type type)
+        {
+            return typeof(Benchmarks)
+                .GetMethod(nameof(NullPipelineImpl), BindingFlags.NonPublic | BindingFlags.Static)
+                .MakeGenericMethod(type.GenericTypeArguments.Single())
+                .Invoke(null, null);
+        }
+
+        private static object NullPipelineImpl<T>()
+        {
+            return new T[] { };
         }
     }
 

@@ -1,4 +1,7 @@
-﻿using EsiNet.AspNetCore;
+﻿using EsiNet;
+using EsiNet.AspNetCore;
+using EsiNet.Fragments;
+using EsiNet.Pipeline;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +14,7 @@ namespace Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services
+                .AddSingleton<IFragmentExecutePipeline<EsiIncludeFragment>, BracketPipeline>()
                 .AddEsiNet()
                 .AddMvc();
         }
@@ -21,7 +25,6 @@ namespace Sample
             {
                 app.UseDeveloperExceptionPage();
             }
-
 
             app.UseStaticFiles(new StaticFileOptions
             {
