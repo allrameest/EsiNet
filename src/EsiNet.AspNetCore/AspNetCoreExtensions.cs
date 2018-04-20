@@ -37,7 +37,7 @@ namespace EsiNet.AspNetCore
                 var httpClient = new HttpClient();
                 var httpLoader = new HttpLoader(httpClient);
 
-                return EsiExecutorFactory.Create(cache, httpLoader, parser, log);
+                return EsiExecutorFactory.Create(cache, httpLoader, parser, log, sp.GetService);
             });
 
             return services;
