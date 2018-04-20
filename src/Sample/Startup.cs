@@ -11,7 +11,7 @@ namespace Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddEsi()
+                .AddEsiNet()
                 .AddMvc();
         }
 
@@ -34,8 +34,9 @@ namespace Sample
                 }
             });
 
-            app.UseEsi();
-            app.UseMvc();
+            app
+                .UseEsiNet()
+                .UseMvc();
         }
     }
 }

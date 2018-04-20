@@ -15,7 +15,7 @@ namespace EsiNet.AspNetCore
 {
     public static class AspNetCoreExtensions
     {
-        public static IServiceCollection AddEsi(this IServiceCollection services)
+        public static IServiceCollection AddEsiNet(this IServiceCollection services)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
@@ -43,7 +43,7 @@ namespace EsiNet.AspNetCore
             return services;
         }
 
-        public static IApplicationBuilder UseEsi(this IApplicationBuilder app)
+        public static IApplicationBuilder UseEsiNet(this IApplicationBuilder app)
         {
             app.UseMiddleware<EsiMiddleware>();
             return app;
