@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EsiNet.Caching;
+using EsiNet.Fragments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 
@@ -36,7 +37,26 @@ namespace EsiNet.AspNetCore
             }
 
             var originBody = context.Response.Body;
+  
 
+            var esiFragment = await _cache.GetOrAdd(context.Request.GetDisplayUrl(), async () =>
+            {
+                var body = await InvokeNext(context);
+                var fragment = _parser.Parse(body);
+
+                CacheControlHeaderValue.TryParse(
+                    context.Response.Headers["Cache-Control"], out var cacheControl);
+                return (fragment, cacheControl);
+            });
+
+            context.Response.Body = originBody;
+
+            var content = await _executor.Execute(esiFragment);
+            await context.Response.WriteAsync(content);
+        }
+
+        private async Task<string> InvokeNext(HttpContext context)
+        {
             string body;
             using (var newBody = new MemoryStream())
             {
@@ -52,20 +72,7 @@ namespace EsiNet.AspNetCore
                 }
             }
 
-            context.Response.Body = originBody;
-
-            CacheControlHeaderValue.TryParse(
-                context.Response.Headers["Cache-Control"], out var cacheControl);
-
-            var esiFragment = await _cache.GetOrAdd(context.Request.GetDisplayUrl(), () =>
-            {
-                var fragment = _parser.Parse(body);
-                var result = (fragment, cacheControl);
-                return Task.FromResult(result);
-            });
-
-            var content = await _executor.Execute(esiFragment);
-            await context.Response.WriteAsync(content);
+            return body;
         }
     }
 }
