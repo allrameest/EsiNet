@@ -44,6 +44,13 @@ namespace EsiNet
 
         public IEsiFragment Parse(string body)
         {
+            if (body == null) throw new ArgumentNullException(nameof(body));
+
+            if (body.Length == 0)
+            {
+                return new EsiIgnoreFragment();
+            }
+
             var matches = EsiTagRegex.Matches(body);
             if (matches.Count == 0)
             {
