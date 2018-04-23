@@ -2,7 +2,7 @@
 
 namespace EsiNet.Pipeline
 {
-    public static class PipelineServiceFactory
+    public static class PipelineResolverFactory
     {
         public static IPipelineResolver Create(Type fragmentType)
         {

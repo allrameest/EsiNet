@@ -43,8 +43,8 @@ namespace EsiNet
 
         private IReadOnlyCollection<PipelineDelegate> GetPipelineDelegates(Type fragmentType)
         {
-            var pipelineService = PipelineServiceFactory.Create(fragmentType);
-            return pipelineService.GetPipelineDelegates(_serviceFactory);
+            var pipelineResolver = PipelineResolverFactory.Create(fragmentType);
+            return pipelineResolver.GetPipelineDelegates(_serviceFactory);
         }
     }
 }
