@@ -73,6 +73,11 @@ namespace EsiNet
                 fragments.Add(new EsiTextFragment(lastContent));
             }
 
+            if (fragments.Count == 1)
+            {
+                return fragments.Single();
+            }
+
             return new EsiCompositeFragment(fragments);
         }
 
