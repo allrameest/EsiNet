@@ -4,6 +4,6 @@ namespace EsiNet.Pipeline
 {
     public interface IPipelineResolver
     {
-        IReadOnlyCollection<PipelineDelegate> GetPipelineDelegates(ServiceFactory serviceFactory);
+        IReadOnlyCollection<ExecutePipelineDelegate> GetExecutePipelineDelegates(ServiceFactory serviceFactory);
     }
 }
