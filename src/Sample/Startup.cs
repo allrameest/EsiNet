@@ -1,5 +1,4 @@
-﻿using EsiNet;
-using EsiNet.AspNetCore;
+﻿using EsiNet.AspNetCore;
 using EsiNet.Fragments;
 using EsiNet.Pipeline;
 using Microsoft.AspNetCore.Builder;
@@ -15,6 +14,7 @@ namespace Sample
         {
             services
                 .AddSingleton<IFragmentExecutePipeline<EsiIncludeFragment>, BracketPipeline>()
+                .AddSingleton<IFragmentParsePipeline, IncludeUrlPipeline>()
                 .AddEsiNet()
                 .AddMvc();
         }
