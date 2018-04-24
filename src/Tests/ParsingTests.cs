@@ -89,7 +89,7 @@ namespace Tests
 
         private static IEsiFragment Parse(string body)
         {
-            var parser = EsiParserFactory.Create();
+            var parser = EsiParserFactory.Create(NullPipelineFactory.Create);
             return parser.Parse(body);
         }
     }
