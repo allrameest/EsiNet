@@ -35,11 +35,11 @@ namespace EsiNet
 ",
             RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
-        private readonly IReadOnlyDictionary<string, IEsiFragmentParser> _parsers;
+        private readonly EsiFragmentParser _fragmentParser;
 
-        public EsiBodyParser(IReadOnlyDictionary<string, IEsiFragmentParser> parsers)
+        public EsiBodyParser(EsiFragmentParser fragmentParser)
         {
-            _parsers = parsers;
+            _fragmentParser = fragmentParser;
         }
 
         public IEsiFragment Parse(string body)
@@ -93,10 +93,9 @@ namespace EsiNet
             var tag = match.Groups[TagGroupIndex].Value;
             var attributes = ParseAttributes(match.Groups[AttributesGroupIndex].Value);
             var tagBody = match.Groups[TagBodyIndex].Value;
+            var outerBody = match.Value;
 
-            return _parsers.TryGetValue(tag, out var parser)
-                ? parser.Parse(attributes, tagBody)
-                : new EsiTextFragment(match.Value);
+            return _fragmentParser.Parse(tag, attributes, tagBody, outerBody);
         }
 
         private static IReadOnlyDictionary<string, string> ParseAttributes(string attributesContent)

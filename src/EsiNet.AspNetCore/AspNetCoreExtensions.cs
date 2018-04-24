@@ -27,7 +27,7 @@ namespace EsiNet.AspNetCore
 
             services.AddSingleton(sp => CreateLog(sp.GetService<ILoggerFactory>().CreateLogger("EsiNet")));
 
-            services.AddSingleton(sp => EsiParserFactory.Create());
+            services.AddSingleton(sp => EsiParserFactory.Create(sp.GetService));
 
             services.AddSingleton(sp =>
             {

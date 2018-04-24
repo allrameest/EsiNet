@@ -5,11 +5,12 @@ namespace EsiNet.AspNetCore
 {
     public static class EsiParserFactory
     {
-        public static EsiBodyParser Create()
+        public static EsiBodyParser Create(ServiceFactory serviceFactory)
         {
             var parsers = new Dictionary<string, IEsiFragmentParser>();
 
-            var bodyParser = new EsiBodyParser(parsers);
+            var fragmentParser = new EsiFragmentParser(parsers, serviceFactory);
+            var bodyParser = new EsiBodyParser(fragmentParser);
 
             parsers["esi:include"] = new EsiIncludeParser();
             parsers["esi:remove"] = new EsiIgnoreParser();

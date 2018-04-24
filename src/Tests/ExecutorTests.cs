@@ -69,7 +69,7 @@ namespace Tests
             var executor = EsiExecutorFactory.Create(
                 new NullEsiFragmentCache(),
                 httpLoader,
-                EsiParserFactory.Create(),
+                EsiParserFactory.Create(NullPipelineFactory.Create),
                 log,
                 NullPipelineFactory.Create);
             return await executor.Execute(fragment);

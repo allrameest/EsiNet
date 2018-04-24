@@ -94,7 +94,7 @@ namespace Tests
 
         private static EsiBodyParser CreateParser()
         {
-            return EsiParserFactory.Create();
+            return EsiParserFactory.Create(NullPipelineFactory.Create);
         }
 
         private static EsiFragmentExecutor CreateExecutor(
