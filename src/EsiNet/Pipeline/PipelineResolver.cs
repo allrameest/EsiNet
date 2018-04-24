@@ -8,14 +8,14 @@ namespace EsiNet.Pipeline
     public class PipelineResolver<T> : IPipelineResolver
         where T : IEsiFragment
     {
-        public IReadOnlyCollection<PipelineDelegate> GetPipelineDelegates(
+        public IReadOnlyCollection<ExecutePipelineDelegate> GetExecutePipelineDelegates(
             ServiceFactory serviceFactory)
         {
             var pipelines = serviceFactory.GetInstances<IFragmentExecutePipeline<T>>();
 
             return pipelines
                 .Reverse()
-                .Select(pipeline => new PipelineDelegate((fragment, next) =>
+                .Select(pipeline => new ExecutePipelineDelegate((fragment, next) =>
                 {
                     return pipeline.Handle((T) fragment, TypedNext);
 

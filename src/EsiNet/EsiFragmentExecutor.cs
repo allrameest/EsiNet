@@ -10,8 +10,8 @@ namespace EsiNet
 {
     public class EsiFragmentExecutor
     {
-        private readonly ConcurrentDictionary<Type, IReadOnlyCollection<PipelineDelegate>> _pipelineCache =
-            new ConcurrentDictionary<Type, IReadOnlyCollection<PipelineDelegate>>();
+        private readonly ConcurrentDictionary<Type, IReadOnlyCollection<ExecutePipelineDelegate>> _pipelineCache =
+            new ConcurrentDictionary<Type, IReadOnlyCollection<ExecutePipelineDelegate>>();
         private readonly IReadOnlyDictionary<Type, Func<IEsiFragment, Task<string>>> _executors;
         private readonly ServiceFactory _serviceFactory;
 
@@ -41,10 +41,10 @@ namespace EsiNet
                     (next, pipeline) => async f => await pipeline(f, next))(fragment);
         }
 
-        private IReadOnlyCollection<PipelineDelegate> GetPipelineDelegates(Type fragmentType)
+        private IReadOnlyCollection<ExecutePipelineDelegate> GetPipelineDelegates(Type fragmentType)
         {
             var pipelineResolver = PipelineResolverFactory.Create(fragmentType);
-            return pipelineResolver.GetPipelineDelegates(_serviceFactory);
+            return pipelineResolver.GetExecutePipelineDelegates(_serviceFactory);
         }
     }
 }
