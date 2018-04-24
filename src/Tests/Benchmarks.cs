@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Reflection;
 using System.Threading.Tasks;
 using EsiNet;
 using EsiNet.AspNetCore;
@@ -108,7 +106,7 @@ namespace Tests
                 cache,
                 new FakeStaticHttpLoader(urlContentMap),
                 parser,
-                (level, exception, message) => { }, NullPipeline);
+                (level, exception, message) => { }, NullPipelineFactory.Create);
         }
 
         private async Task<T> Benchmark<T>(Func<Task<T>> action, int count = 1000)
@@ -161,19 +159,6 @@ namespace Tests
 
             urlContentMap["/"] = (string.Join("-----", root), maxAge);
             return urlContentMap;
-        }
-
-        private static object NullPipeline(Type type)
-        {
-            return typeof(Benchmarks)
-                .GetMethod(nameof(NullPipelineImpl), BindingFlags.NonPublic | BindingFlags.Static)
-                .MakeGenericMethod(type.GenericTypeArguments.Single())
-                .Invoke(null, null);
-        }
-
-        private static object NullPipelineImpl<T>()
-        {
-            return new T[] { };
         }
     }
 
