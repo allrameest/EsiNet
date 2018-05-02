@@ -1,10 +1,12 @@
+using System.Text.RegularExpressions;
+
 // ARGUMENTS
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var source = Argument<string>("source", null);
 var apiKey = Argument<string>("apikey", null);
-
+var version = Argument<string>("targetversion", null);
 
 var output = Directory("build");
 var outputNuGet = output + Directory("nuget");
@@ -21,6 +23,16 @@ Task("Clean")
     });
 
 // TASKS
+
+Task("Publish")
+    .IsDependentOn("Run-Tests")
+    .IsDependentOn("Prepare-Release")
+    .IsDependentOn("Publish-NuGet");
+
+Task("Publish-Local")
+    .IsDependentOn("Run-Tests")
+    .IsDependentOn("Update-Version")
+    .IsDependentOn("Package-Nuget");
 
 Task("Restore-Packages")
     .IsDependentOn("Clean")
@@ -82,6 +94,59 @@ Task("Publish-NuGet")
                 Source = source,
                 ApiKey = apiKey
             });
+        }
+    });
+
+Task("Prepare-Release")
+    .IsDependentOn("Update-Version")
+    .Does(() =>
+    {
+        // Add
+        foreach (var file in GetFiles("./src/**/*.csproj"))
+        {
+            Git($"add {file.FullPath}");
+        }
+
+        // Commit
+        Git($"commit -m \"Updated version to {version}\"");
+
+        // Tag
+        Git($"tag \"v{version}\"");
+
+        //Push
+        Git("push");
+
+        Git("push --tags");
+
+        void Git(string command)
+        {
+            StartProcess("git", new ProcessSettings {
+                Arguments = command
+            });
+        }
+    });
+
+Task("Update-Version")
+    .Does(() =>
+    {
+        Information("Setting version to " + version);
+
+        if(string.IsNullOrWhiteSpace(version))
+        {
+            throw new CakeException("No version specified! You need to pass in -targetversion=\"x.y.z\"");
+        }
+
+        foreach(var project in GetFiles("./src/**/EsiNet*.csproj"))
+        {
+            Information("Updating version of " + project.GetFilename().FullPath);
+
+            var content = System.IO.File.ReadAllText(project.FullPath, Encoding.UTF8);
+
+            var projectVersionRegex = new Regex(@"<Version>.+<\/Version>");
+
+            content = projectVersionRegex.Replace(content, $"<Version>{version}</Version>");
+
+            System.IO.File.WriteAllText(project.FullPath, content, Encoding.UTF8);
         }
     });
 
