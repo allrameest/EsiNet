@@ -33,6 +33,11 @@ namespace EsiNet
 
             var pipelineDelegates = _pipelineCache.GetOrAdd(fragmentType, GetPipelineDelegates);
 
+            if (!pipelineDelegates.Any())
+            {
+                return await executor(fragment);
+            }
+
             Task<string> Exec(IEsiFragment f) => executor(f);
 
             return await pipelineDelegates
