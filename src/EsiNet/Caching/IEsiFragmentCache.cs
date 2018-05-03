@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using EsiNet.Fragments;
 
 namespace EsiNet.Caching
 {
     public interface IEsiFragmentCache
     {
-        Task<IEsiFragment> GetOrAdd(string url,
-            Func<Task<(IEsiFragment, CacheControlHeaderValue)>> valueFactory);
+        Task<(bool, T)> TryGet<T>(string key);
+        Task Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow);
     }
 }

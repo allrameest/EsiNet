@@ -2,9 +2,9 @@
 
 namespace EsiNet.Caching
 {
-    public interface ISerializer<T>
+    public interface ISerializer
     {
-        void Serialize(T value, Stream destination);
-        T Deserialize(Stream source);
+        void Serialize<T>(T value, Stream destination);
+        T Deserialize<T>(Stream source);
     }
 }

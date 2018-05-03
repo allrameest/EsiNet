@@ -5,7 +5,7 @@ namespace EsiNet.Caching
 {
     public static class SerializerExtensions
     {
-        public static byte[] SerializeBytes<T>(this ISerializer<T> serializer, T value)
+        public static byte[] SerializeBytes<T>(this ISerializer serializer, T value)
         {
             if (serializer == null) throw new ArgumentNullException(nameof(serializer));
 
@@ -16,19 +16,19 @@ namespace EsiNet.Caching
             }
         }
 
-        public static T DeserializeBytes<T>(this ISerializer<T> serializer, byte[] value)
+        public static T DeserializeBytes<T>(this ISerializer serializer, byte[] value)
         {
             if (serializer == null) throw new ArgumentNullException(nameof(serializer));
 
             using (var stream = new MemoryStream(value))
             {
-                return serializer.Deserialize(stream);
+                return serializer.Deserialize<T>(stream);
             }
         }
 
-        public static ISerializer<T> GZip<T>(this ISerializer<T> innerSerializer)
+        public static ISerializer GZip(this ISerializer innerSerializer)
         {
-            return new GZipSerializerDecorator<T>(innerSerializer);
+            return new GZipSerializerDecorator(innerSerializer);
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using EsiNet.Fragments;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace EsiNet.Caching
@@ -9,43 +7,33 @@ namespace EsiNet.Caching
     public class DistributedEsiFragmentCache : IEsiFragmentCache
     {
         private readonly IDistributedCache _cache;
-        private readonly ISerializer<IEsiFragment> _serializer;
+        private readonly ISerializer _serializer;
 
-        public DistributedEsiFragmentCache(IDistributedCache cache, ISerializer<IEsiFragment> serializer)
+        public DistributedEsiFragmentCache(IDistributedCache cache, ISerializer serializer)
         {
             _serializer = serializer;
             _cache = cache;
         }
 
-        public async Task<IEsiFragment> GetOrAdd(string url,
-            Func<Task<(IEsiFragment, CacheControlHeaderValue)>> valueFactory)
+        public async Task<(bool, T)> TryGet<T>(string key)
         {
-            var cachedFragment = await _cache.GetAsync(url);
-            if (cachedFragment != null)
+            var cachedBytes = await _cache.GetAsync(key);
+            if (cachedBytes != null)
             {
-                return _serializer.DeserializeBytes(cachedFragment);
+                return (true, _serializer.DeserializeBytes<T>(cachedBytes));
             }
 
-            var (fragment, cacheControl) = await valueFactory();
-            var maxAge = cacheControl.SharedMaxAge ?? cacheControl.MaxAge;
-            if (!cacheControl.Public || cacheControl.NoCache || !maxAge.HasValue)
-            {
-                return fragment;
-            }
-
-            await SetCache(url, maxAge.Value, fragment);
-
-            return fragment;
+            return (false, default(T));
         }
 
-        private async Task SetCache(string url, TimeSpan maxAge, IEsiFragment fragment)
+        public async Task Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow)
         {
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpiration = DateTimeOffset.UtcNow.Add(maxAge)
+                AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow
             };
-            var bytes = _serializer.SerializeBytes(fragment);
-            await _cache.SetAsync(url, bytes, options);
+            var bytes = _serializer.SerializeBytes(value);
+            await _cache.SetAsync(key, bytes, options);
         }
     }
 }
