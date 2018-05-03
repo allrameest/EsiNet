@@ -54,6 +54,11 @@ namespace EsiNet.Caching
         public static async Task Set<T>(
             this IEsiFragmentCache cache, string url, CacheControlHeaderValue cacheControl, T value)
         {
+            if (cacheControl == null)
+            {
+                return;
+            }
+
             var maxAge = cacheControl.SharedMaxAge ?? cacheControl.MaxAge;
             if (!cacheControl.Public || cacheControl.NoCache || !maxAge.HasValue)
             {
