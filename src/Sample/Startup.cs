@@ -1,4 +1,5 @@
-﻿using EsiNet.AspNetCore;
+﻿using System.Globalization;
+using EsiNet.AspNetCore;
 using EsiNet.Fragments;
 using EsiNet.Pipeline;
 using Microsoft.AspNetCore.Builder;
@@ -30,7 +31,7 @@ namespace Sample
             {
                 OnPrepareResponse = ctx =>
                 {
-                    if (!ctx.File.Name.EndsWith(".html")) return;
+                    if (!ctx.File.Name.EndsWith(".html", true, CultureInfo.InvariantCulture)) return;
                     const int durationInSeconds = 60 * 60 * 24;
                     ctx.Context.Response.Headers[HeaderNames.CacheControl] =
                         $"public,max-age={durationInSeconds}";
