@@ -14,23 +14,27 @@ A asp.net core middleware for [ESI](http://www.w3.org/TR/esi-lang).
 
 AddEsiNet adds all service for EsiNet.
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services
-                .AddEsiNet()
-                .AddMvc();
-        }
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+	services
+		.AddEsiNet()
+		.AddMvc();
+}
+```
 
 ### Usage
 
 UseEsiNet add the middleware that parses esi tags.
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            app
-                .UseEsiNet()
-                .UseMvc();
-        }
+```csharp
+public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+{
+	app
+		.UseEsiNet()
+		.UseMvc();
+}
+```
 
 # ESI Support
 
