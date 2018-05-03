@@ -5,8 +5,11 @@ using EsiNet.Fragments;
 
 namespace EsiNet.Caching
 {
-    public static partial class EsiFragmentCacheExtensions
+    public static class EsiFragmentCacheExtensions
     {
+        private const string FragmentKeyPrefix = "Fragment_";
+        private const string PageResponseKeyPrefix = "PageResponse_";
+
         public static async Task<IEsiFragment> GetOrAddFragment(
             this IEsiFragmentCache cache,
             string url,
@@ -16,7 +19,9 @@ namespace EsiNet.Caching
             if (url == null) throw new ArgumentNullException(nameof(url));
             if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
 
-            var (found, cachedFragment) = await cache.TryGet<IEsiFragment>(url);
+            var key = FragmentKeyPrefix + url;
+
+            var (found, cachedFragment) = await cache.TryGet<IEsiFragment>(key);
             if (found)
             {
                 return cachedFragment;
@@ -24,7 +29,7 @@ namespace EsiNet.Caching
 
             var (fragment, cacheControl) = await valueFactory();
 
-            await cache.Set(url, cacheControl, fragment);
+            await cache.Set(key, cacheControl, fragment);
 
             return fragment;
         }
@@ -38,7 +43,9 @@ namespace EsiNet.Caching
             if (url == null) throw new ArgumentNullException(nameof(url));
             if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
 
-            var (found, cachedResponse) = await cache.TryGet<FragmentPageResponse>(url);
+            var key = PageResponseKeyPrefix + url;
+
+            var (found, cachedResponse) = await cache.TryGet<FragmentPageResponse>(key);
             if (found)
             {
                 return cachedResponse;
@@ -46,13 +53,13 @@ namespace EsiNet.Caching
 
             var (fragment, cacheControl) = await valueFactory();
 
-            await cache.Set(url, cacheControl, fragment);
+            await cache.Set(key, cacheControl, fragment);
 
             return fragment;
         }
 
         public static async Task Set<T>(
-            this IEsiFragmentCache cache, string url, CacheControlHeaderValue cacheControl, T value)
+            this IEsiFragmentCache cache, string key, CacheControlHeaderValue cacheControl, T value)
         {
             if (cacheControl == null)
             {
@@ -65,7 +72,7 @@ namespace EsiNet.Caching
                 return;
             }
 
-            await cache.Set(url, value, maxAge.Value);
+            await cache.Set(key, value, maxAge.Value);
         }
     }
 }
