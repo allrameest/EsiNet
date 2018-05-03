@@ -16,7 +16,7 @@ namespace Tests
 
         private static object CreateImpl<T>()
         {
-            return new T[] { };
+            return Array.Empty<T>();
         }
     }
 }
