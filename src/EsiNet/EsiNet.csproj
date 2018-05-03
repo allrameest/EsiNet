@@ -5,6 +5,11 @@
     <Version>0.1.6</Version>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="Logging\LogExtensions.cs">
       <DesignTime>True</DesignTime>
