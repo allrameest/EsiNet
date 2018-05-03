@@ -39,19 +39,21 @@ namespace EsiNet.AspNetCore
             var originBody = context.Response.Body;
   
 
-            var esiFragment = await _cache.GetOrAdd(context.Request.GetDisplayUrl(), async () =>
+            var response = await _cache.GetOrAddPageResponse(context.Request.GetDisplayUrl(), async () =>
             {
                 var body = await InvokeNext(context);
                 var fragment = _parser.Parse(body);
+                var pageResponse = new FragmentPageResponse(fragment, context.Response.ContentType);
 
                 CacheControlHeaderValue.TryParse(
                     context.Response.Headers["Cache-Control"], out var cacheControl);
-                return (fragment, cacheControl);
+                return (pageResponse, cacheControl);
             });
 
             context.Response.Body = originBody;
 
-            var content = await _executor.Execute(esiFragment);
+            var content = await _executor.Execute(response.Fragment);
+            context.Response.ContentType = response.ContentType;
             await context.Response.WriteAsync(content);
         }
 

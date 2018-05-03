@@ -23,7 +23,7 @@ namespace EsiNet.AspNetCore
                 new TwoStageEsiFragmentCache(
                     sp.GetService<IMemoryCache>(),
                     sp.GetService<IDistributedCache>(),
-                    Serializer.Wire<IEsiFragment>().GZip()));
+                    Serializer.Wire().GZip()));
 
             services.AddSingleton(sp => CreateLog(sp.GetService<ILoggerFactory>().CreateLogger("EsiNet")));
 

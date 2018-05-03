@@ -69,7 +69,7 @@ namespace Tests
                     ? CacheControlHeaderValue.Parse($"public,max-age={rootCache.Value}")
                     : null;
 
-                var fragment = await cache.GetOrAdd("/",
+                var fragment = await cache.GetOrAddFragment("/",
                     () =>
                     {
                         var esiFragment = parser.Parse(rootContent);
@@ -89,7 +89,7 @@ namespace Tests
                 new MemoryDistributedCache(
                     new OptionsWrapper<MemoryDistributedCacheOptions>(
                         new MemoryDistributedCacheOptions())),
-                Serializer.Wire<IEsiFragment>());
+                Serializer.Wire());
         }
 
         private static EsiBodyParser CreateParser()

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using EsiNet.Fragments;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace EsiNet.Caching
@@ -15,25 +13,18 @@ namespace EsiNet.Caching
             _cache = cache;
         }
 
-        public async Task<IEsiFragment> GetOrAdd(string url,
-            Func<Task<(IEsiFragment, CacheControlHeaderValue)>> valueFactory)
+        public Task<(bool, T)> TryGet<T>(string key)
         {
-            if (_cache.TryGetValue<IEsiFragment>(url, out var cachedFragment))
-            {
-                return cachedFragment;
-            }
+            var result = _cache.TryGetValue<T>(key, out var cachedValue)
+                ? (true, cachedValue)
+                : (false, default(T));
+            return Task.FromResult(result);
+        }
 
-            var (fragment, cacheControl) = await valueFactory();
-            var maxAge = cacheControl.SharedMaxAge ?? cacheControl.MaxAge;
-            if (!cacheControl.Public || cacheControl.NoCache || !maxAge.HasValue)
-            {
-                return fragment;
-            }
-
-            var absoluteExpiration = DateTimeOffset.UtcNow.Add(maxAge.Value);
-            _cache.Set(url, fragment, absoluteExpiration);
-
-            return fragment;
+        public Task Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow)
+        {
+            _cache.Set(key, value, absoluteExpirationRelativeToNow);
+            return Task.CompletedTask;
         }
     }
 }

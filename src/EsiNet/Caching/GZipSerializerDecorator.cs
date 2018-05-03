@@ -4,17 +4,17 @@ using System.IO.Compression;
 
 namespace EsiNet.Caching
 {
-    public class GZipSerializerDecorator<T> : ISerializer<T>
+    public class GZipSerializerDecorator : ISerializer
     {
         private const int BufferSize = 8192;
-        private readonly ISerializer<T> _innerSerializer;
+        private readonly ISerializer _innerSerializer;
 
-        public GZipSerializerDecorator(ISerializer<T> innerSerializer)
+        public GZipSerializerDecorator(ISerializer innerSerializer)
         {
             _innerSerializer = innerSerializer;
         }
 
-        public void Serialize(T value, Stream destination)
+        public void Serialize<T>(T value, Stream destination)
         {
             if (destination == null) throw new ArgumentNullException(nameof(destination));
 
@@ -25,13 +25,13 @@ namespace EsiNet.Caching
             }
         }
 
-        public T Deserialize(Stream source)
+        public T Deserialize<T>(Stream source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 
             using (var compress = new GZipStream(source, CompressionMode.Decompress))
             {
-                return _innerSerializer.Deserialize(compress);
+                return _innerSerializer.Deserialize<T>(compress);
             }
         }
     }

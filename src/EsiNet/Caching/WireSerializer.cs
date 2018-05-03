@@ -3,18 +3,18 @@ using System.IO;
 
 namespace EsiNet.Caching
 {
-    public class WireSerializer<T> : ISerializer<T>
+    public class WireSerializer : ISerializer
     {
         private readonly Wire.Serializer _serializer = new Wire.Serializer();
 
-        public void Serialize(T value, Stream destination)
+        public void Serialize<T>(T value, Stream destination)
         {
             if (destination == null) throw new ArgumentNullException(nameof(destination));
 
             _serializer.Serialize(value, destination);
         }
 
-        public T Deserialize(Stream source)
+        public T Deserialize<T>(Stream source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 

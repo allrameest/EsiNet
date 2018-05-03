@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using EsiNet.Fragments;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -11,72 +9,47 @@ namespace EsiNet.Caching
     {
         private readonly IDistributedCache _distributedCache;
         private readonly IMemoryCache _memoryCache;
-        private readonly ISerializer<IEsiFragment> _serializer;
+        private readonly ISerializer _serializer;
 
         public TwoStageEsiFragmentCache(
             IMemoryCache memoryCache,
             IDistributedCache distributedCache,
-            ISerializer<IEsiFragment> serializer)
+            ISerializer serializer)
         {
             _memoryCache = memoryCache;
             _distributedCache = distributedCache;
             _serializer = serializer;
         }
 
-        public async Task<IEsiFragment> GetOrAdd(
-            string url,
-            Func<Task<(IEsiFragment, CacheControlHeaderValue)>> valueFactory)
+        public async Task<(bool, T)> TryGet<T>(string key)
         {
-            var cachedFragment = await GetFromCache(url);
-            if (cachedFragment != null)
+            if (_memoryCache.TryGetValue<T>(key, out var value))
             {
-                return cachedFragment;
+                return (true, value);
             }
 
-            var (fragment, cacheControl) = await valueFactory();
-
-            if (cacheControl == null)
+            var bytes = await _distributedCache.GetAsync(key);
+            if (bytes != null)
             {
-                return fragment;
+                return (true, _serializer.DeserializeBytes<T>(bytes));
             }
 
-            var maxAge = cacheControl.SharedMaxAge ?? cacheControl.MaxAge;
-            if (!cacheControl.Public || cacheControl.NoCache || !maxAge.HasValue)
-            {
-                return fragment;
-            }
-
-            await SetCache(url, maxAge.Value, fragment);
-
-            return fragment;
+            return (false, default(T));
         }
 
-        private async Task<IEsiFragment> GetFromCache(string url)
-        {
-            if (_memoryCache.TryGetValue<IEsiFragment>(url, out var fragment))
-            {
-                return fragment;
-            }
-
-            var bytes = await _distributedCache.GetAsync(url);
-            return bytes != null
-                ? _serializer.DeserializeBytes(bytes)
-                : null;
-        }
-
-        private async Task SetCache(string url, TimeSpan maxAge, IEsiFragment fragment)
+        public async Task Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow)
         {
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpiration = DateTimeOffset.UtcNow.Add(maxAge)
+                AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow
             };
-            var bytes = _serializer.SerializeBytes(fragment);
-            await _distributedCache.SetAsync(url, bytes, options);
+            var bytes = _serializer.SerializeBytes(value);
+            await _distributedCache.SetAsync(key, bytes, options);
 
-            var memoryMaxAge = GetMemoryCacheMaxAge(maxAge);
+            var memoryMaxAge = GetMemoryCacheMaxAge(absoluteExpirationRelativeToNow);
             if (memoryMaxAge.HasValue)
             {
-                _memoryCache.Set(url, fragment, memoryMaxAge.Value);
+                _memoryCache.Set(key, value, memoryMaxAge.Value);
             }
         }
 

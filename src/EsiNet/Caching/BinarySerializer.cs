@@ -4,18 +4,18 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace EsiNet.Caching
 {
-    public class BinarySerializer<T> : ISerializer<T>
+    public class BinarySerializer : ISerializer
     {
         private readonly BinaryFormatter _serializer = new BinaryFormatter();
 
-        public void Serialize(T value, Stream destination)
+        public void Serialize<T>(T value, Stream destination)
         {
             if (destination == null) throw new ArgumentNullException(nameof(destination));
 
             _serializer.Serialize(destination, value);
         }
 
-        public T Deserialize(Stream source)
+        public T Deserialize<T>(Stream source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 

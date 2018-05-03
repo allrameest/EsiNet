@@ -2,14 +2,14 @@
 {
     public static class Serializer
     {
-        public static ISerializer<T> Binary<T>()
+        public static ISerializer Binary()
         {
-            return new BinarySerializer<T>();
+            return new BinarySerializer();
         }
 
-        public static ISerializer<T> Wire<T>()
+        public static ISerializer Wire()
         {
-            return new WireSerializer<T>();
+            return new WireSerializer();
         }
     }
 }

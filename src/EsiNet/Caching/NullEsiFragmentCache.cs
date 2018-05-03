@@ -1,16 +1,18 @@
 ﻿using System;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using EsiNet.Fragments;
 
 namespace EsiNet.Caching
 {
     public class NullEsiFragmentCache : IEsiFragmentCache
     {
-        public async Task<IEsiFragment> GetOrAdd(string url, Func<Task<(IEsiFragment, CacheControlHeaderValue)>> valueFactory)
+        public Task<(bool, T)> TryGet<T>(string key)
         {
-            var (fragment, _) = await valueFactory();
-            return fragment;
+            return Task.FromResult((false, default(T)));
+        }
+
+        public Task Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow)
+        {
+            return Task.CompletedTask;
         }
     }
 }
