@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Tests
 {
-    public class NullPipelineFactory
+    public static class NullPipelineFactory
     {
         public static object Create(Type type)
         {

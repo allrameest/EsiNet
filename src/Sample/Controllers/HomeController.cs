@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace Sample.Controllers
 {
@@ -8,7 +7,7 @@ namespace Sample.Controllers
     {
         [HttpGet("/")]
         [ResponseCache(Duration = 3600)]
-        public async Task<IActionResult> Get()
+        public IActionResult Get()
         {
             return View();
         }
