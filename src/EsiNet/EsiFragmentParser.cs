@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using EsiNet.Fragments;
 using EsiNet.Pipeline;
@@ -9,8 +7,6 @@ namespace EsiNet
 {
     public class EsiFragmentParser
     {
-        private readonly ConcurrentDictionary<Type, IReadOnlyCollection<ParsePipelineDelegate>> _pipelineCache =
-            new ConcurrentDictionary<Type, IReadOnlyCollection<ParsePipelineDelegate>>();
         private readonly IReadOnlyDictionary<string, IEsiFragmentParser> _parsers;
         private readonly ServiceFactory _serviceFactory;
 
