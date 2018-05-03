@@ -1,4 +1,6 @@
-# Esi.NET
+<p align="center">
+<img src="https://raw.githubusercontent.com/allrameest/EsiNet/master/logo.png" alt="metro logo" />
+</p>
 
 A asp.net core middleware for [ESI](http://www.w3.org/TR/esi-lang).
 
