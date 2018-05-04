@@ -19,24 +19,29 @@ namespace EsiNet.Http
 
         public async Task<HttpResponseMessage> Get(string url)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("X-Esi", "true");
-
-            var response = await ExecuteRequest(request);
+            var response = await ExecuteRequest(url);
 
             response.EnsureSuccessStatusCode();
 
             return response;
         }
 
-        private Task<HttpResponseMessage> ExecuteRequest(HttpRequestMessage request)
+        private Task<HttpResponseMessage> ExecuteRequest(string url)
         {
-            Task<HttpResponseMessage> Send(HttpRequestMessage r) => _httpClient.SendAsync(r);
+            Task<HttpResponseMessage> Send(string u) => Exec(url);
 
             return _pipelines
                 .Aggregate(
                     (HttpLoadDelegate) Send,
-                    (next, pipeline) => async r => await pipeline.Handle(r, next))(request);
+                    (next, pipeline) => async u => await pipeline.Handle(u, next))(url);
+        }
+
+        private Task<HttpResponseMessage> Exec(string url)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("X-Esi", "true");
+
+            return _httpClient.SendAsync(request);
         }
     }
 }
