@@ -1,6 +1,8 @@
-﻿using DeepEqual.Syntax;
+﻿using System;
+using DeepEqual.Syntax;
 using EsiNet.AspNetCore;
 using EsiNet.Fragments;
+using EsiNet.Pipeline;
 using Xunit;
 
 namespace Tests
@@ -89,7 +91,7 @@ namespace Tests
 
         private static IEsiFragment Parse(string body)
         {
-            var parser = EsiParserFactory.Create(NullPipelineFactory.Create);
+            var parser = EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>());
             return parser.Parse(body);
         }
     }

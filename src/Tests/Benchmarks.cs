@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using EsiNet;
 using EsiNet.AspNetCore;
 using EsiNet.Caching;
-using EsiNet.Fragments;
 using EsiNet.Http;
+using EsiNet.Pipeline;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -94,7 +94,7 @@ namespace Tests
 
         private static EsiBodyParser CreateParser()
         {
-            return EsiParserFactory.Create(NullPipelineFactory.Create);
+            return EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>());
         }
 
         private static EsiFragmentExecutor CreateExecutor(

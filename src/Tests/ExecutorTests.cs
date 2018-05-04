@@ -7,6 +7,7 @@ using EsiNet.Caching;
 using EsiNet.Fragments;
 using EsiNet.Http;
 using EsiNet.Logging;
+using EsiNet.Pipeline;
 using FakeItEasy;
 using SharpTestsEx;
 using Xunit;
@@ -69,7 +70,7 @@ namespace Tests
             var executor = EsiExecutorFactory.Create(
                 new NullEsiFragmentCache(),
                 httpLoader,
-                EsiParserFactory.Create(NullPipelineFactory.Create),
+                EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>()),
                 log,
                 NullPipelineFactory.Create);
             return await executor.Execute(fragment);

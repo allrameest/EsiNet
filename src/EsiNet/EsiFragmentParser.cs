@@ -8,14 +8,14 @@ namespace EsiNet
     public class EsiFragmentParser
     {
         private readonly IReadOnlyDictionary<string, IEsiFragmentParser> _parsers;
-        private readonly ServiceFactory _serviceFactory;
+        private readonly IReadOnlyCollection<IFragmentParsePipeline> _pipelines;
 
         public EsiFragmentParser(
             IReadOnlyDictionary<string, IEsiFragmentParser> parsers,
-            ServiceFactory serviceFactory)
+            IEnumerable<IFragmentParsePipeline> pipelines)
         {
             _parsers = parsers;
-            _serviceFactory = serviceFactory;
+            _pipelines = pipelines.Reverse().ToArray();
         }
 
         public IEsiFragment Parse(
@@ -26,11 +26,9 @@ namespace EsiNet
                 return new EsiTextFragment(outerBody);
             }
 
-            var pipelineDelegates = _serviceFactory.GetInstances<IFragmentParsePipeline>();
-
             IEsiFragment Parse(IReadOnlyDictionary<string, string> a, string b) => parser.Parse(a, b);
 
-            return pipelineDelegates
+            return _pipelines
                 .Aggregate(
                     (ParseDelegate) Parse,
                     (next, pipeline) => (a, b) => pipeline.Handle(a, b, next))(attributes, tagBody);
