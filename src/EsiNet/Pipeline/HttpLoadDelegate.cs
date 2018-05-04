@@ -3,5 +3,5 @@ using System.Threading.Tasks;
 
 namespace EsiNet.Pipeline
 {
-    public delegate Task<HttpResponseMessage> HttpLoadDelegate(HttpRequestMessage request);
+    public delegate Task<HttpResponseMessage> HttpLoadDelegate(string url);
 }
