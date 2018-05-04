@@ -1,7 +1,10 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using EsiNet.AspNetCore;
 using EsiNet.Fragments;
+using EsiNet.Logging;
 using EsiNet.Pipeline;
+using EsiNet.Polly;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +19,10 @@ namespace Sample
             services
                 .AddSingleton<IFragmentExecutePipeline<EsiIncludeFragment>, BracketPipeline>()
                 .AddSingleton<IFragmentParsePipeline, IncludeUrlPipeline>()
+                .AddSingleton<IHttpLoaderPipeline>(sp => new CircuitBreakerHttpLoaderPipeline(
+                    sp.GetService<Log>(), 3, TimeSpan.FromMinutes(1)))
+                .AddSingleton<IHttpLoaderPipeline>(sp => new RetryHttpLoaderPipeline(
+                    sp.GetService<Log>(), 1))
                 .AddEsiNet()
                 .AddMvc();
         }

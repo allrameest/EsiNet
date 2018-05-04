@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EsiNet.AspNetCore\EsiNet.AspNetCore.csproj" />
+    <ProjectReference Include="..\EsiNet.Polly\EsiNet.Polly.csproj" />
   </ItemGroup>
 
 </Project>
