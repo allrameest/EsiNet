@@ -39,7 +39,7 @@ namespace EsiNet.AspNetCore
             var originBody = context.Response.Body;
   
 
-            var response = await _cache.GetOrAddPageResponse(context.Request.GetDisplayUrl(), async () =>
+            var response = await _cache.GetOrAddPageResponse(new Uri(context.Request.GetDisplayUrl()), async () =>
             {
                 var body = await InvokeNext(context);
                 var fragment = _parser.Parse(body);

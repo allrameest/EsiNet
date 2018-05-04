@@ -5,11 +5,11 @@ namespace EsiNet.Fragments
     [Serializable]
     public class EsiIncludeFragment : IEsiFragment
     {
-        public EsiIncludeFragment(string url)
+        public EsiIncludeFragment(Uri uri)
         {
-            Url = url;
+            Uri = uri;
         }
 
-        public string Url { get; }
+        public Uri Uri { get; }
     }
 }

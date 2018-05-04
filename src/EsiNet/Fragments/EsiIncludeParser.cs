@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EsiNet.Fragments
 {
@@ -8,7 +9,7 @@ namespace EsiNet.Fragments
         {
             var src = attributes["src"];
 
-            return new EsiIncludeFragment(src);
+            return new EsiIncludeFragment(new Uri(src, UriKind.RelativeOrAbsolute));
         }
     }
 }
