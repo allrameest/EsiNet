@@ -4,6 +4,7 @@ using EsiNet.Caching;
 using EsiNet.Fragments;
 using EsiNet.Http;
 using EsiNet.Logging;
+using EsiNet.Pipeline;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -35,7 +36,7 @@ namespace EsiNet.AspNetCore
                 var parser = sp.GetService<EsiBodyParser>();
                 var log = sp.GetService<Log>();
                 var httpClient = new HttpClient();
-                var httpLoader = new HttpLoader(httpClient);
+                var httpLoader = new HttpLoader(httpClient, sp.GetServices<IHttpLoaderPipeline>());
 
                 return EsiExecutorFactory.Create(cache, httpLoader, parser, log, sp.GetService);
             });
