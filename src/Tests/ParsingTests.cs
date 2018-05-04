@@ -14,7 +14,7 @@ namespace Tests
         {
             var fragment = Parse(@"<esi:include src=""http://host/fragment""/>");
 
-            var expected = new EsiIncludeFragment("http://host/fragment");
+            var expected = new EsiIncludeFragment(new Uri("http://host/fragment"));
             fragment.ShouldDeepEqual(expected);
         }
 
@@ -43,9 +43,9 @@ namespace Tests
 
             var expected = new EsiCompositeFragment(new IEsiFragment[]
             {
-                new EsiTextFragment("Pre"), 
-                new EsiIncludeFragment("http://host/fragment"), 
-                new EsiTextFragment("Post"), 
+                new EsiTextFragment("Pre"),
+                new EsiIncludeFragment(new Uri("http://host/fragment")),
+                new EsiTextFragment("Post"),
             });
             fragment.ShouldDeepEqual(expected);
         }

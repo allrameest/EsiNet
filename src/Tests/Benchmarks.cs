@@ -69,7 +69,7 @@ namespace Tests
                     ? CacheControlHeaderValue.Parse($"public,max-age={rootCache.Value}")
                     : null;
 
-                var fragment = await cache.GetOrAddFragment("/",
+                var fragment = await cache.GetOrAddFragment(new Uri("/", UriKind.Relative), 
                     () =>
                     {
                         var esiFragment = parser.Parse(rootContent);
@@ -171,9 +171,9 @@ namespace Tests
             _urlContentMap = urlContentMap;
         }
 
-        public Task<HttpResponseMessage> Get(string url)
+        public Task<HttpResponseMessage> Get(Uri uri)
         {
-            var (content, maxAge) = _urlContentMap[url];
+            var (content, maxAge) = _urlContentMap[uri.ToString()];
             var response = new HttpResponseMessage(HttpStatusCode.OK) {Content = new StringContent(content)};
             var cacheHeader = maxAge.HasValue ? $"public,max-age={maxAge.Value}" : "private";
             response.Headers.Add(HeaderNames.CacheControl, cacheHeader);

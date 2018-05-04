@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using EsiNet.Fragments;
 using EsiNet.Pipeline;
 
@@ -12,7 +13,8 @@ namespace Sample
 
             if (fragment is EsiIncludeFragment includeFragment)
             {
-                fragment = new EsiIncludeFragment(includeFragment.Url + "?a=1");
+                var uriBuilder = new UriBuilder(includeFragment.Uri) {Query = "a=1"};
+                fragment = new EsiIncludeFragment(uriBuilder.Uri);
             }
 
             return fragment;

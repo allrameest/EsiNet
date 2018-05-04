@@ -12,14 +12,14 @@ namespace EsiNet.Caching
 
         public static async Task<IEsiFragment> GetOrAddFragment(
             this IEsiFragmentCache cache,
-            string url,
+            Uri uri,
             Func<Task<(IEsiFragment, CacheControlHeaderValue)>> valueFactory)
         {
             if (cache == null) throw new ArgumentNullException(nameof(cache));
-            if (url == null) throw new ArgumentNullException(nameof(url));
+            if (uri == null) throw new ArgumentNullException(nameof(uri));
             if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
 
-            var key = FragmentKeyPrefix + url;
+            var key = FragmentKeyPrefix + uri;
 
             var (found, cachedFragment) = await cache.TryGet<IEsiFragment>(key);
             if (found)
@@ -36,14 +36,14 @@ namespace EsiNet.Caching
 
         public static async Task<FragmentPageResponse> GetOrAddPageResponse(
             this IEsiFragmentCache cache,
-            string url,
+            Uri uri,
             Func<Task<(FragmentPageResponse, CacheControlHeaderValue)>> valueFactory)
         {
             if (cache == null) throw new ArgumentNullException(nameof(cache));
-            if (url == null) throw new ArgumentNullException(nameof(url));
+            if (uri == null) throw new ArgumentNullException(nameof(uri));
             if (valueFactory == null) throw new ArgumentNullException(nameof(valueFactory));
 
-            var key = PageResponseKeyPrefix + url;
+            var key = PageResponseKeyPrefix + uri;
 
             var (found, cachedResponse) = await cache.TryGet<FragmentPageResponse>(key);
             if (found)

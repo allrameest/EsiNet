@@ -23,7 +23,7 @@ namespace Tests
             {
                 ["http://host/fragment"] = ("Included", null)
             });
-            var fragment = new EsiIncludeFragment("http://host/fragment");
+            var fragment = new EsiIncludeFragment(new Uri("http://host/fragment"));
 
             var content = await Execute(fragment, fakeStaticHttpLoader);
 
@@ -52,9 +52,9 @@ namespace Tests
             var exception = new HttpRequestException();
             var httpLoader = A.Fake<IHttpLoader>();
             var log = A.Fake<Log>();
-            A.CallTo(() => httpLoader.Get(A<string>._)).Throws(exception);
+            A.CallTo(() => httpLoader.Get(A<Uri>._)).Throws(exception);
             var fragment = new EsiTryFragment(
-                new EsiIncludeFragment("http://host/fragment"),
+                new EsiIncludeFragment(new Uri("http://host/fragment")),
                 new EsiTextFragment("Fallback"));
 
             var content = await Execute(fragment, httpLoader, log);

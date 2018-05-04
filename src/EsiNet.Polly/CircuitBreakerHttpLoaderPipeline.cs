@@ -32,9 +32,9 @@ namespace EsiNet.Polly
                     () => { log.Information(() => "Circuit breaker restored"); });
         }
 
-        public Task<HttpResponseMessage> Handle(string url, HttpLoadDelegate next)
+        public Task<HttpResponseMessage> Handle(Uri uri, HttpLoadDelegate next)
         {
-            return _breakerPolicy.ExecuteAsync(() => next(url));
+            return _breakerPolicy.ExecuteAsync(() => next(uri));
         }
     }
 }

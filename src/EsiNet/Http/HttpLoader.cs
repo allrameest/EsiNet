@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -17,28 +18,28 @@ namespace EsiNet.Http
             _pipelines = pipelines.Reverse().ToArray();
         }
 
-        public async Task<HttpResponseMessage> Get(string url)
+        public async Task<HttpResponseMessage> Get(Uri uri)
         {
-            var response = await ExecuteRequest(url);
+            var response = await Execute(uri);
 
             response.EnsureSuccessStatusCode();
 
             return response;
         }
 
-        private Task<HttpResponseMessage> ExecuteRequest(string url)
+        private Task<HttpResponseMessage> Execute(Uri uri)
         {
-            Task<HttpResponseMessage> Send(string u) => Exec(url);
+            Task<HttpResponseMessage> Send(Uri u) => ExecuteRequest(uri);
 
             return _pipelines
                 .Aggregate(
                     (HttpLoadDelegate) Send,
-                    (next, pipeline) => async u => await pipeline.Handle(u, next))(url);
+                    (next, pipeline) => async u => await pipeline.Handle(u, next))(uri);
         }
 
-        private Task<HttpResponseMessage> Exec(string url)
+        private Task<HttpResponseMessage> ExecuteRequest(Uri uri)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var request = new HttpRequestMessage(HttpMethod.Get, uri);
             request.Headers.Add("X-Esi", "true");
 
             return _httpClient.SendAsync(request);
