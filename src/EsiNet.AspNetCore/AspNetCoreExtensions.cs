@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net.Http;
 using EsiNet.Caching;
-using EsiNet.Fragments;
 using EsiNet.Http;
 using EsiNet.Logging;
 using EsiNet.Pipeline;
@@ -28,7 +27,7 @@ namespace EsiNet.AspNetCore
 
             services.AddSingleton(sp => CreateLog(sp.GetService<ILoggerFactory>().CreateLogger("EsiNet")));
 
-            services.AddSingleton(sp => EsiParserFactory.Create(sp.GetService));
+            services.AddSingleton(sp => EsiParserFactory.Create(sp.GetServices<IFragmentParsePipeline>()));
 
             services.AddSingleton(sp =>
             {

@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using EsiNet.Fragments;
+using EsiNet.Pipeline;
 
 namespace EsiNet.AspNetCore
 {
     public static class EsiParserFactory
     {
-        public static EsiBodyParser Create(ServiceFactory serviceFactory)
+        public static EsiBodyParser Create(IEnumerable<IFragmentParsePipeline> parsePipelines)
         {
             var parsers = new Dictionary<string, IEsiFragmentParser>();
 
-            var fragmentParser = new EsiFragmentParser(parsers, serviceFactory);
+            var fragmentParser = new EsiFragmentParser(parsers, parsePipelines);
             var bodyParser = new EsiBodyParser(fragmentParser);
 
             parsers["esi:include"] = new EsiIncludeParser();
