@@ -1,5 +1,13 @@
 <Project>
   <PropertyGroup>
     <Version>0.1.10</Version>
+    <Authors>Erik Juhlin</Authors>
+    <PackageIconUrl>https://raw.githubusercontent.com/allrameest/EsiNet/master/logo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/allrameest/EsiNet</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/allrameest/EsiNet</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>esinet,esi,edgesideinclude,aspnetcore,middleware,polly</PackageTags>
+    <PackageLicenseUrl>https://opensource.org/licenses/mit-license.php</PackageLicenseUrl>
+    <Product>ESI.NET</Product>
   </PropertyGroup>
  </Project>
