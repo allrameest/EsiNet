@@ -102,10 +102,8 @@ Task("Prepare-Release")
     .Does(() =>
     {
         // Add
-        foreach (var file in GetFiles("./src/**/*.csproj"))
-        {
-            Git($"add {file.FullPath}");
-        }
+        var buildFile = MakeAbsolute(File("./src/Directory.Build.props"));
+        Git($"add {buildFile.FullPath}");
 
         // Commit
         Git($"commit -m \"Updated version to {version}\"");
@@ -136,18 +134,17 @@ Task("Update-Version")
             throw new CakeException("No version specified! You need to pass in -targetversion=\"x.y.z\"");
         }
 
-        foreach(var project in GetFiles("./src/**/EsiNet*.csproj"))
-        {
-            Information("Updating version of " + project.GetFilename().FullPath);
+        var buildFile = MakeAbsolute(File("./src/Directory.Build.props"));
 
-            var content = System.IO.File.ReadAllText(project.FullPath, Encoding.UTF8);
+        Information("Updating version in " + buildFile.GetFilename().FullPath);
 
-            var projectVersionRegex = new Regex(@"<Version>.+<\/Version>");
+        var content = System.IO.File.ReadAllText(buildFile.FullPath, Encoding.UTF8);
 
-            content = projectVersionRegex.Replace(content, $"<Version>{version}</Version>");
+        var versionRegex = new Regex(@"<Version>.+<\/Version>");
 
-            System.IO.File.WriteAllText(project.FullPath, content, Encoding.UTF8);
-        }
+        content = versionRegex.Replace(content, $"<Version>{version}</Version>");
+
+        System.IO.File.WriteAllText(buildFile.FullPath, content, Encoding.UTF8);
     });
 
 Task("Default")
