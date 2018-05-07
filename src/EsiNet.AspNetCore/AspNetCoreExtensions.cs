@@ -29,13 +29,15 @@ namespace EsiNet.AspNetCore
 
             services.AddSingleton(sp => EsiParserFactory.Create(sp.GetServices<IFragmentParsePipeline>()));
 
+            services.AddSingleton<IHttpLoader>(sp => new HttpLoader(
+                new HttpClient(), sp.GetServices<IHttpLoaderPipeline>()));
+
             services.AddSingleton(sp =>
             {
                 var cache = sp.GetService<IEsiFragmentCache>();
+                var httpLoader = sp.GetService<IHttpLoader>();
                 var parser = sp.GetService<EsiBodyParser>();
                 var log = sp.GetService<Log>();
-                var httpClient = new HttpClient();
-                var httpLoader = new HttpLoader(httpClient, sp.GetServices<IHttpLoaderPipeline>());
 
                 return EsiExecutorFactory.Create(cache, httpLoader, parser, log, sp.GetService);
             });
