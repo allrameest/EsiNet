@@ -9,12 +9,12 @@ namespace EsiNet.Http
 {
     public class HttpLoader : IHttpLoader
     {
-        private readonly HttpClient _httpClient;
+        private readonly HttpClientFactory _httpClientFactory;
         private readonly IReadOnlyCollection<IHttpLoaderPipeline> _pipelines;
 
-        public HttpLoader(HttpClient httpClient, IEnumerable<IHttpLoaderPipeline> pipelines)
+        public HttpLoader(HttpClientFactory httpClientFactory, IEnumerable<IHttpLoaderPipeline> pipelines)
         {
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
             _pipelines = pipelines.Reverse().ToArray();
         }
 
@@ -42,7 +42,8 @@ namespace EsiNet.Http
             var request = new HttpRequestMessage(HttpMethod.Get, uri);
             request.Headers.Add("X-Esi", "true");
 
-            return _httpClient.SendAsync(request);
+            var httpClient = _httpClientFactory(uri);
+            return httpClient.SendAsync(request);
         }
     }
 }
