@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using EsiNet.Logging;
 
@@ -17,7 +18,7 @@ namespace EsiNet.Fragments
             _log = log;
         }
 
-        public async Task<string> Execute(EsiTryFragment fragment)
+        public async Task<Func<Stream, Task>> Execute(EsiTryFragment fragment)
         {
             try
             {
