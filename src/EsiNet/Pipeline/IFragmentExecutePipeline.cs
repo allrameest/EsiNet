@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using EsiNet.Fragments;
 
 namespace EsiNet.Pipeline
@@ -6,6 +7,6 @@ namespace EsiNet.Pipeline
     public interface IFragmentExecutePipeline<T>
         where T : IEsiFragment
     {
-        Task<string> Handle(T fragment, ExecuteDelegate<T> next);
+        Task<IEnumerable<string>> Handle(T fragment, ExecuteDelegate<T> next);
     }
 }
