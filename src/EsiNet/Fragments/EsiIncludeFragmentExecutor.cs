@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EsiNet.Caching;
@@ -25,7 +26,7 @@ namespace EsiNet.Fragments
             _fragmentExecutor = fragmentExecutor;
         }
 
-        public async Task<string> Execute(EsiIncludeFragment fragment)
+        public async Task<Func<Stream, Task>> Execute(EsiIncludeFragment fragment)
         {
             var remoteFragment = await _cache.GetOrAddFragment(fragment.Uri, () => RequestAndParse(fragment.Uri));
             return await _fragmentExecutor.Execute(remoteFragment);

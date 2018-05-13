@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using EsiNet;
 using EsiNet.AspNetCore;
@@ -62,7 +64,7 @@ namespace Tests
             var parser = CreateParser();
             var executor = CreateExecutor(cache, urlContentMap, parser);
 
-            return await Benchmark(async () =>
+            return await Benchmark(async stream =>
             {
                 var (rootContent, rootCache) = urlContentMap["/"];
                 var cacheControl = rootCache.HasValue
@@ -77,7 +79,9 @@ namespace Tests
                         return Task.FromResult(result);
                     });
 
-                return await executor.Execute(fragment);
+                var writer = await executor.Execute(fragment);
+
+                await writer(stream);
             });
         }
 
@@ -106,21 +110,33 @@ namespace Tests
                 cache,
                 new FakeStaticHttpLoader(urlContentMap),
                 parser,
-                (level, exception, message) => { }, NullPipelineFactory.Create);
+                (level, exception, message) => { });
         }
 
-        private async Task<T> Benchmark<T>(Func<Task<T>> action, int count = 1000)
+        private async Task<string> Benchmark(Func<Stream, Task> action, int count = 1000)
         {
             // Warmup
-            var result = await action();
-
-            var sw = Stopwatch.StartNew();
-            for (var i = 0; i < count; i++)
+            string result;
+            using (var stream = new MemoryStream())
             {
-                await action();
+                await action(stream);
+                using (var streamReader = new StreamReader(stream))
+                {
+                    result = await streamReader.ReadToEndAsync();
+                }
             }
 
-            sw.Stop();
+            var sw = new Stopwatch();
+            for (var i = 0; i < count; i++)
+            {
+                using (var stream = new MemoryStream())
+                {
+                    sw.Start();
+                    await action(stream);
+                    sw.Stop();
+                }
+            }
+
             _output.WriteLine($"{Math.Round(sw.Elapsed.TotalMilliseconds, 3)} ms");
 
             return result;
@@ -143,7 +159,7 @@ namespace Tests
                     for (var k = 0; k < level3Count; k++)
                     {
                         var lvl3Url = $"/{i}/{j}/{k}";
-                        lvl2.Add($@"<esi:include src=""{lvl3Url}""/>");
+                        lvl2.Add($@"<esi:include src=""{lvl3Url}""/>" + new string(' ', 1000));
                         urlContentMap[lvl3Url] = ($"fragment({lvl3Url})", maxAge);
                     }
 

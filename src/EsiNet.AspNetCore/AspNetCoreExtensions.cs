@@ -44,7 +44,7 @@ namespace EsiNet.AspNetCore
                 var parser = sp.GetService<EsiBodyParser>();
                 var log = sp.GetService<Log>();
 
-                return EsiExecutorFactory.Create(cache, httpLoader, parser, log, sp.GetService);
+                return EsiExecutorFactory.Create(cache, httpLoader, parser, log);
             });
 
             return services;

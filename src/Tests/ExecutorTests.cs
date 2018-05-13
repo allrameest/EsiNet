@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using EsiNet.AspNetCore;
@@ -71,9 +72,15 @@ namespace Tests
                 new NullEsiFragmentCache(),
                 httpLoader,
                 EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>()),
-                log,
-                NullPipelineFactory.Create);
-            return await executor.Execute(fragment);
+                log);
+            var writer = await executor.Execute(fragment);
+
+            using (var stream = new MemoryStream())
+            using (var streamReader = new StreamReader(stream))
+            {
+                await writer(stream);
+                return await streamReader.ReadToEndAsync();
+            }
         }
     }
 }
