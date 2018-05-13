@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using EsiNet.Caching;
 using EsiNet.Fragments;
@@ -15,11 +14,12 @@ namespace EsiNet.AspNetCore
             IEsiFragmentCache cache,
             IHttpLoader httpLoader,
             EsiBodyParser parser,
-            Log log)
+            Log log,
+            ServiceFactory serviceFactory)
         {
             var executors = new Dictionary<Type, Func<IEsiFragment, Task<IEnumerable<string>>>>();
 
-            var fragmentExecutor = new EsiFragmentExecutor(executors);
+            var fragmentExecutor = new EsiFragmentExecutor(executors, serviceFactory);
             var includeExecutor = new EsiIncludeFragmentExecutor(cache, httpLoader, parser, fragmentExecutor);
             var ignoreExecutor = new EsiIgnoreFragmentExecutor();
             var textExecutor = new EsiTextFragmentExecutor();

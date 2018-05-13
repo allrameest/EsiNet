@@ -1,7 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using EsiNet.Fragments;
 
 namespace EsiNet.Pipeline
 {
-    public delegate Task<string> ExecutePipelineDelegate(IEsiFragment fragment, ExecuteDelegate next);
+    public delegate Task<IEnumerable<string>> ExecutePipelineDelegate(IEsiFragment fragment, ExecuteDelegate next);
 }

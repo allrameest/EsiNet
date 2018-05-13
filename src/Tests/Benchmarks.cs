@@ -114,7 +114,8 @@ namespace Tests
                 cache,
                 new FakeStaticHttpLoader(urlContentMap),
                 parser,
-                (level, exception, message) => { });
+                (level, exception, message) => { },
+                NullPipelineFactory.Create);
         }
 
         private async Task<string> Benchmark(Func<Stream, Task> action, int count = 1000)

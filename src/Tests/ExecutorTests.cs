@@ -72,7 +72,8 @@ namespace Tests
                 new NullEsiFragmentCache(),
                 httpLoader,
                 EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>()),
-                log);
+                log,
+                NullPipelineFactory.Create);
             var content = await executor.Execute(fragment);
 
             return string.Concat(content);

@@ -19,7 +19,7 @@ namespace EsiNet.Pipeline
                 {
                     return pipeline.Handle((T) fragment, TypedNext);
 
-                    Task<string> TypedNext(T f) => next(f);
+                    Task<IEnumerable<string>> TypedNext(T f) => next(f);
                 }))
                 .ToArray();
         }
