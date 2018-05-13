@@ -1,15 +1,14 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace EsiNet.Fragments
 {
     public class EsiIgnoreFragmentExecutor
     {
-        public Task<Func<Stream, Task>> Execute(EsiIgnoreFragment fragment)
+        public Task<IEnumerable<string>> Execute(EsiIgnoreFragment fragment)
         {
-            Func<Stream, Task> nullWriter = stream => Task.CompletedTask;
-            return Task.FromResult(nullWriter);
+            return Task.FromResult<IEnumerable<string>>(Array.Empty<string>());
         }
     }
 }

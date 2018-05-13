@@ -52,9 +52,12 @@ namespace EsiNet.AspNetCore
 
             context.Response.Body = originBody;
 
-            var writer = await _executor.Execute(response.Fragment);
+            var content = await _executor.Execute(response.Fragment);
             context.Response.ContentType = response.ContentType;
-            await writer(context.Response.Body);
+            foreach (var part in content)
+            {
+                await context.Response.WriteAsync(part);
+            }
         }
 
         private async Task<string> InvokeNext(HttpContext context)
