@@ -73,14 +73,9 @@ namespace Tests
                 httpLoader,
                 EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>()),
                 log);
-            var writer = await executor.Execute(fragment);
+            var content = await executor.Execute(fragment);
 
-            using (var stream = new MemoryStream())
-            using (var streamReader = new StreamReader(stream))
-            {
-                await writer(stream);
-                return await streamReader.ReadToEndAsync();
-            }
+            return string.Concat(content);
         }
     }
 }

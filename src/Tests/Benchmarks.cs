@@ -79,9 +79,13 @@ namespace Tests
                         return Task.FromResult(result);
                     });
 
-                var writer = await executor.Execute(fragment);
+                var content = await executor.Execute(fragment);
 
-                await writer(stream);
+                foreach (var part in content)
+                {
+                    var bytes = Encoding.UTF8.GetBytes(part);
+                    await stream.WriteAsync(bytes, 0, bytes.Length);
+                }
             });
         }
 

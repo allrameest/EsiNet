@@ -17,7 +17,7 @@ namespace EsiNet.AspNetCore
             EsiBodyParser parser,
             Log log)
         {
-            var executors = new Dictionary<Type, Func<IEsiFragment, Task<Func<Stream, Task>>>>();
+            var executors = new Dictionary<Type, Func<IEsiFragment, Task<IEnumerable<string>>>>();
 
             var fragmentExecutor = new EsiFragmentExecutor(executors);
             var includeExecutor = new EsiIncludeFragmentExecutor(cache, httpLoader, parser, fragmentExecutor);
