@@ -29,7 +29,7 @@ namespace EsiNet.Fragments
 
         public async Task<IEnumerable<string>> Execute(EsiIncludeFragment fragment)
         {
-            var remoteFragment = await _cache.GetOrAddFragment(fragment.Uri, () => RequestAndParse(fragment.Uri));
+            var remoteFragment = await _cache.GetOrAdd(fragment.Uri, () => RequestAndParse(fragment.Uri));
             return await _fragmentExecutor.Execute(remoteFragment);
         }
 

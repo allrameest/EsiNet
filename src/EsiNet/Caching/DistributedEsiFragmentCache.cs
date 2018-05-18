@@ -6,7 +6,6 @@ namespace EsiNet.Caching
 {
     public class DistributedEsiFragmentCache : IEsiFragmentCache
     {
-        private const string Prefix = "Esi_";
         private readonly IDistributedCache _cache;
         private readonly ISerializer _serializer;
 
@@ -18,7 +17,7 @@ namespace EsiNet.Caching
 
         public async Task<(bool, T)> TryGet<T>(string key)
         {
-            var cachedBytes = await _cache.GetAsync(Prefix + key);
+            var cachedBytes = await _cache.GetAsync(CreateFullKey<T>(key));
             if (cachedBytes != null)
             {
                 return (true, _serializer.DeserializeBytes<T>(cachedBytes));
@@ -34,7 +33,12 @@ namespace EsiNet.Caching
                 AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow
             };
             var bytes = _serializer.SerializeBytes(value);
-            await _cache.SetAsync(Prefix + key, bytes, options);
+            await _cache.SetAsync(CreateFullKey<T>(key), bytes, options);
+        }
+
+        private static string CreateFullKey<T>(string key)
+        {
+            return $"Esi_{typeof(T).Name}_{key}";
         }
     }
 }

@@ -71,7 +71,7 @@ namespace Tests
                     ? CacheControlHeaderValue.Parse($"public,max-age={rootCache.Value}")
                     : null;
 
-                var fragment = await cache.GetOrAddFragment(new Uri("/", UriKind.Relative), 
+                var fragment = await cache.GetOrAdd(new Uri("/", UriKind.Relative), 
                     () =>
                     {
                         var esiFragment = parser.Parse(rootContent);

@@ -7,7 +7,6 @@ namespace EsiNet.Caching
 {
     public class TwoStageEsiFragmentCache : IEsiFragmentCache
     {
-        private const string Prefix = "Esi_";
         private readonly IDistributedCache _distributedCache;
         private readonly IMemoryCache _memoryCache;
         private readonly ISerializer _serializer;
@@ -24,12 +23,12 @@ namespace EsiNet.Caching
 
         public async Task<(bool, T)> TryGet<T>(string key)
         {
-            if (_memoryCache.TryGetValue<T>(Prefix + key, out var value))
+            if (_memoryCache.TryGetValue<T>(CreateFullKey<T>(key), out var value))
             {
                 return (true, value);
             }
 
-            var bytes = await _distributedCache.GetAsync(Prefix + key);
+            var bytes = await _distributedCache.GetAsync(CreateFullKey<T>(key));
             if (bytes != null)
             {
                 return (true, _serializer.DeserializeBytes<T>(bytes));
@@ -45,12 +44,12 @@ namespace EsiNet.Caching
                 AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow
             };
             var bytes = _serializer.SerializeBytes(value);
-            await _distributedCache.SetAsync(Prefix + key, bytes, options);
+            await _distributedCache.SetAsync(CreateFullKey<T>(key), bytes, options);
 
             var memoryMaxAge = GetMemoryCacheMaxAge(absoluteExpirationRelativeToNow);
             if (memoryMaxAge.HasValue)
             {
-                _memoryCache.Set(Prefix + key, value, memoryMaxAge.Value);
+                _memoryCache.Set(CreateFullKey<T>(key), value, memoryMaxAge.Value);
             }
         }
 
@@ -64,6 +63,11 @@ namespace EsiNet.Caching
             }
 
             return TimeSpan.FromMinutes(Math.Min(minutes, 5));
+        }
+
+        private static string CreateFullKey<T>(string key)
+        {
+            return $"Esi_{typeof(T).Name}_{key}";
         }
     }
 }
