@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EsiNet.Caching;
@@ -35,25 +34,27 @@ namespace EsiNet.AspNetCore
                 return;
             }
 
-            var originBody = context.Response.Body;
-
             FragmentPageResponse response;
-            try
+            var key = context.Request.GetDisplayUrl();
+            var (found, cachedResponse) = await _cache.TryGet<FragmentPageResponse>(key);
+            if (found)
             {
-                response = await _cache.GetOrAddPageResponse(new Uri(context.Request.GetDisplayUrl()), async () =>
-                {
-                    var body = await InvokeNext(context);
-                    var fragment = _parser.Parse(body);
-                    var pageResponse = new FragmentPageResponse(fragment, context.Response.ContentType);
-
-                    CacheControlHeaderValue.TryParse(
-                        context.Response.Headers["Cache-Control"], out var cacheControl);
-                    return (pageResponse, cacheControl);
-                });
+                response = cachedResponse;
             }
-            finally
+            else
             {
-                context.Response.Body = originBody;
+                var body = await InterceptNext(context);
+
+                var fragment = _parser.Parse(body);
+                response = new FragmentPageResponse(fragment, context.Response.ContentType);
+
+                CacheControlHeaderValue.TryParse(
+                    context.Response.Headers["Cache-Control"], out var cacheControl);
+
+                if (ShouldSetCache(context))
+                {
+                    await _cache.Set(key, cacheControl, response);
+                }
             }
 
             var content = await _executor.Execute(response.Fragment);
@@ -64,24 +65,35 @@ namespace EsiNet.AspNetCore
             }
         }
 
-        private async Task<string> InvokeNext(HttpContext context)
+        private async Task<string> InterceptNext(HttpContext context)
         {
-            string body;
-            using (var newBody = new MemoryStream())
+            var originBody = context.Response.Body;
+
+            try
             {
-                context.Response.Body = newBody;
-
-                await _next(context);
-
-                newBody.Seek(0, SeekOrigin.Begin);
-
-                using (var streamReader = new StreamReader(newBody))
+                using (var newBody = new MemoryStream())
                 {
-                    body = streamReader.ReadToEnd();
+                    context.Response.Body = newBody;
+
+                    await _next(context);
+
+                    newBody.Seek(0, SeekOrigin.Begin);
+
+                    using (var streamReader = new StreamReader(newBody))
+                    {
+                        return streamReader.ReadToEnd();
+                    }
                 }
             }
+            finally
+            {
+                context.Response.Body = originBody;
+            }
+        }
 
-            return body;
+        private static bool ShouldSetCache(HttpContext context)
+        {
+            return context.Response.StatusCode == 200;
         }
     }
 }
