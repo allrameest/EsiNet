@@ -29,10 +29,9 @@ namespace Sample
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+            app.UseStatusCodePagesWithReExecute("/ErrorPage", "?statusCode={0}");
+            app.UseExceptionHandler("/ErrorPage");
+            //app.UseDeveloperExceptionPage();
 
             app.UseStaticFiles(new StaticFileOptions
             {

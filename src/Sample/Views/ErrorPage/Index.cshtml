@@ -1,0 +1,20 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>title</title>
+</head>
+<body>
+<div>
+
+    <esi:try>
+        <esi:attempt>
+            <esi:include src="http://localhost:57780/error/@(ViewBag.StatusCode).html"/>
+        </esi:attempt>
+        <esi:except>
+            Error
+        </esi:except>
+    </esi:try>
+
+</div>
+</body>
+</html>
