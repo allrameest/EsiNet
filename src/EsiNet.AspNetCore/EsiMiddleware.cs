@@ -3,7 +3,6 @@ using System.IO;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EsiNet.Caching;
-using EsiNet.Fragments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 
@@ -37,20 +36,25 @@ namespace EsiNet.AspNetCore
             }
 
             var originBody = context.Response.Body;
-  
 
-            var response = await _cache.GetOrAddPageResponse(new Uri(context.Request.GetDisplayUrl()), async () =>
+            FragmentPageResponse response;
+            try
             {
-                var body = await InvokeNext(context);
-                var fragment = _parser.Parse(body);
-                var pageResponse = new FragmentPageResponse(fragment, context.Response.ContentType);
+                response = await _cache.GetOrAddPageResponse(new Uri(context.Request.GetDisplayUrl()), async () =>
+                {
+                    var body = await InvokeNext(context);
+                    var fragment = _parser.Parse(body);
+                    var pageResponse = new FragmentPageResponse(fragment, context.Response.ContentType);
 
-                CacheControlHeaderValue.TryParse(
-                    context.Response.Headers["Cache-Control"], out var cacheControl);
-                return (pageResponse, cacheControl);
-            });
-
-            context.Response.Body = originBody;
+                    CacheControlHeaderValue.TryParse(
+                        context.Response.Headers["Cache-Control"], out var cacheControl);
+                    return (pageResponse, cacheControl);
+                });
+            }
+            finally
+            {
+                context.Response.Body = originBody;
+            }
 
             var content = await _executor.Execute(response.Fragment);
             context.Response.ContentType = response.ContentType;
