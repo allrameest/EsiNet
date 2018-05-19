@@ -9,6 +9,13 @@ A asp.net core middleware for [ESI](http://www.w3.org/TR/esi-lang).
 ```
 # Install
 
+### NuGet
+
+```
+Install-Package EsiNet
+Install-Package EsiNet.AspNetCore
+Install-Package EsiNet.Polly
+```
 
 ### Services
 
