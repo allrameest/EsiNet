@@ -2,6 +2,10 @@
 <img src="https://raw.githubusercontent.com/allrameest/EsiNet/master/logo.png" alt="metro logo" />
 </p>
 
+[![NuGet Version](http://img.shields.io/nuget/v/EsiNet.svg?style=flat)](https://www.nuget.org/packages/EsiNet/)
+[![NuGet Version](http://img.shields.io/nuget/v/EsiNet.AspNetCore.svg?style=flat)](https://www.nuget.org/packages/EsiNet.AspNetCore/)
+[![NuGet Version](http://img.shields.io/nuget/v/EsiNet.Polly.svg?style=flat)](https://www.nuget.org/packages/EsiNet.Polly/)
+
 A asp.net core middleware for [ESI](http://www.w3.org/TR/esi-lang).
 
 ```
@@ -9,13 +13,6 @@ A asp.net core middleware for [ESI](http://www.w3.org/TR/esi-lang).
 ```
 # Install
 
-### NuGet
-
-```
-Install-Package EsiNet
-Install-Package EsiNet.AspNetCore
-Install-Package EsiNet.Polly
-```
 
 ### Services
 
