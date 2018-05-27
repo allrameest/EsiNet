@@ -51,6 +51,30 @@ namespace Tests
         }
 
         [Fact]
+        public void Parse_IncludeTagWithOnErrorContinue_TryFragmentReturned()
+        {
+            var fragment = Parse(
+                @"<esi:include src=""http://host/fragment"" onerror=""continue""/>");
+
+            var expected = new EsiTryFragment(
+                new EsiIncludeFragment(new Uri("http://host/fragment")),
+                new EsiIgnoreFragment());
+            fragment.ShouldDeepEqual(expected);
+        }
+
+        [Fact]
+        public void Parse_IncludeTagWithAltUrl_TryFragmentReturned()
+        {
+            var fragment = Parse(
+                @"<esi:include src=""http://host/fragment"" alt=""http://alt/fragment""/>");
+
+            var expected = new EsiTryFragment(
+                new EsiIncludeFragment(new Uri("http://host/fragment")),
+                new EsiIncludeFragment(new Uri("http://alt/fragment")));
+            fragment.ShouldDeepEqual(expected);
+        }
+
+        [Fact]
         public void Parse_TryTagWithAttemptExcept_TryFragmentReturned()
         {
             var fragment = Parse(
