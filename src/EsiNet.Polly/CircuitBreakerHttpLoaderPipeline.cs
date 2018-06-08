@@ -25,7 +25,7 @@ namespace EsiNet.Polly
             TimeSpan durationOfBreak,
             Func<Uri, string> breakerKeyFactory = null)
         {
-            _log = log;
+            _log = log ?? throw new ArgumentNullException(nameof(log));
             _exceptionsAllowedBeforeBreaking = exceptionsAllowedBeforeBreaking;
             _durationOfBreak = durationOfBreak;
             _breakerKeyFactory = breakerKeyFactory ?? (uri => uri.ToString());

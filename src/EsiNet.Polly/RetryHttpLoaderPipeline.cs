@@ -14,6 +14,8 @@ namespace EsiNet.Polly
 
         public RetryHttpLoaderPipeline(Log log, int retryCount)
         {
+            if (log == null) throw new ArgumentNullException(nameof(log));
+
             _retryPolicy = Policy
                 .Handle<HttpRequestException>()
                 .RetryAsync(retryCount,
