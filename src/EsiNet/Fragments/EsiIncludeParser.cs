@@ -7,6 +7,9 @@ namespace EsiNet.Fragments
     {
         public IEsiFragment Parse(IReadOnlyDictionary<string, string> attributes, string body)
         {
+            if (attributes == null) throw new ArgumentNullException(nameof(attributes));
+            if (body == null) throw new ArgumentNullException(nameof(body));
+
             var srcUrl = attributes["src"];
 
             var srcFragment = new EsiIncludeFragment(new Uri(srcUrl, UriKind.RelativeOrAbsolute));

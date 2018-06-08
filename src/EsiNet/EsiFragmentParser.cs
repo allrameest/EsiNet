@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EsiNet.Fragments;
 using EsiNet.Pipeline;
@@ -14,13 +15,18 @@ namespace EsiNet
             IReadOnlyDictionary<string, IEsiFragmentParser> parsers,
             IEnumerable<IFragmentParsePipeline> pipelines)
         {
-            _parsers = parsers;
-            _pipelines = pipelines.Reverse().ToArray();
+            _parsers = parsers ?? throw new ArgumentNullException(nameof(parsers));
+            _pipelines = pipelines?.Reverse().ToArray() ?? throw new ArgumentNullException(nameof(pipelines));
         }
 
         public IEsiFragment Parse(
             string tag, IReadOnlyDictionary<string, string> attributes, string tagBody, string outerBody)
         {
+            if (tag == null) throw new ArgumentNullException(nameof(tag));
+            if (attributes == null) throw new ArgumentNullException(nameof(attributes));
+            if (tagBody == null) throw new ArgumentNullException(nameof(tagBody));
+            if (outerBody == null) throw new ArgumentNullException(nameof(outerBody));
+
             if (!_parsers.TryGetValue(tag, out var parser))
             {
                 return new EsiTextFragment(outerBody);

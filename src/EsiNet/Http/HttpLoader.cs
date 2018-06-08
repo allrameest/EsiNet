@@ -14,12 +14,14 @@ namespace EsiNet.Http
 
         public HttpLoader(HttpClientFactory httpClientFactory, IEnumerable<IHttpLoaderPipeline> pipelines)
         {
-            _httpClientFactory = httpClientFactory;
-            _pipelines = pipelines.Reverse().ToArray();
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _pipelines = pipelines?.Reverse().ToArray() ?? throw new ArgumentNullException(nameof(pipelines));
         }
 
         public async Task<HttpResponseMessage> Get(Uri uri)
         {
+            if (uri == null) throw new ArgumentNullException(nameof(uri));
+
             var response = await Execute(uri);
 
             response.EnsureSuccessStatusCode();

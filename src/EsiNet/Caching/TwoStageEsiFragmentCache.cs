@@ -16,9 +16,9 @@ namespace EsiNet.Caching
             IDistributedCache distributedCache,
             ISerializer serializer)
         {
-            _memoryCache = memoryCache;
-            _distributedCache = distributedCache;
-            _serializer = serializer;
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+            _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
         public async Task<(bool, T)> TryGet<T>(string key)

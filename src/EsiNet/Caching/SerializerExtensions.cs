@@ -28,6 +28,7 @@ namespace EsiNet.Caching
 
         public static ISerializer GZip(this ISerializer innerSerializer)
         {
+            if (innerSerializer == null) throw new ArgumentNullException(nameof(innerSerializer));
             return new GZipSerializerDecorator(innerSerializer);
         }
     }

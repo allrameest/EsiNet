@@ -11,7 +11,7 @@ namespace EsiNet.Caching
 
         public GZipSerializerDecorator(ISerializer innerSerializer)
         {
-            _innerSerializer = innerSerializer;
+            _innerSerializer = innerSerializer ?? throw new ArgumentNullException(nameof(innerSerializer));
         }
 
         public void Serialize<T>(T value, Stream destination)

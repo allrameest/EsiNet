@@ -7,7 +7,7 @@ namespace EsiNet.Fragments
     {
         public EsiIncludeFragment(Uri uri)
         {
-            Uri = uri;
+            Uri = uri ?? throw new ArgumentNullException(nameof(uri));
         }
 
         public Uri Uri { get; }

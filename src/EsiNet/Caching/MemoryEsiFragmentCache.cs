@@ -10,7 +10,7 @@ namespace EsiNet.Caching
 
         public MemoryEsiFragmentCache(IMemoryCache cache)
         {
-            _cache = cache;
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public Task<(bool, T)> TryGet<T>(string key)

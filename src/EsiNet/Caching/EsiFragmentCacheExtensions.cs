@@ -33,6 +33,8 @@ namespace EsiNet.Caching
         public static async Task Set<T>(
             this IEsiFragmentCache cache, string key, CacheControlHeaderValue cacheControl, T value)
         {
+            if (cache == null) throw new ArgumentNullException(nameof(cache));
+
             if (cacheControl == null)
             {
                 return;
