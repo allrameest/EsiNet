@@ -1,9 +1,8 @@
-module GiraffeSample.App
+module Sample.Giraffe.App
 
 open System
 open System.IO
 open Microsoft.AspNetCore.Builder
-open Microsoft.AspNetCore.Cors.Infrastructure
 open Microsoft.AspNetCore.Hosting
 open Microsoft.Extensions.Logging
 open Microsoft.Extensions.DependencyInjection
@@ -29,7 +28,7 @@ module Views =
     let layout (content: XmlNode list) =
         html [] [
             head [] [
-                title []  [ encodedText "GiraffeSample" ]
+                title []  [ encodedText "Giraffe Sample" ]
                 link [ _rel  "stylesheet"
                        _type "text/css"
                        _href "/main.css" ]
@@ -38,7 +37,7 @@ module Views =
         ]
 
     let partial () =
-        h1 [] [ encodedText "GiraffeSample" ]
+        h1 [] [ encodedText "Giraffe Sample" ]
 
     let index (model : Message) =
         [
