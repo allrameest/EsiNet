@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using EsiNet.Fragments;
 using EsiNet.Pipeline;
 
@@ -8,6 +9,8 @@ namespace EsiNet.AspNetCore
     {
         public static EsiBodyParser Create(IEnumerable<IFragmentParsePipeline> parsePipelines)
         {
+            if (parsePipelines == null) throw new ArgumentNullException(nameof(parsePipelines));
+
             var parsers = new Dictionary<string, IEsiFragmentParser>();
 
             var fragmentParser = new EsiFragmentParser(parsers, parsePipelines);

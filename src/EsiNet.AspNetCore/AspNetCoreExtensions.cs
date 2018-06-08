@@ -52,6 +52,8 @@ namespace EsiNet.AspNetCore
 
         public static IApplicationBuilder UseEsiNet(this IApplicationBuilder app)
         {
+            if (app == null) throw new ArgumentNullException(nameof(app));
+
             app.UseMiddleware<EsiMiddleware>();
             return app;
         }
