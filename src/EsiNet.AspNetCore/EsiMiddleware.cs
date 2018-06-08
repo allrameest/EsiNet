@@ -59,6 +59,8 @@ namespace EsiNet.AspNetCore
 
             var content = await _executor.Execute(response.Fragment);
             context.Response.ContentType = response.ContentType;
+            context.Response.ContentLength = null;
+
             foreach (var part in content)
             {
                 await context.Response.WriteAsync(part);
