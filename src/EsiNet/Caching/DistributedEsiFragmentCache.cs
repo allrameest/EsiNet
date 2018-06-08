@@ -11,8 +11,8 @@ namespace EsiNet.Caching
 
         public DistributedEsiFragmentCache(IDistributedCache cache, ISerializer serializer)
         {
-            _serializer = serializer;
-            _cache = cache;
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
         public async Task<(bool, T)> TryGet<T>(string key)

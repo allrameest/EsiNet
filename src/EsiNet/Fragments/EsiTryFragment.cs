@@ -7,8 +7,8 @@ namespace EsiNet.Fragments
     {
         public EsiTryFragment(IEsiFragment attemptFragment, IEsiFragment exceptFragment)
         {
-            AttemptFragment = attemptFragment;
-            ExceptFragment = exceptFragment;
+            AttemptFragment = attemptFragment ?? throw new ArgumentNullException(nameof(attemptFragment));
+            ExceptFragment = exceptFragment ?? throw new ArgumentNullException(nameof(exceptFragment));
         }
 
         public IEsiFragment AttemptFragment { get; }

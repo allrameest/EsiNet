@@ -8,7 +8,7 @@ namespace EsiNet.Caching
     {
         public FragmentPageResponse(IEsiFragment fragment, string contentType)
         {
-            Fragment = fragment;
+            Fragment = fragment ?? throw new ArgumentNullException(nameof(fragment));
             ContentType = contentType;
         }
 

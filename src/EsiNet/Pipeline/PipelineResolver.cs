@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EsiNet.Fragments;
@@ -11,6 +12,8 @@ namespace EsiNet.Pipeline
         public IReadOnlyCollection<ExecutePipelineDelegate> GetExecutePipelineDelegates(
             ServiceFactory serviceFactory)
         {
+            if (serviceFactory == null) throw new ArgumentNullException(nameof(serviceFactory));
+
             var pipelines = serviceFactory.GetInstances<IFragmentExecutePipeline<T>>();
 
             return pipelines

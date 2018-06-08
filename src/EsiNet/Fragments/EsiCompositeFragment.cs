@@ -8,7 +8,7 @@ namespace EsiNet.Fragments
     {
         public EsiCompositeFragment(IReadOnlyCollection<IEsiFragment> fragments)
         {
-            Fragments = fragments;
+            Fragments = fragments ?? throw new ArgumentNullException(nameof(fragments));
         }
 
         public IReadOnlyCollection<IEsiFragment> Fragments { get; }

@@ -39,7 +39,7 @@ namespace EsiNet
 
         public EsiBodyParser(EsiFragmentParser fragmentParser)
         {
-            _fragmentParser = fragmentParser;
+            _fragmentParser = fragmentParser ?? throw new ArgumentNullException(nameof(fragmentParser));
         }
 
         public IEsiFragment Parse(string body)

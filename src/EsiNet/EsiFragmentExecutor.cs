@@ -19,12 +19,14 @@ namespace EsiNet
             IReadOnlyDictionary<Type, Func<IEsiFragment, Task<IEnumerable<string>>>> executors,
             ServiceFactory serviceFactory)
         {
-            _executors = executors;
-            _serviceFactory = serviceFactory;
+            _executors = executors ?? throw new ArgumentNullException(nameof(executors));
+            _serviceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
         }
 
         public async Task<IEnumerable<string>> Execute(IEsiFragment fragment)
         {
+            if (fragment == null) throw new ArgumentNullException(nameof(fragment));
+
             var fragmentType = fragment.GetType();
             if (!_executors.TryGetValue(fragmentType, out var executor))
             {

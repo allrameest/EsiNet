@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EsiNet.Caching;
@@ -21,14 +20,16 @@ namespace EsiNet.Fragments
             EsiBodyParser esiBodyParser,
             EsiFragmentExecutor fragmentExecutor)
         {
-            _cache = cache;
-            _httpLoader = httpLoader;
-            _esiBodyParser = esiBodyParser;
-            _fragmentExecutor = fragmentExecutor;
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _httpLoader = httpLoader ?? throw new ArgumentNullException(nameof(httpLoader));
+            _esiBodyParser = esiBodyParser ?? throw new ArgumentNullException(nameof(esiBodyParser));
+            _fragmentExecutor = fragmentExecutor ?? throw new ArgumentNullException(nameof(fragmentExecutor));
         }
 
         public async Task<IEnumerable<string>> Execute(EsiIncludeFragment fragment)
         {
+            if (fragment == null) throw new ArgumentNullException(nameof(fragment));
+
             var remoteFragment = await _cache.GetOrAdd(fragment.Uri, () => RequestAndParse(fragment.Uri));
             return await _fragmentExecutor.Execute(remoteFragment);
         }

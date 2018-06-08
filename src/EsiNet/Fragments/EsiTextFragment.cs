@@ -7,7 +7,7 @@ namespace EsiNet.Fragments
     {
         public EsiTextFragment(string body)
         {
-            Body = body;
+            Body = body ?? throw new ArgumentNullException(nameof(body));
         }
 
         public string Body { get; }

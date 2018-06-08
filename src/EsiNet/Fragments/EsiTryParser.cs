@@ -15,11 +15,14 @@ namespace EsiNet.Fragments
 
         public EsiTryParser(EsiBodyParser bodyParser)
         {
-            _bodyParser = bodyParser;
+            _bodyParser = bodyParser ?? throw new ArgumentNullException(nameof(bodyParser));
         }
 
         public IEsiFragment Parse(IReadOnlyDictionary<string, string> attributes, string body)
         {
+            if (attributes == null) throw new ArgumentNullException(nameof(attributes));
+            if (body == null) throw new ArgumentNullException(nameof(body));
+
             var tags = TagRegex.Matches(body)
                 .Cast<Match>()
                 .ToDictionary(m => m.Groups[1].Value, m => m.Groups[2].Value, StringComparer.OrdinalIgnoreCase);
