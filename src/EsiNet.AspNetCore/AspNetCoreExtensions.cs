@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Net.Http;
 using EsiNet.Caching;
+using EsiNet.Fragments;
 using EsiNet.Http;
 using EsiNet.Logging;
 using EsiNet.Pipeline;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,7 +29,15 @@ namespace EsiNet.AspNetCore
 
             services.AddSingleton(sp => CreateLog(sp.GetService<ILoggerFactory>().CreateLogger("EsiNet")));
 
-            services.AddSingleton(sp => EsiParserFactory.Create(sp.GetServices<IFragmentParsePipeline>()));
+            services.AddSingleton<IncludeUriParser>(sp =>
+            {
+                var httpContextAccessor = sp.GetService<IHttpContextAccessor>();
+                var uriParser = new UriParser(httpContextAccessor);
+                return uriParser.Parse;
+            });
+
+            services.AddSingleton(sp => EsiParserFactory.Create(
+                sp.GetServices<IFragmentParsePipeline>(), sp.GetService<IncludeUriParser>()));
 
             services.AddSingleton<HttpClientFactory>(sp =>
             {
