@@ -5,6 +5,13 @@ namespace EsiNet.Fragments
 {
     public class EsiIncludeParser : IEsiFragmentParser
     {
+        private readonly IncludeUriParser _uriParser;
+
+        public EsiIncludeParser(IncludeUriParser uriParser)
+        {
+            _uriParser = uriParser ?? throw new ArgumentNullException(nameof(uriParser));
+        }
+
         public IEsiFragment Parse(IReadOnlyDictionary<string, string> attributes, string body)
         {
             if (attributes == null) throw new ArgumentNullException(nameof(attributes));
@@ -12,12 +19,12 @@ namespace EsiNet.Fragments
 
             var srcUrl = attributes["src"];
 
-            var srcFragment = new EsiIncludeFragment(new Uri(srcUrl, UriKind.RelativeOrAbsolute));
+            var srcFragment = new EsiIncludeFragment(_uriParser(srcUrl));
 
             IEsiFragment includeFragment;
             if (attributes.TryGetValue("alt", out var altUrl))
             {
-                var altFragment = new EsiIncludeFragment(new Uri(altUrl, UriKind.RelativeOrAbsolute));
+                var altFragment = new EsiIncludeFragment(_uriParser(altUrl));
                 includeFragment = new EsiTryFragment(srcFragment, altFragment);
             }
             else

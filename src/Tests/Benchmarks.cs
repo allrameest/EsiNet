@@ -102,7 +102,9 @@ namespace Tests
 
         private static EsiBodyParser CreateParser()
         {
-            return EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>());
+            return EsiParserFactory.Create(
+                Array.Empty<IFragmentParsePipeline>(),
+                url => new Uri(url, UriKind.RelativeOrAbsolute));
         }
 
         private static EsiFragmentExecutor CreateExecutor(

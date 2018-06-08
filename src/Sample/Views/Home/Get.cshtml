@@ -6,16 +6,16 @@
 </head>
 <body>
 
-<esi:include src="http://localhost:57780/header.html" />
+<esi:include src="/header.html" />
 
-<esi:include src="http://localhost:57780/product/123" />
+<esi:include src="/product/123" />
 
-<esi:include src="http://localhost:57780/footer.html" />
+<esi:include src="/footer.html" />
 
 <esi:try>
     <esi:attempt>
         ATTEMPT
-        <esi:include src="http://localhost:57780/fail.html" />
+        <esi:include src="/fail.html" />
     </esi:attempt>
     <esi:except>
         EXCEPT

@@ -115,7 +115,7 @@ namespace Tests
 
         private static IEsiFragment Parse(string body)
         {
-            var parser = EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>());
+            var parser = EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>(), url => new Uri(url));
             return parser.Parse(body);
         }
     }
