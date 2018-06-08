@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using EsiNet.Caching;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Primitives;
 
 namespace EsiNet.AspNetCore
 {
@@ -43,6 +44,8 @@ namespace EsiNet.AspNetCore
             }
             else
             {
+                context.Request.Headers["Accept-Encoding"] = StringValues.Empty;
+
                 var body = await InterceptNext(context);
 
                 var fragment = _parser.Parse(body);

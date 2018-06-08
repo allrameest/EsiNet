@@ -17,6 +17,7 @@ namespace Sample
         public void ConfigureServices(IServiceCollection services)
         {
             services
+                .AddResponseCompression()
                 .AddSingleton<IFragmentExecutePipeline<EsiIncludeFragment>, BracketPipeline>()
                 .AddSingleton<IFragmentParsePipeline, IncludeUrlPipeline>()
                 .AddSingleton<IHttpLoaderPipeline>(sp => new CircuitBreakerHttpLoaderPipeline(
@@ -29,6 +30,8 @@ namespace Sample
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseResponseCompression();
+
             app.UseStatusCodePagesWithReExecute("/ErrorPage", "?statusCode={0}");
             app.UseExceptionHandler("/ErrorPage");
             //app.UseDeveloperExceptionPage();
@@ -44,9 +47,9 @@ namespace Sample
                 }
             });
 
-            app
-                .UseEsiNet()
-                .UseMvc();
+            app.UseEsiNet();
+            app.UseResponseCompression();
+            app.UseMvc();
         }
     }
 }
