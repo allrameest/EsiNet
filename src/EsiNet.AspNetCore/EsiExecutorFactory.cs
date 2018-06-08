@@ -17,6 +17,12 @@ namespace EsiNet.AspNetCore
             Log log,
             ServiceFactory serviceFactory)
         {
+            if (cache == null) throw new ArgumentNullException(nameof(cache));
+            if (httpLoader == null) throw new ArgumentNullException(nameof(httpLoader));
+            if (parser == null) throw new ArgumentNullException(nameof(parser));
+            if (log == null) throw new ArgumentNullException(nameof(log));
+            if (serviceFactory == null) throw new ArgumentNullException(nameof(serviceFactory));
+
             var executors = new Dictionary<Type, Func<IEsiFragment, Task<IEnumerable<string>>>>();
 
             var fragmentExecutor = new EsiFragmentExecutor(executors, serviceFactory);
