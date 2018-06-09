@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EsiNet.Caching;
+using EsiNet.Fragments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Primitives;
@@ -38,12 +41,17 @@ namespace EsiNet.AspNetCore
                 return;
             }
 
-            FragmentPageResponse response;
+            IEsiFragment fragment;
             var key = context.Request.GetDisplayUrl();
             var (found, cachedResponse) = await _cache.TryGet<FragmentPageResponse>(key);
             if (found)
             {
-                response = cachedResponse;
+                foreach (var header in cachedResponse.Headers)
+                {
+                    context.Response.Headers.Add(header.Key, new StringValues(header.Value.ToArray()));
+                }
+
+                fragment = cachedResponse.Fragment;
             }
             else
             {
@@ -51,26 +59,35 @@ namespace EsiNet.AspNetCore
 
                 var body = await InterceptNext(context);
 
-                var fragment = _parser.Parse(body);
-                response = new FragmentPageResponse(fragment, context.Response.ContentType);
+                fragment = _parser.Parse(body);
 
                 CacheControlHeaderValue.TryParse(
                     context.Response.Headers["Cache-Control"], out var cacheControl);
 
                 if (ShouldSetCache(context))
                 {
-                    await _cache.Set(key, cacheControl, response);
+                    var headers = GetHeadersToForward(context.Response.Headers);
+                    var cacheResponse = new FragmentPageResponse(fragment, headers);
+                    await _cache.Set(key, cacheControl, cacheResponse);
                 }
             }
 
-            var content = await _executor.Execute(response.Fragment);
-            context.Response.ContentType = response.ContentType;
+            var content = await _executor.Execute(fragment);
             context.Response.ContentLength = null;
 
             foreach (var part in content)
             {
                 await context.Response.WriteAsync(part);
             }
+        }
+
+        private static IReadOnlyDictionary<string, IReadOnlyCollection<string>> GetHeadersToForward(
+            IHeaderDictionary headers)
+        {
+            return headers
+                .ToDictionary(
+                    h => h.Key,
+                    h => (IReadOnlyCollection<string>) h.Value.ToArray());
         }
 
         private async Task<string> InterceptNext(HttpContext context)
