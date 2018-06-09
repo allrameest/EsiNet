@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EsiNet.Caching;
 using EsiNet.Fragments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
+using CacheControlHeaderValue = System.Net.Http.Headers.CacheControlHeaderValue;
 
 namespace EsiNet.AspNetCore
 {
@@ -55,14 +56,14 @@ namespace EsiNet.AspNetCore
             }
             else
             {
-                context.Request.Headers["Accept-Encoding"] = StringValues.Empty;
+                context.Request.Headers[HeaderNames.AcceptEncoding] = StringValues.Empty;
 
                 var body = await InterceptNext(context);
 
                 fragment = _parser.Parse(body);
 
                 CacheControlHeaderValue.TryParse(
-                    context.Response.Headers["Cache-Control"], out var cacheControl);
+                    context.Response.Headers[HeaderNames.CacheControl], out var cacheControl);
 
                 if (ShouldSetCache(context))
                 {
