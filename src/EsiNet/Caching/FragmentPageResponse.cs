@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using EsiNet.Fragments;
 
 namespace EsiNet.Caching
@@ -6,13 +7,13 @@ namespace EsiNet.Caching
     [Serializable]
     public class FragmentPageResponse
     {
-        public FragmentPageResponse(IEsiFragment fragment, string contentType)
+        public FragmentPageResponse(IEsiFragment fragment, IReadOnlyDictionary<string, IReadOnlyCollection<string>> headers)
         {
             Fragment = fragment ?? throw new ArgumentNullException(nameof(fragment));
-            ContentType = contentType;
+            Headers = headers;
         }
 
         public IEsiFragment Fragment { get; }
-        public string ContentType { get; }
+        public IReadOnlyDictionary<string, IReadOnlyCollection<string>> Headers { get; }
     }
 }
