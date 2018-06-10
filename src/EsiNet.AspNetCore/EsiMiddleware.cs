@@ -15,6 +15,14 @@ namespace EsiNet.AspNetCore
 {
     public class EsiMiddleware
     {
+        private static readonly ISet<string> ValidContentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "application/javascript",
+            "application/json",
+            "application/xhtml+xml",
+            "application/xml"
+        };
+
         private readonly RequestDelegate _next;
         private readonly EsiBodyParser _parser;
         private readonly EsiFragmentExecutor _executor;
@@ -45,6 +53,7 @@ namespace EsiNet.AspNetCore
             IEsiFragment fragment;
             var key = context.Request.GetDisplayUrl();
             var (found, cachedResponse) = await _cache.TryGet<FragmentPageResponse>(key);
+
             if (found)
             {
                 foreach (var header in cachedResponse.Headers)
@@ -58,7 +67,12 @@ namespace EsiNet.AspNetCore
             {
                 context.Request.Headers[HeaderNames.AcceptEncoding] = StringValues.Empty;
 
-                var body = await InterceptNext(context);
+                var body = await TryInterceptNext(context);
+                if (body == null)
+                {
+                    return;
+                }
+
 
                 fragment = _parser.Parse(body);
 
@@ -96,7 +110,7 @@ namespace EsiNet.AspNetCore
                     h => (IReadOnlyCollection<string>) h.Value.ToArray());
         }
 
-        private async Task<string> InterceptNext(HttpContext context)
+        private async Task<string> TryInterceptNext(HttpContext context)
         {
             var originBody = context.Response.Body;
 
@@ -109,6 +123,12 @@ namespace EsiNet.AspNetCore
                     await _next(context);
 
                     newBody.Seek(0, SeekOrigin.Begin);
+
+                    if (!ShouldIntercept(context.Response.ContentType))
+                    {
+                        await newBody.CopyToAsync(originBody);
+                        return null;
+                    }
 
                     using (var streamReader = new StreamReader(newBody))
                     {
@@ -125,6 +145,22 @@ namespace EsiNet.AspNetCore
         private static bool ShouldSetCache(HttpContext context)
         {
             return context.Response.StatusCode == 200;
+        }
+
+        private static bool ShouldIntercept(string contentType)
+        {
+            if (contentType == null)
+            {
+                return false;
+            }
+
+            if (contentType.StartsWith("text/"))
+            {
+                return true;
+            }
+
+            var parts = contentType.Split(';');
+            return ValidContentTypes.Contains(parts.First());
         }
     }
 }
