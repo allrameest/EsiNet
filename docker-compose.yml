@@ -5,4 +5,4 @@ services:
     image: ${DOCKER_REGISTRY}samplegateway
     build:
       context: .
-      dockerfile: Sample.Gateway/Dockerfile
+      dockerfile: samples/Sample.Gateway/Dockerfile
