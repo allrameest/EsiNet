@@ -23,15 +23,18 @@ namespace EsiNet.Caching
 
         public async Task<(bool, T)> TryGet<T>(string key)
         {
-            if (_memoryCache.TryGetValue<T>(CreateFullKey<T>(key), out var value))
+            var fullKey = CreateFullKey<T>(key);
+            if (_memoryCache.TryGetValue<T>(fullKey, out var value))
             {
                 return (true, value);
             }
 
-            var bytes = await _distributedCache.GetAsync(CreateFullKey<T>(key));
+            var bytes = await _distributedCache.GetAsync(fullKey);
             if (bytes != null)
             {
-                return (true, _serializer.DeserializeBytes<T>(bytes));
+                value = _serializer.DeserializeBytes<T>(bytes);
+                _memoryCache.Set(fullKey, value);
+                return (true, value);
             }
 
             return (false, default(T));
