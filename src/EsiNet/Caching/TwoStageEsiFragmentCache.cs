@@ -10,15 +10,18 @@ namespace EsiNet.Caching
         private readonly IDistributedCache _distributedCache;
         private readonly IMemoryCache _memoryCache;
         private readonly ISerializer _serializer;
+        private readonly int _maxMemoryCacheTimeInMinutes;
 
         public TwoStageEsiFragmentCache(
             IMemoryCache memoryCache,
             IDistributedCache distributedCache,
-            ISerializer serializer)
+            ISerializer serializer,
+            int maxMemoryCacheTimeInMinutes = 5)
         {
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _maxMemoryCacheTimeInMinutes = maxMemoryCacheTimeInMinutes;
         }
 
         public async Task<(bool, T)> TryGet<T>(string key)
@@ -56,7 +59,7 @@ namespace EsiNet.Caching
             }
         }
 
-        private static TimeSpan? GetMemoryCacheMaxAge(TimeSpan maxAge)
+        private TimeSpan? GetMemoryCacheMaxAge(TimeSpan maxAge)
         {
             var minutes = (int) maxAge.TotalMinutes;
 
@@ -65,7 +68,7 @@ namespace EsiNet.Caching
                 return null;
             }
 
-            return TimeSpan.FromMinutes(Math.Min(minutes, 5));
+            return TimeSpan.FromMinutes(Math.Min(minutes, _maxMemoryCacheTimeInMinutes));
         }
 
         private static string CreateFullKey<T>(string key)
