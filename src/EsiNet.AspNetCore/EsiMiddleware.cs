@@ -58,6 +58,7 @@ namespace EsiNet.AspNetCore
             {
                 foreach (var header in cachedResponse.Headers)
                 {
+                    if (context.Response.Headers.ContainsKey(header.Key)) continue;
                     context.Response.Headers.Add(header.Key, new StringValues(header.Value.ToArray()));
                 }
 
