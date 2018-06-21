@@ -80,11 +80,6 @@ namespace EsiNet.AspNetCore
                 CacheControlHeaderValue.TryParse(
                     context.Response.Headers[HeaderNames.CacheControl], out var cacheControl);
 
-                if (cacheControl?.Public ?? false)
-                {
-                    context.Response.Headers[HeaderNames.CacheControl] = StringValues.Empty;
-                }
-
                 if (ShouldSetCache(context))
                 {
                     var headers = GetHeadersToForward(context.Response.Headers);
