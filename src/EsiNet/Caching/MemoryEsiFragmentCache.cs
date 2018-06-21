@@ -29,7 +29,7 @@ namespace EsiNet.Caching
 
         private static string CreateFullKey<T>(string key)
         {
-            return $"Esi_{typeof(T).Name}_{key}";
+            return $"Esi_{CacheVersion.Version}_{typeof(T).Name}_{key}";
         }
     }
 }

@@ -16,7 +16,7 @@ namespace EsiNet.Caching
             IMemoryCache memoryCache,
             IDistributedCache distributedCache,
             ISerializer serializer,
-            int maxMemoryCacheTimeInMinutes = 5)
+            int maxMemoryCacheTimeInMinutes = 3)
         {
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _distributedCache = distributedCache ?? throw new ArgumentNullException(nameof(distributedCache));
@@ -35,8 +35,9 @@ namespace EsiNet.Caching
             var bytes = await _distributedCache.GetAsync(fullKey);
             if (bytes != null)
             {
-                value = _serializer.DeserializeBytes<T>(bytes);
-                _memoryCache.Set(fullKey, value);
+                var envelope = _serializer.DeserializeBytes<CacheEnvelope<T>>(bytes);
+                value = envelope.Body;
+                SetMemoryCache(key, value, envelope.ExpirationTime);
                 return (true, value);
             }
 
@@ -49,10 +50,16 @@ namespace EsiNet.Caching
             {
                 AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow
             };
-            var bytes = _serializer.SerializeBytes(value);
+            var envelope = new CacheEnvelope<T>(value, absoluteExpirationRelativeToNow);
+            var bytes = _serializer.SerializeBytes(envelope);
             await _distributedCache.SetAsync(CreateFullKey<T>(key), bytes, options);
 
-            var memoryMaxAge = GetMemoryCacheMaxAge(absoluteExpirationRelativeToNow);
+            SetMemoryCache(key, value, absoluteExpirationRelativeToNow);
+        }
+
+        private void SetMemoryCache<T>(string key, T value, TimeSpan expirationTime)
+        {
+            var memoryMaxAge = GetMemoryCacheMaxAge(expirationTime);
             if (memoryMaxAge.HasValue)
             {
                 _memoryCache.Set(CreateFullKey<T>(key), value, memoryMaxAge.Value);
@@ -73,7 +80,7 @@ namespace EsiNet.Caching
 
         private static string CreateFullKey<T>(string key)
         {
-            return $"Esi_{typeof(T).Name}_{key}";
+            return $"Esi_{CacheVersion.Version}_{typeof(T).Name}_{key}";
         }
     }
 }
