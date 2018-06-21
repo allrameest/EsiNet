@@ -20,7 +20,8 @@ namespace EsiNet.Caching
             var cachedBytes = await _cache.GetAsync(CreateFullKey<T>(key));
             if (cachedBytes != null)
             {
-                return (true, _serializer.DeserializeBytes<T>(cachedBytes));
+                var envelope = _serializer.DeserializeBytes<CacheEnvelope<T>>(cachedBytes);
+                return (true, envelope.Body);
             }
 
             return (false, default(T));
@@ -32,13 +33,14 @@ namespace EsiNet.Caching
             {
                 AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow
             };
-            var bytes = _serializer.SerializeBytes(value);
+            var envelope = new CacheEnvelope<T>(value, absoluteExpirationRelativeToNow);
+            var bytes = _serializer.SerializeBytes(envelope);
             await _cache.SetAsync(CreateFullKey<T>(key), bytes, options);
         }
 
         private static string CreateFullKey<T>(string key)
         {
-            return $"Esi_{typeof(T).Name}_{key}";
+            return $"Esi_{CacheVersion.Version}_{typeof(T).Name}_{key}";
         }
     }
 }
