@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 using EsiNet.AspNetCore;
@@ -11,19 +10,21 @@ using EsiNet.Logging;
 using EsiNet.Pipeline;
 using FakeItEasy;
 using SharpTestsEx;
+using Tests.Helpers;
 using Xunit;
 
-namespace Tests
+namespace Tests.Complete
 {
     public class ExecutorTests
     {
         [Fact]
         public async Task Execute_IncludeFragment_ReturnContentFromRequest()
         {
-            var fakeStaticHttpLoader = new FakeStaticHttpLoader(new Dictionary<string, (string, int?)>
-            {
-                ["http://host/fragment"] = ("Included", null)
-            });
+            var fakeStaticHttpLoader = new FakeStaticHttpLoader(
+                new Dictionary<string, (string, int?)>
+                {
+                    ["http://host/fragment"] = ("Included", null)
+                });
             var fragment = new EsiIncludeFragment(new Uri("http://host/fragment"));
 
             var content = await Execute(fragment, fakeStaticHttpLoader);
@@ -73,7 +74,7 @@ namespace Tests
                 httpLoader,
                 EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>(), url => new Uri(url)),
                 log,
-                NullPipelineFactory.Create);
+                new PipelineContainer().GetInstance);
             var content = await executor.Execute(fragment);
 
             return string.Concat(content);

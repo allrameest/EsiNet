@@ -1,8 +1,9 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Xunit;
 
-namespace Tests
+namespace Benchmarks
 {
     public static class NullPipelineFactory
     {
