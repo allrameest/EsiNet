@@ -2,30 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using EsiNet;
 using EsiNet.AspNetCore;
 using EsiNet.Caching;
-using EsiNet.Http;
 using EsiNet.Pipeline;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
 using Xunit;
 using Xunit.Abstractions;
 using CacheControlHeaderValue = System.Net.Http.Headers.CacheControlHeaderValue;
 
-namespace Tests
+namespace Benchmarks
 {
-    public class Benchmarks
+    public class EsiParseExecute
     {
         private readonly ITestOutputHelper _output;
 
-        public Benchmarks(ITestOutputHelper output)
+        public EsiParseExecute(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -182,26 +178,6 @@ namespace Tests
 
             urlContentMap["/"] = (string.Join("-----", root), maxAge);
             return urlContentMap;
-        }
-    }
-
-    public class FakeStaticHttpLoader : IHttpLoader
-    {
-        private readonly Dictionary<string, (string, int?)> _urlContentMap;
-
-        public FakeStaticHttpLoader(Dictionary<string, (string, int?)> urlContentMap)
-        {
-            _urlContentMap = urlContentMap;
-        }
-
-        public Task<HttpResponseMessage> Get(Uri uri)
-        {
-            var (content, maxAge) = _urlContentMap[uri.ToString()];
-            var response = new HttpResponseMessage(HttpStatusCode.OK) {Content = new StringContent(content)};
-            var cacheHeader = maxAge.HasValue ? $"public,max-age={maxAge.Value}" : "private";
-            response.Headers.Add(HeaderNames.CacheControl, cacheHeader);
-
-            return Task.FromResult(response);
         }
     }
 }

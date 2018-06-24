@@ -5,7 +5,7 @@ using EsiNet.Fragments;
 using EsiNet.Pipeline;
 using Xunit;
 
-namespace Tests
+namespace Tests.Complete
 {
     public class ParsingTests
     {
