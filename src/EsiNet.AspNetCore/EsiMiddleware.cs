@@ -74,7 +74,6 @@ namespace EsiNet.AspNetCore
                     return;
                 }
 
-
                 fragment = _parser.Parse(body);
 
                 CacheControlHeaderValue.TryParse(
@@ -120,7 +119,11 @@ namespace EsiNet.AspNetCore
 
                     newBody.Seek(0, SeekOrigin.Begin);
 
-                    if (!ShouldIntercept(context.Response.ContentType))
+                    if (newBody.Length == 0)
+                    {
+                        return null;
+                    }
+                    else if (!ShouldIntercept(context.Response.ContentType))
                     {
                         await newBody.CopyToAsync(originBody);
                         return null;
