@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using EsiNet.Logging;
 using EsiNet.Pipeline;
 
 namespace EsiNet.Http
@@ -10,11 +11,16 @@ namespace EsiNet.Http
     public class HttpLoader : IHttpLoader
     {
         private readonly HttpClientFactory _httpClientFactory;
+        private readonly Log _log;
         private readonly IReadOnlyCollection<IHttpLoaderPipeline> _pipelines;
 
-        public HttpLoader(HttpClientFactory httpClientFactory, IEnumerable<IHttpLoaderPipeline> pipelines)
+        public HttpLoader(
+            HttpClientFactory httpClientFactory,
+            IEnumerable<IHttpLoaderPipeline> pipelines,
+            Log log)
         {
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _log = log;
             _pipelines = pipelines?.Reverse().ToArray() ?? throw new ArgumentNullException(nameof(pipelines));
         }
 
@@ -22,11 +28,17 @@ namespace EsiNet.Http
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
-            var response = await Execute(uri);
-
-            response.EnsureSuccessStatusCode();
-
-            return response;
+            try
+            {
+                var response = await Execute(uri);
+                response.EnsureSuccessStatusCode();
+                return response;
+            }
+            catch (Exception ex)
+            {
+                _log.Error(() => $"Error when loading '{uri}'.", ex);
+                throw;
+            }
         }
 
         private Task<HttpResponseMessage> Execute(Uri uri)
