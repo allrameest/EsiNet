@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using EsiNet.Http;
 using EsiNet.Logging;
 using EsiNet.Pipeline;
+using FakeItEasy;
 using SharpTestsEx;
 using Tests.Helpers;
 using Xunit;
@@ -47,6 +48,26 @@ namespace Tests.Http
             var exception = await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path")));
 
             exception.Should().Be.InstanceOf<HttpRequestException>();
+        }
+
+        [Theory]
+        [InlineData(HttpStatusCode.InternalServerError)]
+        [InlineData(HttpStatusCode.ServiceUnavailable)]
+        [InlineData(HttpStatusCode.NotFound)]
+        [InlineData(HttpStatusCode.BadRequest)]
+        [InlineData(HttpStatusCode.Unauthorized)]
+        public async Task Should_log_exception_on_failed_request(HttpStatusCode statusCode)
+        {
+            var client = new FakeHttpMessageHandler()
+                .Configure(new Uri("http://host/path"), statusCode, "")
+                .ToClient();
+            var log = A.Fake<Log>();
+            var loader = new HttpLoader(uri => client, Array.Empty<IHttpLoaderPipeline>(), log);
+
+            // ReSharper disable once PossibleNullReferenceException
+            var exception = await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path")));
+
+            A.CallTo(() => log(LogLevel.Error, exception, A<Func<string>>._)).MustHaveHappened();
         }
 
         [Fact]
