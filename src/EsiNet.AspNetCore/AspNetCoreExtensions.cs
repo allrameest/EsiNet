@@ -23,21 +23,21 @@ namespace EsiNet.AspNetCore
 
             services.AddSingleton<IEsiFragmentCache>(sp =>
                 new TwoStageEsiFragmentCache(
-                    sp.GetService<IMemoryCache>(),
-                    sp.GetService<IDistributedCache>(),
+                    sp.GetRequiredService<IMemoryCache>(),
+                    sp.GetRequiredService<IDistributedCache>(),
                     Serializer.Wire().GZip()));
 
-            services.AddSingleton(sp => CreateLog(sp.GetService<ILoggerFactory>().CreateLogger("EsiNet")));
+            services.AddSingleton(sp => CreateLog(sp.GetRequiredService<ILoggerFactory>().CreateLogger("EsiNet")));
 
             services.AddSingleton<IncludeUriParser>(sp =>
             {
-                var httpContextAccessor = sp.GetService<IHttpContextAccessor>();
+                var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
                 var uriParser = new UriParser(httpContextAccessor);
                 return uriParser.Parse;
             });
 
             services.AddSingleton(sp => EsiParserFactory.Create(
-                sp.GetServices<IFragmentParsePipeline>(), sp.GetService<IncludeUriParser>()));
+                sp.GetServices<IFragmentParsePipeline>(), sp.GetRequiredService<IncludeUriParser>()));
 
             services.AddSingleton<HttpClientFactory>(sp =>
             {
@@ -49,10 +49,10 @@ namespace EsiNet.AspNetCore
 
             services.AddSingleton(sp =>
             {
-                var cache = sp.GetService<IEsiFragmentCache>();
-                var httpLoader = sp.GetService<IHttpLoader>();
-                var parser = sp.GetService<EsiBodyParser>();
-                var log = sp.GetService<Log>();
+                var cache = sp.GetRequiredService<IEsiFragmentCache>();
+                var httpLoader = sp.GetRequiredService<IHttpLoader>();
+                var parser = sp.GetRequiredService<EsiBodyParser>();
+                var log = sp.GetRequiredService<Log>();
 
                 return EsiExecutorFactory.Create(cache, httpLoader, parser, log, sp.GetService);
             });
