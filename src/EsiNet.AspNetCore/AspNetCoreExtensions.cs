@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
@@ -21,33 +22,33 @@ namespace EsiNet.AspNetCore
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
-            services.AddSingleton<IEsiFragmentCache>(sp =>
+            services.TryAddSingleton<IEsiFragmentCache>(sp =>
                 new TwoStageEsiFragmentCache(
                     sp.GetRequiredService<IMemoryCache>(),
                     sp.GetRequiredService<IDistributedCache>(),
                     Serializer.Wire().GZip()));
 
-            services.AddSingleton(sp => CreateLog(sp.GetRequiredService<ILoggerFactory>().CreateLogger("EsiNet")));
+            services.TryAddSingleton(sp => CreateLog(sp.GetRequiredService<ILoggerFactory>().CreateLogger("EsiNet")));
 
-            services.AddSingleton<IncludeUriParser>(sp =>
+            services.TryAddSingleton<IncludeUriParser>(sp =>
             {
                 var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
                 var uriParser = new UriParser(httpContextAccessor);
                 return uriParser.Parse;
             });
 
-            services.AddSingleton(sp => EsiParserFactory.Create(
+            services.TryAddSingleton(sp => EsiParserFactory.Create(
                 sp.GetServices<IFragmentParsePipeline>(), sp.GetRequiredService<IncludeUriParser>()));
 
-            services.AddSingleton<HttpClientFactory>(sp =>
+            services.TryAddSingleton<HttpClientFactory>(sp =>
             {
                 var httpClient = new HttpClient();
                 return uri => httpClient;
             });
 
-            services.AddSingleton<IHttpLoader, HttpLoader>();
+            services.TryAddSingleton<IHttpLoader, HttpLoader>();
 
-            services.AddSingleton(sp =>
+            services.TryAddSingleton(sp =>
             {
                 var cache = sp.GetRequiredService<IEsiFragmentCache>();
                 var httpLoader = sp.GetRequiredService<IHttpLoader>();
