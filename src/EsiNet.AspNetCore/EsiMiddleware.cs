@@ -66,9 +66,11 @@ namespace EsiNet.AspNetCore
             }
             else
             {
+                var acceptEncoding = context.Request.Headers[HeaderNames.AcceptEncoding];
                 context.Request.Headers[HeaderNames.AcceptEncoding] = StringValues.Empty;
-
                 var body = await TryInterceptNext(context);
+                context.Request.Headers[HeaderNames.AcceptEncoding] = acceptEncoding;
+
                 if (body == null)
                 {
                     return;

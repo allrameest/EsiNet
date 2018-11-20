@@ -17,6 +17,7 @@ namespace Sample.Gateway
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureServices(services =>
                 {
+                    services.AddResponseCompression();
                     services.AddDistributedMemoryCache();
                     services.AddOcelot();
                     services.AddEsiNet();
@@ -30,6 +31,7 @@ namespace Sample.Gateway
                 })
                 .Configure(app =>
                 {
+                    app.UseResponseCompression();
                     app.UseEsiNet();
                     app.UseOcelot().Wait();
                 })
