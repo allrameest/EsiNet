@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using EsiNet.Caching;
 using EsiNet.Fragments;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using CacheControlHeaderValue = System.Net.Http.Headers.CacheControlHeaderValue;
@@ -51,7 +50,7 @@ namespace EsiNet.AspNetCore
             }
 
             IEsiFragment fragment;
-            var key = context.Request.GetDisplayUrl();
+            var key = GetPageCacheKey(context.Request);
             var (found, cachedResponse) = await _cache.TryGet<FragmentPageResponse>(key);
 
             if (found)
@@ -162,6 +161,12 @@ namespace EsiNet.AspNetCore
 
             var parts = contentType.Split(';');
             return ValidContentTypes.Contains(parts.First());
+        }
+
+        private static string GetPageCacheKey(HttpRequest request)
+        {
+            var host = request.Host.Value ?? "unknown-host";
+            return request.Scheme + "://" + host + request.PathBase.Value + request.Path.Value + request.QueryString.Value;
         }
     }
 }
