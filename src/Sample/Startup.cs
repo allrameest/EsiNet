@@ -3,7 +3,6 @@ using System.Globalization;
 using EsiNet.AspNetCore;
 using EsiNet.Fragments;
 using EsiNet.Logging;
-using EsiNet.Pipeline;
 using EsiNet.Polly;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,16 +15,17 @@ namespace Sample
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services
-                .AddResponseCompression()
-                .AddSingleton<IFragmentExecutePipeline<EsiIncludeFragment>, BracketPipeline>()
-                .AddSingleton<IFragmentParsePipeline, IncludeUrlPipeline>()
-                .AddSingleton<IHttpLoaderPipeline>(sp => new CircuitBreakerHttpLoaderPipeline(
+            services.AddResponseCompression();
+
+            services.AddEsiNet()
+                .AddFragmentExecutePipeline<EsiIncludeFragment, BracketPipeline>()
+                .AddFragmentParsePipeline<IncludeUrlPipeline>()
+                .AddHttpLoaderPipeline(sp => new CircuitBreakerHttpLoaderPipeline(
                     sp.GetService<Log>(), 3, TimeSpan.FromMinutes(1)))
-                .AddSingleton<IHttpLoaderPipeline>(sp => new RetryHttpLoaderPipeline(
-                    sp.GetService<Log>(), 1))
-                .AddEsiNet()
-                .AddMvc();
+                .AddHttpLoaderPipeline(sp => new RetryHttpLoaderPipeline(
+                    sp.GetService<Log>(), 1));
+
+            services.AddMvc();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

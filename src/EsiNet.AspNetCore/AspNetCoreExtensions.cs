@@ -18,7 +18,7 @@ namespace EsiNet.AspNetCore
 {
     public static class AspNetCoreExtensions
     {
-        public static IServiceCollection AddEsiNet(this IServiceCollection services)
+        public static IEsiNetBuilder AddEsiNet(this IServiceCollection services)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
 
@@ -27,6 +27,8 @@ namespace EsiNet.AspNetCore
                     sp.GetRequiredService<IMemoryCache>(),
                     sp.GetRequiredService<IDistributedCache>(),
                     Serializer.Wire().GZip()));
+
+            var builder = new EsiNetBuilder(services);
 
             services.TryAddSingleton(sp => CreateLog(sp.GetRequiredService<ILoggerFactory>().CreateLogger("EsiNet")));
 
@@ -58,7 +60,7 @@ namespace EsiNet.AspNetCore
                 return EsiExecutorFactory.Create(cache, httpLoader, parser, log, sp.GetService);
             });
 
-            return services;
+            return builder;
         }
 
         public static IApplicationBuilder UseEsiNet(this IApplicationBuilder app)
