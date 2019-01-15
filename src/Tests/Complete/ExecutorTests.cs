@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using EsiNet;
 using EsiNet.AspNetCore;
 using EsiNet.Caching;
 using EsiNet.Fragments;
@@ -54,7 +55,7 @@ namespace Tests.Complete
             var exception = new HttpRequestException();
             var httpLoader = A.Fake<IHttpLoader>();
             var log = A.Fake<Log>();
-            A.CallTo(() => httpLoader.Get(A<Uri>._)).Throws(exception);
+            A.CallTo(() => httpLoader.Get(A<Uri>._, A<EsiExecutionContext>._)).Throws(exception);
             var fragment = new EsiTryFragment(
                 new EsiIncludeFragment(new Uri("http://host/fragment")),
                 new EsiTextFragment("Fallback"));
@@ -75,9 +76,14 @@ namespace Tests.Complete
                 EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>(), url => new Uri(url)),
                 log,
                 new PipelineContainer().GetInstance);
-            var content = await executor.Execute(fragment);
+            var content = await executor.Execute(fragment, EmptyExecutionContext());
 
             return string.Concat(content);
+        }
+
+        private static EsiExecutionContext EmptyExecutionContext()
+        {
+            return new EsiExecutionContext(new Dictionary<string, IReadOnlyCollection<string>>());
         }
     }
 }

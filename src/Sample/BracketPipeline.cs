@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using EsiNet;
 using EsiNet.Fragments;
 using EsiNet.Pipeline;
 
@@ -9,9 +10,10 @@ namespace Sample
     {
         public async Task<IEnumerable<string>> Handle(
             EsiIncludeFragment fragment,
+            EsiExecutionContext executionContext,
             ExecuteDelegate<EsiIncludeFragment> next)
         {
-            var content = await next(fragment);
+            var content = await next(fragment, executionContext);
 
             return Wrap(content);
         }

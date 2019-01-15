@@ -14,12 +14,12 @@ namespace EsiNet.Fragments
             _fragmentExecutor = fragmentExecutor ?? throw new ArgumentNullException(nameof(fragmentExecutor));
         }
 
-        public async Task<IEnumerable<string>> Execute(EsiCompositeFragment fragment)
+        public async Task<IEnumerable<string>> Execute(EsiCompositeFragment fragment, EsiExecutionContext executionContext)
         {
             if (fragment == null) throw new ArgumentNullException(nameof(fragment));
 
             var tasks = fragment.Fragments
-                .Select(_fragmentExecutor.Execute);
+                .Select(fragment1 => _fragmentExecutor.Execute(fragment1, executionContext));
             var results = await Task.WhenAll(tasks);
 
             return results.SelectMany(s => s);

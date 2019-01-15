@@ -12,18 +12,18 @@ namespace EsiNet
     {
         private readonly ConcurrentDictionary<Type, IReadOnlyCollection<ExecutePipelineDelegate>> _pipelineCache =
             new ConcurrentDictionary<Type, IReadOnlyCollection<ExecutePipelineDelegate>>();
-        private readonly IReadOnlyDictionary<Type, Func<IEsiFragment, Task<IEnumerable<string>>>> _executors;
+        private readonly IReadOnlyDictionary<Type, Func<IEsiFragment, EsiExecutionContext, Task<IEnumerable<string>>>> _executors;
         private readonly ServiceFactory _serviceFactory;
 
         public EsiFragmentExecutor(
-            IReadOnlyDictionary<Type, Func<IEsiFragment, Task<IEnumerable<string>>>> executors,
+            IReadOnlyDictionary<Type, Func<IEsiFragment, EsiExecutionContext, Task<IEnumerable<string>>>> executors,
             ServiceFactory serviceFactory)
         {
             _executors = executors ?? throw new ArgumentNullException(nameof(executors));
             _serviceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
         }
 
-        public async Task<IEnumerable<string>> Execute(IEsiFragment fragment)
+        public async Task<IEnumerable<string>> Execute(IEsiFragment fragment, EsiExecutionContext executionContext)
         {
             if (fragment == null) throw new ArgumentNullException(nameof(fragment));
 
@@ -37,15 +37,15 @@ namespace EsiNet
 
             if (!pipelineDelegates.Any())
             {
-                return await executor(fragment);
+                return await executor(fragment, executionContext);
             }
 
-            Task<IEnumerable<string>> Exec(IEsiFragment f) => executor(f);
+            Task<IEnumerable<string>> Exec(IEsiFragment f, EsiExecutionContext ec) => executor(f, ec);
 
             return await pipelineDelegates
                 .Aggregate(
                     (ExecuteDelegate)Exec,
-                    (next, pipeline) => async f => await pipeline(f, next))(fragment);
+                    (next, pipeline) => async (f, ec) => await pipeline(f, ec, next))(fragment, executionContext);
         }
 
         private IReadOnlyCollection<ExecutePipelineDelegate> GetPipelineDelegates(Type fragmentType)

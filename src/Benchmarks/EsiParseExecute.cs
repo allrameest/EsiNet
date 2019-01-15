@@ -75,7 +75,7 @@ namespace Benchmarks
                         return Task.FromResult(result);
                     });
 
-                var content = await executor.Execute(fragment);
+                var content = await executor.Execute(fragment, EmptyExecutionContext());
 
                 foreach (var part in content)
                 {
@@ -178,6 +178,11 @@ namespace Benchmarks
 
             urlContentMap["/"] = (string.Join("-----", root), maxAge);
             return urlContentMap;
+        }
+
+        private static EsiExecutionContext EmptyExecutionContext()
+        {
+            return new EsiExecutionContext(new Dictionary<string, IReadOnlyCollection<string>>());
         }
     }
 }

@@ -6,7 +6,7 @@ namespace EsiNet.Fragments
 {
     public class EsiIgnoreFragmentExecutor
     {
-        public Task<IEnumerable<string>> Execute(EsiIgnoreFragment fragment)
+        public Task<IEnumerable<string>> Execute(EsiIgnoreFragment fragment, EsiExecutionContext executionContext)
         {
             return Task.FromResult<IEnumerable<string>>(Array.Empty<string>());
         }

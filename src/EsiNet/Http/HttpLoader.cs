@@ -24,13 +24,13 @@ namespace EsiNet.Http
             _pipelines = pipelines?.Reverse().ToArray() ?? throw new ArgumentNullException(nameof(pipelines));
         }
 
-        public async Task<HttpResponseMessage> Get(Uri uri)
+        public async Task<HttpResponseMessage> Get(Uri uri, EsiExecutionContext executionContext)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
             try
             {
-                var response = await Execute(uri);
+                var response = await Execute(uri, executionContext);
                 response.EnsureSuccessStatusCode();
                 return response;
             }
@@ -41,9 +41,9 @@ namespace EsiNet.Http
             }
         }
 
-        private Task<HttpResponseMessage> Execute(Uri uri)
+        private Task<HttpResponseMessage> Execute(Uri uri, EsiExecutionContext executionContext)
         {
-            Task<HttpResponseMessage> Send(Uri u) => ExecuteRequest(uri);
+            Task<HttpResponseMessage> Send(Uri u) => ExecuteRequest(uri, executionContext);
 
             return _pipelines
                 .Aggregate(
@@ -51,7 +51,7 @@ namespace EsiNet.Http
                     (next, pipeline) => async u => await pipeline.Handle(u, next))(uri);
         }
 
-        private Task<HttpResponseMessage> ExecuteRequest(Uri uri)
+        private Task<HttpResponseMessage> ExecuteRequest(Uri uri, EsiExecutionContext executionContext)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, uri);
             request.Headers.Add("X-Esi", "true");

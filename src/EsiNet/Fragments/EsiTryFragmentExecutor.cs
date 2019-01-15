@@ -18,18 +18,18 @@ namespace EsiNet.Fragments
             _log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
-        public async Task<IEnumerable<string>> Execute(EsiTryFragment fragment)
+        public async Task<IEnumerable<string>> Execute(EsiTryFragment fragment, EsiExecutionContext executionContext)
         {
             if (fragment == null) throw new ArgumentNullException(nameof(fragment));
 
             try
             {
-                return await _fragmentExecutor.Execute(fragment.AttemptFragment);
+                return await _fragmentExecutor.Execute(fragment.AttemptFragment, executionContext);
             }
             catch (Exception ex)
             {
                 _log.Error(() => "Error when executing attempt fragment.", ex);
-                return await _fragmentExecutor.Execute(fragment.ExceptFragment);
+                return await _fragmentExecutor.Execute(fragment.ExceptFragment, executionContext);
             }
         }
     }

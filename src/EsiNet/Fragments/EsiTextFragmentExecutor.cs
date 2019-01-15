@@ -6,7 +6,7 @@ namespace EsiNet.Fragments
 {
     public class EsiTextFragmentExecutor
     {
-        public Task<IEnumerable<string>> Execute(EsiTextFragment fragment)
+        public Task<IEnumerable<string>> Execute(EsiTextFragment fragment, EsiExecutionContext executionContext)
         {
             if (fragment == null) throw new ArgumentNullException(nameof(fragment));
 
