@@ -16,15 +16,13 @@ namespace Tests.Http
 {
     public class HttpLoaderTests
     {
-        private readonly Log _nullLog = (level, exception, message) => {};
-
         [Fact]
         public async Task Should_return_content_on_successful_request()
         {
             var client = new FakeHttpMessageHandler()
                 .Configure(new Uri("http://host/path"), HttpStatusCode.OK, "content")
                 .ToClient();
-            var loader = new HttpLoader(uri => client, Array.Empty<IHttpLoaderPipeline>(), _nullLog);
+            var loader = CreateHttpLoader(client);
 
             var response = await loader.Get(new Uri("http://host/path"), EmptyExecutionContext());
             var content = await response.Content.ReadAsStringAsync();
@@ -43,10 +41,11 @@ namespace Tests.Http
             var client = new FakeHttpMessageHandler()
                 .Configure(new Uri("http://host/path"), statusCode, "")
                 .ToClient();
-            var loader = new HttpLoader(uri => client, Array.Empty<IHttpLoaderPipeline>(), _nullLog);
+            var loader = CreateHttpLoader(client);
 
             // ReSharper disable once PossibleNullReferenceException
-            var exception = await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path"), EmptyExecutionContext()));
+            var exception =
+                await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path"), EmptyExecutionContext()));
 
             exception.Should().Be.InstanceOf<HttpRequestException>();
         }
@@ -63,10 +62,11 @@ namespace Tests.Http
                 .Configure(new Uri("http://host/path"), statusCode, "")
                 .ToClient();
             var log = A.Fake<Log>();
-            var loader = new HttpLoader(uri => client, Array.Empty<IHttpLoaderPipeline>(), log);
+            var loader = CreateHttpLoader(client, log: log);
 
             // ReSharper disable once PossibleNullReferenceException
-            var exception = await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path"), EmptyExecutionContext()));
+            var exception =
+                await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path"), EmptyExecutionContext()));
 
             A.CallTo(() => log(LogLevel.Error, exception, A<Func<string>>._)).MustHaveHappened();
         }
@@ -77,10 +77,11 @@ namespace Tests.Http
             var client = new FakeHttpMessageHandler()
                 .Configure(new Uri("http://host/path"), _ => throw new TaskCanceledException())
                 .ToClient();
-            var loader = new HttpLoader(uri => client, Array.Empty<IHttpLoaderPipeline>(), _nullLog);
+            var loader = CreateHttpLoader(client);
 
             // ReSharper disable once PossibleNullReferenceException
-            var exception = await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path"), EmptyExecutionContext()));
+            var exception =
+                await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path"), EmptyExecutionContext()));
 
             exception.Should().Be.InstanceOf<TaskCanceledException>();
         }
@@ -96,12 +97,40 @@ namespace Tests.Http
                     return new HttpResponseMessage();
                 })
                 .ToClient();
-            var loader = new HttpLoader(uri => client, Array.Empty<IHttpLoaderPipeline>(), _nullLog);
+            var loader = CreateHttpLoader(client);
 
             await loader.Get(new Uri("http://host/path"), EmptyExecutionContext());
 
             request.Headers.TryGetValues("X-Esi", out var headerValues).Should().Be.True();
             headerValues.Should().Have.SameSequenceAs("true");
+        }
+
+        [Fact]
+        public async Task Should_forward_headers()
+        {
+            HttpRequestMessage request = null;
+            var client = new FakeHttpMessageHandler()
+                .Configure(new Uri("http://host/path"), r =>
+                {
+                    request = r;
+                    return new HttpResponseMessage();
+                })
+                .ToClient();
+            var loader = CreateHttpLoader(client);
+
+            var executionContext = new EsiExecutionContext(new Dictionary<string, IReadOnlyCollection<string>>
+            {
+                ["Accept"] = new[] {"text/html", "application/xhtml+xml"},
+                ["Cookie"] = new[] {"a=1; b=2"},
+                ["Connection"] = new[] {"Keep-Alive"}
+            });
+            await loader.Get(new Uri("http://host/path"), executionContext);
+
+            request.Headers.TryGetValues("Accept", out var acceptValues).Should().Be.True();
+            acceptValues.Should().Have.SameSequenceAs("text/html", "application/xhtml+xml");
+            request.Headers.TryGetValues("Cookie", out var cookieValues).Should().Be.True();
+            cookieValues.Should().Have.SameSequenceAs("a=1; b=2");
+            request.Headers.Contains("Connection").Should().Be.False();
         }
 
         [Fact]
@@ -116,7 +145,7 @@ namespace Tests.Http
                 })
                 .ToClient();
             var pipeline = new LoggingHttpLoaderPipeline(s => log.Add(s));
-            var loader = new HttpLoader(uri => client, new[] {pipeline}, _nullLog);
+            var loader = CreateHttpLoader(client, new[] {pipeline});
 
             await loader.Get(new Uri("http://host/path"), EmptyExecutionContext());
 
@@ -126,6 +155,18 @@ namespace Tests.Http
         private static EsiExecutionContext EmptyExecutionContext()
         {
             return new EsiExecutionContext(new Dictionary<string, IReadOnlyCollection<string>>());
+        }
+
+        private static HttpLoader CreateHttpLoader(HttpClient client,
+            IEnumerable<IHttpLoaderPipeline> pipelines = null,
+            HttpRequestMessageFactory httpRequestMessageFactory = null,
+            Log log = null)
+        {
+            return new HttpLoader(
+                uri => client,
+                httpRequestMessageFactory ?? DefaultHttpRequestMessageFactory.Create,
+                pipelines ?? Array.Empty<IHttpLoaderPipeline>(),
+                log ?? ((level, exception, message) => { }));
         }
     }
 

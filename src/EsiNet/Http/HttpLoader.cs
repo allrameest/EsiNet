@@ -11,16 +11,19 @@ namespace EsiNet.Http
     public class HttpLoader : IHttpLoader
     {
         private readonly HttpClientFactory _httpClientFactory;
+        private readonly HttpRequestMessageFactory _httpRequestMessageFactory;
         private readonly Log _log;
         private readonly IReadOnlyCollection<IHttpLoaderPipeline> _pipelines;
 
         public HttpLoader(
             HttpClientFactory httpClientFactory,
+            HttpRequestMessageFactory httpRequestMessageFactory,
             IEnumerable<IHttpLoaderPipeline> pipelines,
             Log log)
         {
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-            _log = log;
+            _httpRequestMessageFactory = httpRequestMessageFactory ?? throw new ArgumentNullException(nameof(httpRequestMessageFactory));
+            _log = log ?? throw new ArgumentNullException(nameof(log));
             _pipelines = pipelines?.Reverse().ToArray() ?? throw new ArgumentNullException(nameof(pipelines));
         }
 
@@ -53,8 +56,7 @@ namespace EsiNet.Http
 
         private Task<HttpResponseMessage> ExecuteRequest(Uri uri, EsiExecutionContext executionContext)
         {
-            var request = new HttpRequestMessage(HttpMethod.Get, uri);
-            request.Headers.Add("X-Esi", "true");
+            var request = _httpRequestMessageFactory(uri, executionContext);
 
             var httpClient = _httpClientFactory(uri);
             return httpClient.SendAsync(request);

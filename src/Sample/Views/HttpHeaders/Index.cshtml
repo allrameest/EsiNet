@@ -1,0 +1,11 @@
+﻿<h4>Headers</h4>
+
+<table border="1">
+    @foreach (var header in Context.Request.Headers)
+    {
+        <tr>
+            <th>@header.Key</th>
+            <td>@header.Value</td>
+        </tr>
+    }
+</table>
