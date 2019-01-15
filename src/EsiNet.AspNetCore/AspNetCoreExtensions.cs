@@ -48,6 +48,8 @@ namespace EsiNet.AspNetCore
                 return uri => httpClient;
             });
 
+            services.TryAddSingleton<HttpRequestMessageFactory>(DefaultHttpRequestMessageFactory.Create);
+
             services.TryAddSingleton<IHttpLoader, HttpLoader>();
 
             services.TryAddSingleton(sp =>
