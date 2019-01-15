@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using EsiNet.AspNetCore.Internal;
 using EsiNet.Caching;
 using EsiNet.Fragments;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using CacheControlHeaderValue = System.Net.Http.Headers.CacheControlHeaderValue;
+using HeaderDictionaryExtensions = EsiNet.AspNetCore.Internal.HeaderDictionaryExtensions;
 
 namespace EsiNet.AspNetCore
 {
@@ -82,28 +84,19 @@ namespace EsiNet.AspNetCore
 
                 if (ShouldSetCache(context))
                 {
-                    var headers = GetHeadersToForward(context.Response.Headers);
+                    var headers = context.Response.Headers.ToDictionary();
                     var cacheResponse = new FragmentPageResponse(fragment, headers);
                     await _cache.Set(key, cacheControl, cacheResponse);
                 }
             }
 
-            var content = await _executor.Execute(fragment);
+            var content = await _executor.Execute(fragment, new EsiExecutionContext(context.Request.Headers.ToDictionary()));
             context.Response.ContentLength = null;
 
             foreach (var part in content)
             {
                 await context.Response.WriteAsync(part);
             }
-        }
-
-        private static IReadOnlyDictionary<string, IReadOnlyCollection<string>> GetHeadersToForward(
-            IHeaderDictionary headers)
-        {
-            return headers
-                .ToDictionary(
-                    h => h.Key,
-                    h => (IReadOnlyCollection<string>) h.Value.ToArray());
         }
 
         private async Task<string> TryInterceptNext(HttpContext context)

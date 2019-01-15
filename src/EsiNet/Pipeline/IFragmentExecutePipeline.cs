@@ -7,6 +7,6 @@ namespace EsiNet.Pipeline
     public interface IFragmentExecutePipeline<T>
         where T : IEsiFragment
     {
-        Task<IEnumerable<string>> Handle(T fragment, ExecuteDelegate<T> next);
+        Task<IEnumerable<string>> Handle(T fragment, EsiExecutionContext executionContext, ExecuteDelegate<T> next);
     }
 }

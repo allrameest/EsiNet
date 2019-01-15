@@ -6,6 +6,6 @@ namespace EsiNet.Http
 {
     public interface IHttpLoader
     {
-        Task<HttpResponseMessage> Get(Uri uri);
+        Task<HttpResponseMessage> Get(Uri uri, EsiExecutionContext executionContext);
     }
 }

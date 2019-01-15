@@ -26,17 +26,22 @@ namespace EsiNet.Fragments
             _fragmentExecutor = fragmentExecutor ?? throw new ArgumentNullException(nameof(fragmentExecutor));
         }
 
-        public async Task<IEnumerable<string>> Execute(EsiIncludeFragment fragment)
+        public async Task<IEnumerable<string>> Execute(
+            EsiIncludeFragment fragment,
+            EsiExecutionContext executionContext)
         {
             if (fragment == null) throw new ArgumentNullException(nameof(fragment));
 
-            var remoteFragment = await _cache.GetOrAdd(fragment.Uri, () => RequestAndParse(fragment.Uri));
-            return await _fragmentExecutor.Execute(remoteFragment);
+            var remoteFragment = await _cache.GetOrAdd(
+                fragment.Uri,
+                () => RequestAndParse(fragment.Uri, executionContext));
+            return await _fragmentExecutor.Execute(remoteFragment, executionContext);
         }
 
-        private async Task<(IEsiFragment, CacheControlHeaderValue)> RequestAndParse(Uri uri)
+        private async Task<(IEsiFragment, CacheControlHeaderValue)> RequestAndParse(
+            Uri uri, EsiExecutionContext executionContext)
         {
-            var response = await _httpLoader.Get(uri);
+            var response = await _httpLoader.Get(uri, executionContext);
             response.EnsureSuccessStatusCode();
 
             var content = await response.Content.ReadAsStringAsync();

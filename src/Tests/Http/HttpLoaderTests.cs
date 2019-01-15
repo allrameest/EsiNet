@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using EsiNet;
 using EsiNet.Http;
 using EsiNet.Logging;
 using EsiNet.Pipeline;
@@ -25,7 +26,7 @@ namespace Tests.Http
                 .ToClient();
             var loader = new HttpLoader(uri => client, Array.Empty<IHttpLoaderPipeline>(), _nullLog);
 
-            var response = await loader.Get(new Uri("http://host/path"));
+            var response = await loader.Get(new Uri("http://host/path"), EmptyExecutionContext());
             var content = await response.Content.ReadAsStringAsync();
 
             content.Should().Be.EqualTo("content");
@@ -45,7 +46,7 @@ namespace Tests.Http
             var loader = new HttpLoader(uri => client, Array.Empty<IHttpLoaderPipeline>(), _nullLog);
 
             // ReSharper disable once PossibleNullReferenceException
-            var exception = await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path")));
+            var exception = await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path"), EmptyExecutionContext()));
 
             exception.Should().Be.InstanceOf<HttpRequestException>();
         }
@@ -65,7 +66,7 @@ namespace Tests.Http
             var loader = new HttpLoader(uri => client, Array.Empty<IHttpLoaderPipeline>(), log);
 
             // ReSharper disable once PossibleNullReferenceException
-            var exception = await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path")));
+            var exception = await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path"), EmptyExecutionContext()));
 
             A.CallTo(() => log(LogLevel.Error, exception, A<Func<string>>._)).MustHaveHappened();
         }
@@ -79,7 +80,7 @@ namespace Tests.Http
             var loader = new HttpLoader(uri => client, Array.Empty<IHttpLoaderPipeline>(), _nullLog);
 
             // ReSharper disable once PossibleNullReferenceException
-            var exception = await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path")));
+            var exception = await Record.ExceptionAsync(() => loader.Get(new Uri("http://host/path"), EmptyExecutionContext()));
 
             exception.Should().Be.InstanceOf<TaskCanceledException>();
         }
@@ -97,7 +98,7 @@ namespace Tests.Http
                 .ToClient();
             var loader = new HttpLoader(uri => client, Array.Empty<IHttpLoaderPipeline>(), _nullLog);
 
-            await loader.Get(new Uri("http://host/path"));
+            await loader.Get(new Uri("http://host/path"), EmptyExecutionContext());
 
             request.Headers.TryGetValues("X-Esi", out var headerValues).Should().Be.True();
             headerValues.Should().Have.SameSequenceAs("true");
@@ -117,9 +118,14 @@ namespace Tests.Http
             var pipeline = new LoggingHttpLoaderPipeline(s => log.Add(s));
             var loader = new HttpLoader(uri => client, new[] {pipeline}, _nullLog);
 
-            await loader.Get(new Uri("http://host/path"));
+            await loader.Get(new Uri("http://host/path"), EmptyExecutionContext());
 
             log.Should().Have.SameSequenceAs("pipeline before", "request", "pipeline after");
+        }
+
+        private static EsiExecutionContext EmptyExecutionContext()
+        {
+            return new EsiExecutionContext(new Dictionary<string, IReadOnlyCollection<string>>());
         }
     }
 

@@ -18,11 +18,11 @@ namespace EsiNet.Pipeline
 
             return pipelines
                 .Reverse()
-                .Select(pipeline => new ExecutePipelineDelegate((fragment, next) =>
+                .Select(pipeline => new ExecutePipelineDelegate((fragment, executionContext, next) =>
                 {
-                    return pipeline.Handle((T) fragment, TypedNext);
+                    return pipeline.Handle((T) fragment, executionContext, TypedNext);
 
-                    Task<IEnumerable<string>> TypedNext(T f) => next(f);
+                    Task<IEnumerable<string>> TypedNext(T f, EsiExecutionContext ec) => next(f, ec);
                 }))
                 .ToArray();
         }

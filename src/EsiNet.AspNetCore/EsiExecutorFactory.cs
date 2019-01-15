@@ -10,8 +10,7 @@ namespace EsiNet.AspNetCore
 {
     public static class EsiExecutorFactory
     {
-        public static EsiFragmentExecutor Create(
-            IEsiFragmentCache cache,
+        public static EsiFragmentExecutor Create(IEsiFragmentCache cache,
             IHttpLoader httpLoader,
             EsiBodyParser parser,
             Log log,
@@ -23,7 +22,7 @@ namespace EsiNet.AspNetCore
             if (log == null) throw new ArgumentNullException(nameof(log));
             if (serviceFactory == null) throw new ArgumentNullException(nameof(serviceFactory));
 
-            var executors = new Dictionary<Type, Func<IEsiFragment, Task<IEnumerable<string>>>>();
+            var executors = new Dictionary<Type, Func<IEsiFragment, EsiExecutionContext, Task<IEnumerable<string>>>>();
 
             var fragmentExecutor = new EsiFragmentExecutor(executors, serviceFactory);
             var includeExecutor = new EsiIncludeFragmentExecutor(cache, httpLoader, parser, fragmentExecutor);
@@ -32,11 +31,11 @@ namespace EsiNet.AspNetCore
             var compositeExecutor = new EsiCompositeFragmentExecutor(fragmentExecutor);
             var tryExecutor = new EsiTryFragmentExecutor(fragmentExecutor, log);
 
-            executors[typeof(EsiIncludeFragment)] = f => includeExecutor.Execute((EsiIncludeFragment) f);
-            executors[typeof(EsiIgnoreFragment)] = f => ignoreExecutor.Execute((EsiIgnoreFragment) f);
-            executors[typeof(EsiTextFragment)] = f => textExecutor.Execute((EsiTextFragment) f);
-            executors[typeof(EsiCompositeFragment)] = f => compositeExecutor.Execute((EsiCompositeFragment) f);
-            executors[typeof(EsiTryFragment)] = f => tryExecutor.Execute((EsiTryFragment) f);
+            executors[typeof(EsiIncludeFragment)] = (f, ec) => includeExecutor.Execute((EsiIncludeFragment) f, ec);
+            executors[typeof(EsiIgnoreFragment)] = (f, ec) => ignoreExecutor.Execute((EsiIgnoreFragment) f, ec);
+            executors[typeof(EsiTextFragment)] = (f, ec) => textExecutor.Execute((EsiTextFragment) f, ec);
+            executors[typeof(EsiCompositeFragment)] = (f, ec) => compositeExecutor.Execute((EsiCompositeFragment) f, ec);
+            executors[typeof(EsiTryFragment)] = (f, ec) => tryExecutor.Execute((EsiTryFragment) f, ec);
 
             return fragmentExecutor;
         }
