@@ -179,10 +179,10 @@ namespace Tests.Http
             _log = log;
         }
 
-        public async Task<HttpResponseMessage> Handle(Uri uri, HttpLoadDelegate next)
+        public async Task<HttpResponseMessage> Handle(Uri uri, EsiExecutionContext executionContext, HttpLoadDelegate next)
         {
             _log("pipeline before");
-            var response = await next(uri);
+            var response = await next(uri, executionContext);
             _log("pipeline after");
             return response;
         }

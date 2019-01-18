@@ -31,10 +31,10 @@ namespace EsiNet.Polly
             _breakerKeyFactory = breakerKeyFactory ?? (uri => uri.ToString());
         }
 
-        public Task<HttpResponseMessage> Handle(Uri uri, HttpLoadDelegate next)
+        public Task<HttpResponseMessage> Handle(Uri uri, EsiExecutionContext executionContext, HttpLoadDelegate next)
         {
             var breakerPolicy = _breakerPolicies.GetOrAdd(_breakerKeyFactory(uri), _ => CreatePolicy());
-            return breakerPolicy.ExecuteAsync(() => next(uri));
+            return breakerPolicy.ExecuteAsync(() => next(uri, executionContext));
         }
 
         private CircuitBreakerPolicy CreatePolicy()

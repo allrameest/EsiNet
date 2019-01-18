@@ -4,5 +4,5 @@ using System.Threading.Tasks;
 
 namespace EsiNet.Pipeline
 {
-    public delegate Task<HttpResponseMessage> HttpLoadDelegate(Uri uri);
+    public delegate Task<HttpResponseMessage> HttpLoadDelegate(Uri uri, EsiExecutionContext executionContext);
 }

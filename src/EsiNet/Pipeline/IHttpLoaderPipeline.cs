@@ -6,6 +6,6 @@ namespace EsiNet.Pipeline
 {
     public interface IHttpLoaderPipeline
     {
-        Task<HttpResponseMessage> Handle(Uri uri, HttpLoadDelegate next);
+        Task<HttpResponseMessage> Handle(Uri uri, EsiExecutionContext executionContext, HttpLoadDelegate next);
     }
 }

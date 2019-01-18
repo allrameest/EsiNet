@@ -22,9 +22,9 @@ namespace EsiNet.Polly
                     (exception, _) => { log.Information(() => "Error making http call. Retrying.", exception); });
         }
 
-        public Task<HttpResponseMessage> Handle(Uri uri, HttpLoadDelegate next)
+        public Task<HttpResponseMessage> Handle(Uri uri, EsiExecutionContext executionContext, HttpLoadDelegate next)
         {
-            return _retryPolicy.ExecuteAsync(() => next(uri));
+            return _retryPolicy.ExecuteAsync(() => next(uri, executionContext));
         }
     }
 }
