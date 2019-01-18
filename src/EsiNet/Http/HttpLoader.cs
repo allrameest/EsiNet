@@ -46,12 +46,12 @@ namespace EsiNet.Http
 
         private Task<HttpResponseMessage> Execute(Uri uri, EsiExecutionContext executionContext)
         {
-            Task<HttpResponseMessage> Send(Uri u) => ExecuteRequest(uri, executionContext);
+            Task<HttpResponseMessage> Send(Uri u, EsiExecutionContext ec) => ExecuteRequest(uri, executionContext);
 
             return _pipelines
                 .Aggregate(
                     (HttpLoadDelegate) Send,
-                    (next, pipeline) => async u => await pipeline.Handle(u, next))(uri);
+                    (next, pipeline) => async (u, ec) => await pipeline.Handle(u, ec, next))(uri, executionContext);
         }
 
         private Task<HttpResponseMessage> ExecuteRequest(Uri uri, EsiExecutionContext executionContext)
