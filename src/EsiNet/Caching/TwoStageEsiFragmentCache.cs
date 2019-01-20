@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using EsiNet.Caching.Serialization;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 

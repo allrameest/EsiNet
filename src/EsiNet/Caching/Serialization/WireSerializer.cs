@@ -1,25 +1,24 @@
 ﻿using System;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 
-namespace EsiNet.Caching
+namespace EsiNet.Caching.Serialization
 {
-    public class BinarySerializer : ISerializer
+    public class WireSerializer : ISerializer
     {
-        private readonly BinaryFormatter _serializer = new BinaryFormatter();
+        private readonly Wire.Serializer _serializer = new Wire.Serializer();
 
         public void Serialize<T>(T value, Stream destination)
         {
             if (destination == null) throw new ArgumentNullException(nameof(destination));
 
-            _serializer.Serialize(destination, value);
+            _serializer.Serialize(value, destination);
         }
 
         public T Deserialize<T>(Stream source)
         {
             if (source == null) throw new ArgumentNullException(nameof(source));
 
-            return (T) _serializer.Deserialize(source);
+            return _serializer.Deserialize<T>(source);
         }
     }
 }
