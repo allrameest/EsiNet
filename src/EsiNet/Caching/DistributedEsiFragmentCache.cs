@@ -16,8 +16,10 @@ namespace EsiNet.Caching
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        public async Task<(bool, T)> TryGet<T>(string key)
+        public async Task<(bool, T)> TryGet<T>(CacheKey key)
         {
+            if (key == null) throw new ArgumentNullException(nameof(key));
+
             var cachedBytes = await _cache.GetAsync(CreateFullKey<T>(key));
             if (cachedBytes != null)
             {
@@ -28,8 +30,10 @@ namespace EsiNet.Caching
             return (false, default(T));
         }
 
-        public async Task Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow)
+        public async Task Set<T>(CacheKey key, T value, TimeSpan absoluteExpirationRelativeToNow)
         {
+            if (key == null) throw new ArgumentNullException(nameof(key));
+
             var options = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = absoluteExpirationRelativeToNow
@@ -39,9 +43,9 @@ namespace EsiNet.Caching
             await _cache.SetAsync(CreateFullKey<T>(key), bytes, options);
         }
 
-        private static string CreateFullKey<T>(string key)
+        private static string CreateFullKey<T>(CacheKey key)
         {
-            return $"Esi_{CacheVersion.Version}_{typeof(T).Name}_{key}";
+            return $"Esi_{typeof(T).Name}_{key}";
         }
     }
 }

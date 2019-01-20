@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using EsiNet.Caching;
@@ -9,13 +10,13 @@ namespace EsiNet.Fragments
 {
     public class EsiIncludeFragmentExecutor
     {
-        private readonly IEsiFragmentCache _cache;
+        private readonly EsiFragmentCacheFacade _cache;
         private readonly IHttpLoader _httpLoader;
         private readonly EsiBodyParser _esiBodyParser;
         private readonly EsiFragmentExecutor _fragmentExecutor;
 
         public EsiIncludeFragmentExecutor(
-            IEsiFragmentCache cache,
+            EsiFragmentCacheFacade cache,
             IHttpLoader httpLoader,
             EsiBodyParser esiBodyParser,
             EsiFragmentExecutor fragmentExecutor)
@@ -34,11 +35,12 @@ namespace EsiNet.Fragments
 
             var remoteFragment = await _cache.GetOrAdd(
                 fragment.Uri,
+                executionContext,
                 () => RequestAndParse(fragment.Uri, executionContext));
             return await _fragmentExecutor.Execute(remoteFragment, executionContext);
         }
 
-        private async Task<(IEsiFragment, CacheControlHeaderValue)> RequestAndParse(
+        private async Task<CacheResponse<IEsiFragment>> RequestAndParse(
             Uri uri, EsiExecutionContext executionContext)
         {
             var response = await _httpLoader.Get(uri, executionContext);
@@ -47,7 +49,8 @@ namespace EsiNet.Fragments
             var content = await response.Content.ReadAsStringAsync();
             var fragment = _esiBodyParser.Parse(content);
 
-            return (fragment, response.Headers.CacheControl);
+            return new CacheResponse<IEsiFragment>(
+                fragment, response.Headers.CacheControl, response.Headers.Vary.ToList());
         }
     }
 }

@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using CacheControlHeaderValue = System.Net.Http.Headers.CacheControlHeaderValue;
-using HeaderDictionaryExtensions = EsiNet.AspNetCore.Internal.HeaderDictionaryExtensions;
 
 namespace EsiNet.AspNetCore
 {
@@ -27,13 +26,13 @@ namespace EsiNet.AspNetCore
         private readonly RequestDelegate _next;
         private readonly EsiBodyParser _parser;
         private readonly EsiFragmentExecutor _executor;
-        private readonly IEsiFragmentCache _cache;
+        private readonly EsiFragmentCacheFacade _cache;
 
         public EsiMiddleware(
             RequestDelegate next,
             EsiBodyParser parser,
             EsiFragmentExecutor executor,
-            IEsiFragmentCache cache)
+            EsiFragmentCacheFacade cache)
         {
             _next = next ?? throw new ArgumentNullException(nameof(next));
             _parser = parser ?? throw new ArgumentNullException(nameof(parser));
@@ -51,10 +50,11 @@ namespace EsiNet.AspNetCore
                 return;
             }
 
-            IEsiFragment fragment;
-            var key = GetPageCacheKey(context.Request);
-            var (found, cachedResponse) = await _cache.TryGet<FragmentPageResponse>(key);
+            var executionContext = new EsiExecutionContext(context.Request.Headers.ToDictionary());
+            var pageUri = GetPageUri(context.Request);
+            var (found, cachedResponse) = await _cache.TryGet<FragmentPageResponse>(pageUri, executionContext);
 
+            IEsiFragment fragment;
             if (found)
             {
                 foreach (var header in cachedResponse.Headers)
@@ -85,12 +85,14 @@ namespace EsiNet.AspNetCore
                 if (ShouldSetCache(context))
                 {
                     var headers = context.Response.Headers.ToDictionary();
-                    var cacheResponse = new FragmentPageResponse(fragment, headers);
-                    await _cache.Set(key, cacheControl, cacheResponse);
+                    var pageResponse = new FragmentPageResponse(fragment, headers);
+                    var vary = context.Response.Headers[HeaderNames.Vary];
+                    var cacheResponse = new CacheResponse<FragmentPageResponse>(pageResponse, cacheControl, vary);
+                    await _cache.Set(pageUri, executionContext, cacheResponse);
                 }
             }
 
-            var content = await _executor.Execute(fragment, new EsiExecutionContext(context.Request.Headers.ToDictionary()));
+            var content = await _executor.Execute(fragment, executionContext);
             context.Response.ContentLength = null;
 
             foreach (var part in content)
@@ -156,10 +158,11 @@ namespace EsiNet.AspNetCore
             return ValidContentTypes.Contains(parts.First());
         }
 
-        private static string GetPageCacheKey(HttpRequest request)
+        private Uri GetPageUri(HttpRequest request)
         {
             var host = request.Host.Value ?? "unknown-host";
-            return request.Scheme + "://" + host + request.PathBase.Value + request.Path.Value + request.QueryString.Value;
+            return new Uri(
+                request.Scheme + "://" + host + request.PathBase.Value + request.Path.Value + request.QueryString.Value);
         }
     }
 }

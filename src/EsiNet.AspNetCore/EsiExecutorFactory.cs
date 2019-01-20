@@ -10,7 +10,8 @@ namespace EsiNet.AspNetCore
 {
     public static class EsiExecutorFactory
     {
-        public static EsiFragmentExecutor Create(IEsiFragmentCache cache,
+        public static EsiFragmentExecutor Create(
+            EsiFragmentCacheFacade cache,
             IHttpLoader httpLoader,
             EsiBodyParser parser,
             Log log,

@@ -8,6 +8,7 @@ using EsiNet;
 using EsiNet.AspNetCore;
 using EsiNet.Caching;
 using EsiNet.Caching.Serialization;
+using EsiNet.Fragments;
 using EsiNet.Pipeline;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -68,11 +69,13 @@ namespace Benchmarks
                     ? CacheControlHeaderValue.Parse($"public,max-age={rootCache.Value}")
                     : null;
 
+                var executionContext = new EsiExecutionContext(new Dictionary<string, IReadOnlyCollection<string>>());
                 var fragment = await cache.GetOrAdd(new Uri("/", UriKind.Relative), 
+                    executionContext,
                     () =>
                     {
                         var esiFragment = parser.Parse(rootContent);
-                        var result = (esiFragment, cacheControl);
+                        var result = new CacheResponse<IEsiFragment>(esiFragment, cacheControl, Array.Empty<string>());
                         return Task.FromResult(result);
                     });
 
@@ -86,15 +89,13 @@ namespace Benchmarks
             });
         }
 
-        private static IEsiFragmentCache CreateCache()
+        private static EsiFragmentCacheFacade CreateCache()
         {
-            return new TwoStageEsiFragmentCache(
-                new MemoryCache(
-                    new MemoryCacheOptions()),
-                new MemoryDistributedCache(
-                    new OptionsWrapper<MemoryDistributedCacheOptions>(
-                        new MemoryDistributedCacheOptions())),
-                Serializer.Wire());
+            var memoryCache = new MemoryCache(new MemoryCacheOptions());
+            var distributedCache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
+            var serializer = Serializer.Wire();
+            var cache = new TwoStageEsiFragmentCache(memoryCache, distributedCache, serializer);
+            return new EsiFragmentCacheFacade(cache, new MemoryVaryHeaderStore());
         }
 
         private static EsiBodyParser CreateParser()
@@ -105,7 +106,7 @@ namespace Benchmarks
         }
 
         private static EsiFragmentExecutor CreateExecutor(
-            IEsiFragmentCache cache,
+            EsiFragmentCacheFacade cache,
             Dictionary<string, (string, int?)> urlContentMap,
             EsiBodyParser parser)
         {
