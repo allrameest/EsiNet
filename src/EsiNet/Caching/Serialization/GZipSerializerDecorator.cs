@@ -2,7 +2,7 @@
 using System.IO;
 using System.IO.Compression;
 
-namespace EsiNet.Caching
+namespace EsiNet.Caching.Serialization
 {
     public class GZipSerializerDecorator : ISerializer
     {

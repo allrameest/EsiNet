@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using EsiNet.Caching;
+using EsiNet.Caching.Serialization;
 using EsiNet.Fragments;
 using EsiNet.Http;
 using EsiNet.Logging;

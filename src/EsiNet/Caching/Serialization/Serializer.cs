@@ -1,4 +1,4 @@
-﻿namespace EsiNet.Caching
+﻿namespace EsiNet.Caching.Serialization
 {
     public static class Serializer
     {

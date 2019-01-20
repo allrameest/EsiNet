@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace EsiNet.Caching
+namespace EsiNet.Caching.Serialization
 {
     public interface ISerializer
     {

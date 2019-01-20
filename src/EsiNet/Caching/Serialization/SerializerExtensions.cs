@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace EsiNet.Caching
+namespace EsiNet.Caching.Serialization
 {
     public static class SerializerExtensions
     {
