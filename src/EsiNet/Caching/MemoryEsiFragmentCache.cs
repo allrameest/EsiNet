@@ -13,23 +13,27 @@ namespace EsiNet.Caching
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        public Task<(bool, T)> TryGet<T>(string key)
+        public Task<(bool, T)> TryGet<T>(CacheKey key)
         {
+            if (key == null) throw new ArgumentNullException(nameof(key));
+
             var result = _cache.TryGetValue<T>(CreateFullKey<T>(key), out var cachedValue)
                 ? (true, cachedValue)
                 : (false, default(T));
             return Task.FromResult(result);
         }
 
-        public Task Set<T>(string key, T value, TimeSpan absoluteExpirationRelativeToNow)
+        public Task Set<T>(CacheKey key, T value, TimeSpan absoluteExpirationRelativeToNow)
         {
+            if (key == null) throw new ArgumentNullException(nameof(key));
+
             _cache.Set(CreateFullKey<T>(key), value, absoluteExpirationRelativeToNow);
             return Task.CompletedTask;
         }
 
-        private static string CreateFullKey<T>(string key)
+        private static string CreateFullKey<T>(CacheKey key)
         {
-            return $"Esi_{CacheVersion.Version}_{typeof(T).Name}_{key}";
+            return $"Esi_{typeof(T).Name}_{key}";
         }
     }
 }

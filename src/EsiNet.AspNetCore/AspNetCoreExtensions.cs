@@ -29,6 +29,9 @@ namespace EsiNet.AspNetCore
                     sp.GetRequiredService<IDistributedCache>(),
                     Serializer.Wire().GZip()));
 
+            services.TryAddSingleton<IVaryHeaderStore, MemoryVaryHeaderStore>();
+            services.TryAddSingleton<EsiFragmentCacheFacade>();
+
             var builder = new EsiNetBuilder(services);
 
             services.TryAddSingleton(sp => CreateLog(sp.GetRequiredService<ILoggerFactory>().CreateLogger("EsiNet")));
@@ -55,7 +58,7 @@ namespace EsiNet.AspNetCore
 
             services.TryAddSingleton(sp =>
             {
-                var cache = sp.GetRequiredService<IEsiFragmentCache>();
+                var cache = sp.GetRequiredService<EsiFragmentCacheFacade>();
                 var httpLoader = sp.GetRequiredService<IHttpLoader>();
                 var parser = sp.GetRequiredService<EsiBodyParser>();
                 var log = sp.GetRequiredService<Log>();

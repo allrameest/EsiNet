@@ -14,7 +14,8 @@ namespace EsiNet.AspNetCore.Internal
             return headers
                 .ToDictionary(
                     h => h.Key,
-                    h => (IReadOnlyCollection<string>) h.Value.ToArray());
+                    h => (IReadOnlyCollection<string>) h.Value.ToArray(),
+                    StringComparer.OrdinalIgnoreCase);
         }
     }
 }
