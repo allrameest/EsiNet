@@ -47,10 +47,8 @@ namespace EsiNet.Caching
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
 
-            var key = TryGetCacheKey(uri, executionContext);
-            return key != null
-                ? _cache.TryGet<T>(key)
-                : Task.FromResult((false, default(T)));
+            var key = GetVaryStoreCacheKey(uri, executionContext);
+            return _cache.TryGet<T>(key);
         }
 
         public async Task Set<T>(
@@ -75,15 +73,16 @@ namespace EsiNet.Caching
             }
 
             var key = CreateCacheKey(uri, response.Vary, executionContext);
-            StoreVary(uri, response.Vary);
+            SaveVary(uri, response.Vary);
             await _cache.Set(key, response.Value, maxAge.Value);
         }
 
-        private CacheKey TryGetCacheKey(Uri uri, EsiExecutionContext executionContext)
+        private CacheKey GetVaryStoreCacheKey(Uri uri, EsiExecutionContext executionContext)
         {
-            return _varyHeaderStore.TryGet(uri, out var varyHeaderNames)
-                ? CreateCacheKey(uri, varyHeaderNames, executionContext)
-                : null;
+            var varyHeaderNames = _varyHeaderStore.TryGet(uri, out var headerNames)
+                ? headerNames
+                : Array.Empty<string>();
+            return CreateCacheKey(uri, varyHeaderNames, executionContext);
         }
 
         private static CacheKey CreateCacheKey(
@@ -98,7 +97,7 @@ namespace EsiNet.Caching
             return new CacheKey(uri, varyHeaderValues.ToList());
         }
 
-        private void StoreVary(
+        private void SaveVary(
             Uri uri, IReadOnlyCollection<string> varyHeaderNames)
         {
             if (uri == null) throw new ArgumentNullException(nameof(uri));
