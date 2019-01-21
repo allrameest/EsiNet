@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using EsiNet.AspNetCore.Internal;
 using EsiNet.Caching;
@@ -15,14 +12,6 @@ namespace EsiNet.AspNetCore
 {
     public class EsiMiddleware
     {
-        private static readonly ISet<string> ValidContentTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "application/javascript",
-            "application/json",
-            "application/xhtml+xml",
-            "application/xml"
-        };
-
         private readonly RequestDelegate _next;
         private readonly EsiBodyParser _parser;
         private readonly EsiFragmentExecutor _executor;
@@ -57,19 +46,14 @@ namespace EsiNet.AspNetCore
             IEsiFragment fragment;
             if (found)
             {
-                foreach (var header in cachedResponse.Headers)
-                {
-                    if (context.Response.Headers.ContainsKey(header.Key)) continue;
-                    context.Response.Headers.Add(header.Key, new StringValues(header.Value.ToArray()));
-                }
-
+                context.Response.CopyHeaders(cachedResponse.Headers);
                 fragment = cachedResponse.Fragment;
             }
             else
             {
                 var acceptEncoding = context.Request.Headers[HeaderNames.AcceptEncoding];
                 context.Request.Headers[HeaderNames.AcceptEncoding] = StringValues.Empty;
-                var body = await TryInterceptNext(context);
+                var body = await _next.TryIntercept(context);
                 context.Request.Headers[HeaderNames.AcceptEncoding] = acceptEncoding;
 
                 if (body == null)
@@ -79,61 +63,29 @@ namespace EsiNet.AspNetCore
 
                 fragment = _parser.Parse(body);
 
-                CacheControlHeaderValue.TryParse(
-                    context.Response.Headers[HeaderNames.CacheControl], out var cacheControl);
-
-                if (ShouldSetCache(context))
-                {
-                    var headers = context.Response.Headers.ToDictionary();
-                    var pageResponse = new FragmentPageResponse(fragment, headers);
-                    var vary = context.Response.Headers[HeaderNames.Vary];
-                    var cacheResponse = new CacheResponse<FragmentPageResponse>(pageResponse, cacheControl, vary);
-                    await _cache.Set(pageUri, executionContext, cacheResponse);
-                }
+                await StoreFragmentInCache(context, pageUri, executionContext, fragment);
             }
 
             var content = await _executor.Execute(fragment, executionContext);
-            context.Response.ContentLength = null;
 
-            foreach (var part in content)
-            {
-                await context.Response.WriteAsync(part);
-            }
+            await context.Response.WriteAllAsync(content);
         }
 
-        private async Task<string> TryInterceptNext(HttpContext context)
+        private async Task StoreFragmentInCache(
+            HttpContext context, Uri pageUri, EsiExecutionContext executionContext, IEsiFragment fragment)
         {
-            var originBody = context.Response.Body;
+            CacheControlHeaderValue.TryParse(
+                context.Response.Headers[HeaderNames.CacheControl], out var cacheControl);
 
-            try
+            if (ShouldSetCache(context))
             {
-                using (var newBody = new MemoryStream())
-                {
-                    context.Response.Body = newBody;
+                var headers = context.Response.Headers.ToDictionary();
+                var pageResponse = new FragmentPageResponse(fragment, headers);
 
-                    await _next(context);
+                var vary = context.Response.Headers[HeaderNames.Vary];
+                var cacheResponse = new CacheResponse<FragmentPageResponse>(pageResponse, cacheControl, vary);
 
-                    newBody.Seek(0, SeekOrigin.Begin);
-
-                    if (newBody.Length == 0)
-                    {
-                        return null;
-                    }
-                    else if (!ShouldIntercept(context.Response.ContentType))
-                    {
-                        await newBody.CopyToAsync(originBody);
-                        return null;
-                    }
-
-                    using (var streamReader = new StreamReader(newBody))
-                    {
-                        return streamReader.ReadToEnd();
-                    }
-                }
-            }
-            finally
-            {
-                context.Response.Body = originBody;
+                await _cache.Set(pageUri, executionContext, cacheResponse);
             }
         }
 
@@ -142,23 +94,7 @@ namespace EsiNet.AspNetCore
             return context.Response.StatusCode == 200;
         }
 
-        private static bool ShouldIntercept(string contentType)
-        {
-            if (contentType == null)
-            {
-                return false;
-            }
-
-            if (contentType.StartsWith("text/"))
-            {
-                return true;
-            }
-
-            var parts = contentType.Split(';');
-            return ValidContentTypes.Contains(parts.First());
-        }
-
-        private Uri GetPageUri(HttpRequest request)
+        private static Uri GetPageUri(HttpRequest request)
         {
             var host = request.Host.Value ?? "unknown-host";
             return new Uri(
