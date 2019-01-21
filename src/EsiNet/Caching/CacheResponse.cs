@@ -17,4 +17,11 @@ namespace EsiNet.Caching
         public CacheControlHeaderValue CacheControl { get; }
         public IReadOnlyCollection<string> Vary { get; }
     }
+
+    public static class CacheResponse
+    {
+        public static CacheResponse<T> Create<T>(
+            T value, CacheControlHeaderValue cacheControl, IReadOnlyCollection<string> vary) =>
+            new CacheResponse<T>(value, cacheControl, vary);
+    }
 }

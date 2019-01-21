@@ -83,7 +83,7 @@ namespace EsiNet.AspNetCore
                 var pageResponse = new FragmentPageResponse(fragment, headers);
 
                 var vary = context.Response.Headers[HeaderNames.Vary];
-                var cacheResponse = new CacheResponse<FragmentPageResponse>(pageResponse, cacheControl, vary);
+                var cacheResponse = CacheResponse.Create(pageResponse, cacheControl, vary);
 
                 await _cache.Set(pageUri, executionContext, cacheResponse);
             }
