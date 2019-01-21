@@ -75,7 +75,7 @@ namespace Benchmarks
                     () =>
                     {
                         var esiFragment = parser.Parse(rootContent);
-                        var result = new CacheResponse<IEsiFragment>(esiFragment, cacheControl, Array.Empty<string>());
+                        var result = CacheResponse.Create(esiFragment, cacheControl, Array.Empty<string>());
                         return Task.FromResult(result);
                     });
 

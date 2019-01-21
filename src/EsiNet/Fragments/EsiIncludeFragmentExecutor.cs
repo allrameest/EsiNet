@@ -49,8 +49,7 @@ namespace EsiNet.Fragments
             var content = await response.Content.ReadAsStringAsync();
             var fragment = _esiBodyParser.Parse(content);
 
-            return new CacheResponse<IEsiFragment>(
-                fragment, response.Headers.CacheControl, response.Headers.Vary.ToList());
+            return CacheResponse.Create(fragment, response.Headers.CacheControl, response.Headers.Vary.ToList());
         }
     }
 }
