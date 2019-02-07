@@ -113,6 +113,15 @@ namespace Tests.Complete
             fragment.ShouldDeepEqual(expected);
         }
 
+        [Fact]
+        public void Parse_IncludeWithEncodedCharacters_CharactersDecoded()
+        {
+            var fragment = Parse(@"<esi:include src=""http://host/fragment/fragment?a=1&amp;b=2""/>");
+
+            var expected = new EsiIncludeFragment(new Uri("http://host/fragment/fragment?a=1&b=2"));
+            fragment.ShouldDeepEqual(expected);
+        }
+
         private static IEsiFragment Parse(string body)
         {
             var parser = EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>(), url => new Uri(url));

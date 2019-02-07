@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using EsiNet.Fragments;
 
@@ -104,7 +105,7 @@ namespace EsiNet
                 .Cast<Match>()
                 .ToDictionary(
                     match => match.Groups[AttributeNameGroupIndex].Value,
-                    match => match.Groups[AttributeValueGroupIndex].Value,
+                    match => WebUtility.HtmlDecode(match.Groups[AttributeValueGroupIndex].Value),
                     StringComparer.OrdinalIgnoreCase);
         }
     }
