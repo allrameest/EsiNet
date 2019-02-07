@@ -1,6 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <Version>0.2.14</Version>
+    <Version>0.2.15</Version>
     <Authors>Erik Juhlin</Authors>
     <PackageIconUrl>https://raw.githubusercontent.com/allrameest/EsiNet/master/logo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/allrameest/EsiNet</RepositoryUrl>
