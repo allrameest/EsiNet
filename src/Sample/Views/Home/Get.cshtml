@@ -24,5 +24,11 @@
 
 <esi:include src="/httpheaders" />
 
+<esi:choose>
+    <esi:when test="$(HTTP_HOST)=='example.com'">EXAMPLE</esi:when>
+    <esi:when test="$(HTTP_HOST)=='localhost'">LOCAL</esi:when>
+    <esi:otherwise>?</esi:otherwise>
+</esi:choose>
+
 </body>
 </html>

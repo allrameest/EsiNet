@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using EsiNet.AspNetCore.Internal;
 using EsiNet.Caching;
@@ -39,7 +40,13 @@ namespace EsiNet.AspNetCore
                 return;
             }
 
-            var executionContext = new EsiExecutionContext(context.Request.Headers.ToDictionary());
+            var executionContext = new EsiExecutionContext(
+                context.Request.Headers.ToDictionary(),
+                new Dictionary<string, string>
+                {
+                    ["HTTP_HOST"] = context.Request.Host.Host,
+                    ["HTTP_REFERER"] = context.Request.Headers["Referer"].ToString()
+                });
             var pageUri = GetPageUri(context.Request);
             var (found, cachedResponse) = await _cache.TryGet<FragmentPageResponse>(pageUri, executionContext);
 

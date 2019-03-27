@@ -152,11 +152,13 @@ namespace Tests.Complete
 
         private static EsiExecutionContext CreateExecutionContext(params KeyValuePair<string, string>[] requestHeaders)
         {
-            return new EsiExecutionContext(requestHeaders
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => (IReadOnlyCollection<string>) new[] {kvp.Value},
-                    StringComparer.OrdinalIgnoreCase));
+            return new EsiExecutionContext(
+                requestHeaders
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => (IReadOnlyCollection<string>) new[] {kvp.Value},
+                        StringComparer.OrdinalIgnoreCase),
+                new Dictionary<string, string>());
         }
     }
 }

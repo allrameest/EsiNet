@@ -61,9 +61,10 @@ namespace Tests
             result.Should().Have.SameSequenceAs("pre", "<body>", "post");
         }
 
-        private EsiExecutionContext EmptyExecutionContext()
+        private static EsiExecutionContext EmptyExecutionContext()
         {
-            return new EsiExecutionContext(new Dictionary<string, IReadOnlyCollection<string>>());
+            return new EsiExecutionContext(
+                new Dictionary<string, IReadOnlyCollection<string>>(), new Dictionary<string, string>());
         }
     }
 

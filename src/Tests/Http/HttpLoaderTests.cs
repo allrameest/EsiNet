@@ -118,12 +118,14 @@ namespace Tests.Http
                 .ToClient();
             var loader = CreateHttpLoader(client);
 
-            var executionContext = new EsiExecutionContext(new Dictionary<string, IReadOnlyCollection<string>>
-            {
-                ["Accept"] = new[] {"text/html", "application/xhtml+xml"},
-                ["Cookie"] = new[] {"a=1; b=2"},
-                ["Connection"] = new[] {"Keep-Alive"}
-            });
+            var executionContext = new EsiExecutionContext(
+                new Dictionary<string, IReadOnlyCollection<string>>
+                {
+                    ["Accept"] = new[] {"text/html", "application/xhtml+xml"},
+                    ["Cookie"] = new[] {"a=1; b=2"},
+                    ["Connection"] = new[] {"Keep-Alive"}
+                },
+                new Dictionary<string, string>());
             await loader.Get(new Uri("http://host/path"), executionContext);
 
             request.Headers.TryGetValues("Accept", out var acceptValues).Should().Be.True();
@@ -154,7 +156,8 @@ namespace Tests.Http
 
         private static EsiExecutionContext EmptyExecutionContext()
         {
-            return new EsiExecutionContext(new Dictionary<string, IReadOnlyCollection<string>>());
+            return new EsiExecutionContext(
+                new Dictionary<string, IReadOnlyCollection<string>>(), new Dictionary<string, string>());
         }
 
         private static HttpLoader CreateHttpLoader(HttpClient client,

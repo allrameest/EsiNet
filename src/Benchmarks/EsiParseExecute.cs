@@ -69,7 +69,8 @@ namespace Benchmarks
                     ? CacheControlHeaderValue.Parse($"public,max-age={rootCache.Value}")
                     : null;
 
-                var executionContext = new EsiExecutionContext(new Dictionary<string, IReadOnlyCollection<string>>());
+                var executionContext = new EsiExecutionContext(
+                    new Dictionary<string, IReadOnlyCollection<string>>(), new Dictionary<string, string>());
                 var fragment = await cache.GetOrAdd(new Uri("/", UriKind.Relative), 
                     executionContext,
                     () =>
@@ -184,7 +185,8 @@ namespace Benchmarks
 
         private static EsiExecutionContext EmptyExecutionContext()
         {
-            return new EsiExecutionContext(new Dictionary<string, IReadOnlyCollection<string>>());
+            return new EsiExecutionContext(
+                new Dictionary<string, IReadOnlyCollection<string>>(), new Dictionary<string, string>());
         }
     }
 }
