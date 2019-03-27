@@ -1,12 +1,21 @@
-﻿using DeepEqual.Syntax;
+﻿using System;
+using DeepEqual.Syntax;
 using EsiNet.Fragments.Choose;
 using SharpTestsEx;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Tests
 {
     public class WhenTests
     {
+        private readonly ITestOutputHelper _output;
+
+        public WhenTests(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Theory]
         [InlineData("$(HTTP_HOST)=='example.com'")]
         [InlineData("  $(HTTP_HOST)  ==  'example.com'  ")]
@@ -72,6 +81,43 @@ namespace Tests
         {
             var expression = WhenParser.Parse(input);
             expression.ComparisonOperator.Should().Be.EqualTo(expectedComparisonOperator);
+        }
+
+        [Theory]
+        [InlineData("$(HTTP_HOST) == example.com", 16)]
+        [InlineData("$HTTP_HOST) == ''", 1)]
+        [InlineData("$(HTTP_HOST == ''", 12)]
+        [InlineData("$(HTTP_HOST) == '''", 18)]
+        [InlineData("$(HTTP_HOST) <> ''", 14)]
+        [InlineData("$(HTTP_HOST) : ''", 13)]
+        [InlineData("€(HTTP_HOST) == ''", 0)]
+        [InlineData("$(HTTP_HOST) == \"\"", 16)]
+        [InlineData("$[HTTP_HOST) == ''", 1)]
+        [InlineData("$(HTTP_HOST] == ''", 11)]
+        [InlineData("$() == ''", 2)]
+        [InlineData("$( ) == ''", 3)]
+        [InlineData("$(HTTP_HOST) == '\"", 18)]
+        [InlineData("$(HTTP_HOST) == '", 17)]
+        [InlineData("$(HTTP_HOST) == '\\x'", 18)]
+        [InlineData("$(HTTP_HOST) == '\\uXXXX'", 19)]
+        [InlineData("", 0)]
+        public void Invalid_expression(string input, int position)
+        {
+            var exception = Record.Exception(() => WhenParser.Parse(input));
+
+            var expected =
+                $"Unexpected character at position {position}" + Environment.NewLine +
+                input + Environment.NewLine +
+                new string(' ', position) + '\u21D1';
+            exception.Should().Be.InstanceOf<InvalidWhenExpressionException>();
+            Pad(exception.Message).Should().Be.EqualTo(Pad(expected));
+
+            _output.WriteLine(Pad(exception.Message));
+
+            string Pad(string s) =>
+                Environment.NewLine + Environment.NewLine +
+                s +
+                Environment.NewLine + Environment.NewLine;
         }
     }
 }

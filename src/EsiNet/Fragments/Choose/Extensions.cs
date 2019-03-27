@@ -1,20 +1,19 @@
 ﻿using System;
-using System.IO;
 
 namespace EsiNet.Fragments.Choose
 {
-    public static class StringReaderExtensions
+    public static class ExpressionReaderExtensions
     {
-        public static char ReadChar(this StringReader reader)
+        public static char ReadChar(this ExpressionReader reader)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
-            return (char)reader.Read();
+            return (char) reader.Read();
         }
 
-        public static char PeekChar(this StringReader reader)
+        public static char PeekChar(this ExpressionReader reader)
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
-            return (char)reader.Peek();
+            return (char) reader.Peek();
         }
     }
 }

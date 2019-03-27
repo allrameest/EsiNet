@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Globalization;
-using System.IO;
 using System.Text;
 
 namespace EsiNet.Fragments.Choose
 {
-    public static class WhenParser
+    public class WhenParser
     {
         public static ComparisonExpression Parse(string text)
         {
-            using (var reader = new StringReader(text))
+            using (var reader = new ExpressionReader(text))
             {
                 SkipWhitespace(reader);
 
@@ -25,13 +24,13 @@ namespace EsiNet.Fragments.Choose
 
                 SkipWhitespace(reader);
 
-                if (reader.Peek() != -1) throw new Exception();
+                if (reader.Peek() != -1) throw UnexpectedCharacterException(reader);
 
                 return new ComparisonExpression(left, right, comparisonOperator);
             }
         }
 
-        private static ComparisonOperator ParseOperator(StringReader reader)
+        private static ComparisonOperator ParseOperator(ExpressionReader reader)
         {
             var c = reader.ReadChar();
 
@@ -65,10 +64,10 @@ namespace EsiNet.Fragments.Choose
             if (c == '<')
                 return ComparisonOperator.LessThan;
 
-            throw new Exception();
+            throw UnexpectedCharacterException(reader);
         }
 
-        private static ValueExpression ParseValue(StringReader reader)
+        private static ValueExpression ParseValue(ExpressionReader reader)
         {
             var c = reader.PeekChar();
             switch (c)
@@ -78,15 +77,15 @@ namespace EsiNet.Fragments.Choose
                 case '\'':
                     return ParseConstant(reader);
                 default:
-                    throw new Exception();
+                    throw UnexpectedCharacterException(reader);
             }
         }
 
-        private static VariableExpression ParseVariable(StringReader reader)
+        private static VariableExpression ParseVariable(ExpressionReader reader)
         {
             reader.Read(); //Skip $
 
-            if (reader.Read() != '(') throw new Exception();
+            if (reader.Read() != '(') throw UnexpectedCharacterException(reader);
 
             SkipWhitespace(reader);
 
@@ -96,16 +95,16 @@ namespace EsiNet.Fragments.Choose
                 name.Append(reader.ReadChar());
             }
 
-            if (name.Length == 0) throw new Exception();
+            if (name.Length == 0) throw UnexpectedCharacterException(reader);
 
             SkipWhitespace(reader);
 
-            if (reader.Read() != ')') throw new Exception();
+            if (reader.Read() != ')') throw UnexpectedCharacterException(reader);
 
             return new VariableExpression(name.ToString());
         }
 
-        private static ConstantExpression ParseConstant(StringReader reader)
+        private static ConstantExpression ParseConstant(ExpressionReader reader)
         {
             reader.Read(); //Skip '
 
@@ -126,10 +125,10 @@ namespace EsiNet.Fragments.Choose
                 }
             }
 
-            throw new Exception();
+            throw UnexpectedCharacterException(reader);
         }
 
-        private static char ParseEscapedCharacter(StringReader reader)
+        private static char ParseEscapedCharacter(ExpressionReader reader)
         {
             var c = reader.ReadChar();
 
@@ -151,17 +150,17 @@ namespace EsiNet.Fragments.Choose
                 case 'u':
                     return ParseUnicodeCharacter(reader);
                 default:
-                    throw new Exception();
+                    throw UnexpectedCharacterException(reader);
             }
         }
 
-        private static char ParseUnicodeCharacter(StringReader reader)
+        private static char ParseUnicodeCharacter(ExpressionReader reader)
         {
             var code = new StringBuilder();
             for (var i = 0; i < 4; i++)
             {
                 var c = reader.ReadChar();
-                if (!IsHexChar(c)) throw new Exception();
+                if (!IsHexChar(c)) throw UnexpectedCharacterException(reader);
                 code.Append(c);
             }
 
@@ -175,12 +174,21 @@ namespace EsiNet.Fragments.Choose
             c >= 'a' && c <= 'f' ||
             c >= 'A' && c <= 'F';
 
-        private static void SkipWhitespace(StringReader reader)
+        private static void SkipWhitespace(ExpressionReader reader)
         {
             while (char.IsWhiteSpace(reader.PeekChar()))
             {
                 reader.Read();
             }
+        }
+
+        private static Exception UnexpectedCharacterException(ExpressionReader reader)
+        {
+            var position = reader.LastAccessedPosition;
+            return new InvalidWhenExpressionException(
+                $"Unexpected character at position {position}" + Environment.NewLine +
+                reader.OriginalText + Environment.NewLine +
+                new string(' ', position) + '\u21D1');
         }
     }
 }
