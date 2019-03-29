@@ -5,6 +5,8 @@ namespace EsiNet.Fragments.Choose
 {
     public class WhenEvaluator
     {
+        private static readonly StringComparer Comparer = StringComparer.CurrentCulture;
+
         public static bool Evaluate(ComparisonExpression comparisonExpression, IReadOnlyDictionary<string, string> variables)
         {
             var leftValue = GetValue(comparisonExpression.Left, variables);
@@ -18,14 +20,17 @@ namespace EsiNet.Fragments.Choose
             switch (@operator)
             {
                 case ComparisonOperator.Equal:
-                    return left.Equals(right);
+                    return Comparer.Equals(left, right);
                 case ComparisonOperator.NotEqual:
-                    return !left.Equals(right);
+                    return !Comparer.Equals(left, right);
                 case ComparisonOperator.GreaterThan:
+                    return Comparer.Compare(left, right) > 0;
                 case ComparisonOperator.GreaterThanOrEqual:
+                    return Comparer.Compare(left, right) >= 0;
                 case ComparisonOperator.LessThan:
+                    return Comparer.Compare(left, right) < 0;
                 case ComparisonOperator.LessThanOrEqual:
-                    throw new NotImplementedException(); //TODO
+                    return Comparer.Compare(left, right) <= 0;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(@operator), @operator, null);
             }
