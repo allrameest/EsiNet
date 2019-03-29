@@ -48,7 +48,7 @@ namespace EsiNet.Fragments.Choose
                 return variables.TryGetValue(variable.Name, out var variableValue) ? variableValue : string.Empty;
             }
 
-            throw new Exception(); //TODO
+            throw new Exception($"Value type {valueExpression.GetType().Name} not supported");
         }
     }
 }
