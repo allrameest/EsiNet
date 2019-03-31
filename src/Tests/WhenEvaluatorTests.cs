@@ -50,7 +50,7 @@ namespace Tests
         {
             var variables = new Dictionary<string, string>();
             var expression = new ComparisonExpression(
-                new ConstantExpression(left), 
+                new ConstantExpression(left),
                 new ConstantExpression(right),
                 comparisonOperator,
                 BooleanOperator.And);
@@ -66,7 +66,7 @@ namespace Tests
         public void Evaluate_multiple(BooleanOperator booleanOperator, bool expected)
         {
             var variables = new Dictionary<string, string>();
-            var expression = new GroupExpression(new []
+            var expression = new GroupExpression(new[]
             {
                 new ComparisonExpression(
                     new ConstantExpression("a"),
@@ -83,6 +83,38 @@ namespace Tests
             var actual = WhenEvaluator.Evaluate(expression, variables);
 
             actual.Should().Be.EqualTo(expected);
+        }
+
+        [Fact]
+        public void Evaluate_grouped()
+        {
+            var variables = new Dictionary<string, string>();
+            var expression = new GroupExpression(new IWhenExpression[]
+            {
+                new ComparisonExpression(
+                    new ConstantExpression("a"),
+                    new ConstantExpression("b"),
+                    ComparisonOperator.Equal,
+                    BooleanOperator.And),
+                new GroupExpression(new[]
+                    {
+                        new ComparisonExpression(
+                            new ConstantExpression("1"),
+                            new ConstantExpression("2"),
+                            ComparisonOperator.Equal,
+                            BooleanOperator.And),
+                        new ComparisonExpression(
+                            new ConstantExpression("c"),
+                            new ConstantExpression("c"),
+                            ComparisonOperator.Equal,
+                            BooleanOperator.Or),
+                    },
+                    BooleanOperator.And)
+            }, BooleanOperator.And);
+
+            var actual = WhenEvaluator.Evaluate(expression, variables);
+
+            actual.Should().Be.False();
         }
     }
 }
