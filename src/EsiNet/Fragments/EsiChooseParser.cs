@@ -43,7 +43,7 @@ namespace EsiNet.Fragments
             return new EsiChooseFragment(whenFragments.ToArray(), otherwiseFragment);
         }
 
-        private static ComparisonExpression ParseTestExpression(string test)
+        private static IWhenExpression ParseTestExpression(string test)
         {
             return WhenParser.Parse(test);
         }

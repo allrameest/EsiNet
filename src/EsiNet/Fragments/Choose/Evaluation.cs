@@ -7,17 +7,48 @@ namespace EsiNet.Fragments.Choose
     {
         private static readonly StringComparer Comparer = StringComparer.CurrentCulture;
 
-        public static bool Evaluate(ComparisonExpression comparisonExpression, IReadOnlyDictionary<string, string> variables)
+        public static bool Evaluate(IWhenExpression expression, IReadOnlyDictionary<string, string> variables)
         {
-            var leftValue = GetValue(comparisonExpression.Left, variables);
-            var rightValue = GetValue(comparisonExpression.Right, variables);
+            if (expression is ComparisonExpression comparisonExpression)
+            {
+                return EvaluateComparison(comparisonExpression, variables);
+            }
 
-            return Compare(leftValue, rightValue, comparisonExpression.ComparisonOperator);
+            if (expression is GroupExpression groupExpression)
+            {
+                return EvaluateGroup(groupExpression, variables);
+            }
+
+            throw new Exception($"Expression type {expression.GetType().Name} not supported");
         }
 
-        private static bool Compare(string left, string right, ComparisonOperator @operator)
+        private static bool EvaluateGroup(
+            GroupExpression groupExpression,
+            IReadOnlyDictionary<string, string> variables)
         {
-            switch (@operator)
+            var groupEvaluated = true;
+            foreach (var expression in groupExpression.BooleanExpressions)
+            {
+                if (expression.BooleanOperator == BooleanOperator.And && !groupEvaluated) break;
+                if (expression.BooleanOperator == BooleanOperator.Or && groupEvaluated) break;
+
+                var expressionEvaluated = Evaluate(expression, variables);
+
+                if (expression.BooleanOperator == BooleanOperator.And) groupEvaluated &= expressionEvaluated;
+                if (expression.BooleanOperator == BooleanOperator.Or) groupEvaluated |= expressionEvaluated;
+            }
+
+            return groupEvaluated;
+        }
+
+        private static bool EvaluateComparison(
+            ComparisonExpression comparisonExpression,
+            IReadOnlyDictionary<string, string> variables)
+        {
+            var left = GetValue(comparisonExpression.Left, variables);
+            var right = GetValue(comparisonExpression.Right, variables);
+
+            switch (comparisonExpression.ComparisonOperator)
             {
                 case ComparisonOperator.Equal:
                     return Comparer.Equals(left, right);
@@ -32,7 +63,8 @@ namespace EsiNet.Fragments.Choose
                 case ComparisonOperator.LessThanOrEqual:
                     return Comparer.Compare(left, right) <= 0;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(@operator), @operator, null);
+                    throw new ArgumentOutOfRangeException(
+                        nameof(comparisonExpression.ComparisonOperator), comparisonExpression.ComparisonOperator, null);
             }
         }
 

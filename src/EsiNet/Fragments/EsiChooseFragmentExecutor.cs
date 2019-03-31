@@ -45,9 +45,9 @@ namespace EsiNet.Fragments
                 .FirstOrDefault();
         }
 
-        private static bool Evaluate(ComparisonExpression comparisonExpression, IReadOnlyDictionary<string, string> variables)
+        private static bool Evaluate(IWhenExpression expression, IReadOnlyDictionary<string, string> variables)
         {
-            return WhenEvaluator.Evaluate(comparisonExpression, variables);
+            return WhenEvaluator.Evaluate(expression, variables);
         }
     }
 }

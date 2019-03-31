@@ -1,33 +1,96 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace EsiNet.Fragments.Choose
 {
     public class WhenParser
     {
-        public static ComparisonExpression Parse(string text)
+        public static IWhenExpression Parse(string text)
         {
             using (var reader = new ExpressionReader(text))
             {
-                SkipWhitespace(reader);
-
-                var left = ParseValue(reader);
-
-                SkipWhitespace(reader);
-
-                var comparisonOperator = ParseOperator(reader);
-
-                SkipWhitespace(reader);
-
-                var right = ParseValue(reader);
-
-                SkipWhitespace(reader);
-
-                if (reader.Peek() != -1) throw UnexpectedCharacterException(reader);
-
-                return new ComparisonExpression(left, right, comparisonOperator);
+                return ParseExpression(reader, BooleanOperator.And);
             }
+        }
+
+        private static IWhenExpression ParseExpression(ExpressionReader reader, BooleanOperator booleanOperator)
+        {
+            var expressions = ParseGroup(reader, booleanOperator).ToList();
+            return expressions.Count == 1
+                ? expressions.Single()
+                : new GroupExpression(expressions, booleanOperator);
+        }
+
+        private static IEnumerable<IWhenExpression> ParseGroup(ExpressionReader reader, BooleanOperator booleanOperator)
+        {
+            SkipWhitespace(reader);
+
+            yield return ParseComparison(reader, booleanOperator);
+
+            SkipWhitespace(reader);
+
+            if (reader.Peek() == -1) yield break;
+
+            while (reader.Peek() != -1)
+            {
+                switch (reader.PeekChar())
+                {
+                    case '|':
+                    case '&':
+                        yield return ParseBooleanExpression(reader);
+                        SkipWhitespace(reader);
+                        break;
+                    default:
+                        throw UnexpectedCharacterException(reader);
+                }
+            }
+
+            if (reader.Peek() != -1) throw UnexpectedCharacterException(reader);
+        }
+
+        private static IWhenExpression ParseBooleanExpression(ExpressionReader reader)
+        {
+            var booleanOperator = ParseBooleanOperator(reader);
+            SkipWhitespace(reader);
+            return ParseComparison(reader, booleanOperator);
+        }
+
+        private static BooleanOperator ParseBooleanOperator(ExpressionReader reader)
+        {
+            var c0 = reader.ReadChar();
+            var c1 = reader.PeekChar();
+
+            if (c0 == '&')
+            {
+                if (c1 == '&') reader.ReadChar();
+                return BooleanOperator.And;
+            }
+
+            if (c0 == '|')
+            {
+                if (c1 == '|') reader.ReadChar();
+                return BooleanOperator.Or;
+            }
+
+            throw UnexpectedCharacterException(reader);
+        }
+
+        private static ComparisonExpression ParseComparison(ExpressionReader reader, BooleanOperator booleanOperator)
+        {
+            var left = ParseValue(reader);
+
+            SkipWhitespace(reader);
+
+            var comparisonOperator = ParseOperator(reader);
+
+            SkipWhitespace(reader);
+
+            var right = ParseValue(reader);
+
+            return new ComparisonExpression(left, right, comparisonOperator, booleanOperator);
         }
 
         private static ComparisonOperator ParseOperator(ExpressionReader reader)

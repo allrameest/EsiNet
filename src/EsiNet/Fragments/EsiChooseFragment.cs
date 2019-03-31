@@ -20,13 +20,13 @@ namespace EsiNet.Fragments
     [Serializable]
     public class EsiWhenFragment : IEsiFragment
     {
-        public EsiWhenFragment(ComparisonExpression expression, IEsiFragment innerFragment)
+        public EsiWhenFragment(IWhenExpression expression, IEsiFragment innerFragment)
         {
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
             InnerFragment = innerFragment ?? throw new ArgumentNullException(nameof(innerFragment));
         }
 
-        public ComparisonExpression Expression { get; }
+        public IWhenExpression Expression { get; }
         public IEsiFragment InnerFragment { get; }
     }
 }

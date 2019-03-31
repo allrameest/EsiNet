@@ -1,19 +1,46 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace EsiNet.Fragments.Choose
 {
-    public class ComparisonExpression
+    public class GroupExpression : IWhenExpression
     {
-        public ComparisonExpression(ValueExpression left, ValueExpression right, ComparisonOperator comparisonOperator)
+        public GroupExpression(IReadOnlyCollection<IWhenExpression> booleanExpressions, BooleanOperator booleanOperator)
+        {
+            BooleanExpressions = booleanExpressions;
+            BooleanOperator = booleanOperator;
+        }
+
+        public IReadOnlyCollection<IWhenExpression> BooleanExpressions { get; }
+        public BooleanOperator BooleanOperator { get; }
+    }
+
+    public interface IWhenExpression
+    {
+        BooleanOperator BooleanOperator { get; }
+    }
+
+    public enum BooleanOperator
+    {
+        And,
+        Or
+    }
+
+    public class ComparisonExpression : IWhenExpression
+    {
+        public ComparisonExpression(ValueExpression left, ValueExpression right, ComparisonOperator comparisonOperator, BooleanOperator booleanOperator)
         {
             Left = left ?? throw new ArgumentNullException(nameof(left));
             Right = right ?? throw new ArgumentNullException(nameof(right));
             ComparisonOperator = comparisonOperator;
+            BooleanOperator = booleanOperator;
         }
 
         public ValueExpression Left { get; }
         public ValueExpression Right { get; }
         public ComparisonOperator ComparisonOperator { get; }
+        public BooleanOperator BooleanOperator { get; }
     }
 
     public enum ComparisonOperator
@@ -26,7 +53,7 @@ namespace EsiNet.Fragments.Choose
         LessThanOrEqual,
     }
 
-    public class ValueExpression
+    public abstract class ValueExpression
     {
     }
 

@@ -7,11 +7,11 @@ using Xunit.Abstractions;
 
 namespace Tests
 {
-    public class WhenTests
+    public class WhenParserTests
     {
         private readonly ITestOutputHelper _output;
 
-        public WhenTests(ITestOutputHelper output)
+        public WhenParserTests(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -27,7 +27,8 @@ namespace Tests
                 new ComparisonExpression(
                     new VariableExpression("HTTP_HOST"),
                     new ConstantExpression("example.com"),
-                    ComparisonOperator.Equal));
+                    ComparisonOperator.Equal,
+                    BooleanOperator.And));
         }
 
         [Fact]
@@ -39,7 +40,8 @@ namespace Tests
                 new ComparisonExpression(
                     new VariableExpression("HTTP_HOST"),
                     new VariableExpression("HTTP_REFERER"),
-                    ComparisonOperator.Equal));
+                    ComparisonOperator.Equal,
+                    BooleanOperator.And));
         }
 
         [Fact]
@@ -51,7 +53,8 @@ namespace Tests
                 new ComparisonExpression(
                     new ConstantExpression("a"),
                     new ConstantExpression("b"),
-                    ComparisonOperator.Equal));
+                    ComparisonOperator.Equal,
+                    BooleanOperator.And));
         }
 
         [Theory]
@@ -64,7 +67,7 @@ namespace Tests
         [InlineData(@"$(X) == ' \u1120 '", " \u1120 ")]
         public void Compare_with_special_characters(string input, string expectedConstantValue)
         {
-            var expression = WhenParser.Parse(input);
+            var expression = (ComparisonExpression) WhenParser.Parse(input);
             ((ConstantExpression) expression.Right).Value.Should().Be.EqualTo(expectedConstantValue);
         }
 
@@ -79,7 +82,7 @@ namespace Tests
         [InlineData(@"$(X)>='x'", ComparisonOperator.GreaterThanOrEqual)]
         public void Compare_with_operators(string input, ComparisonOperator expectedComparisonOperator)
         {
-            var expression = WhenParser.Parse(input);
+            var expression = (ComparisonExpression) WhenParser.Parse(input);
             expression.ComparisonOperator.Should().Be.EqualTo(expectedComparisonOperator);
         }
 
@@ -118,6 +121,31 @@ namespace Tests
                 Environment.NewLine + Environment.NewLine +
                 s +
                 Environment.NewLine + Environment.NewLine;
+        }
+
+        [Theory]
+        [InlineData("$(HTTP_HOST)=='example.com' || $(HTTP_REFERER)=='http://example.com'", BooleanOperator.Or)]
+        [InlineData("$(HTTP_HOST)=='example.com' && $(HTTP_REFERER)=='http://example.com'", BooleanOperator.And)]
+        [InlineData("$(HTTP_HOST)=='example.com' | $(HTTP_REFERER)=='http://example.com'", BooleanOperator.Or)]
+        [InlineData("$(HTTP_HOST)=='example.com' & $(HTTP_REFERER)=='http://example.com'", BooleanOperator.And)]
+        public void Compare_multiple_boolean_expressions(string input, BooleanOperator expectedOperator)
+        {
+            var expression = WhenParser.Parse(input);
+
+            expression.ShouldDeepEqual(
+                new GroupExpression(new[]
+                {
+                    new ComparisonExpression(
+                        new VariableExpression("HTTP_HOST"),
+                        new ConstantExpression("example.com"),
+                        ComparisonOperator.Equal,
+                        BooleanOperator.And),
+                    new ComparisonExpression(
+                        new VariableExpression("HTTP_REFERER"),
+                        new ConstantExpression("http://example.com"),
+                        ComparisonOperator.Equal,
+                        expectedOperator)
+                }, BooleanOperator.And));
         }
     }
 }
