@@ -29,7 +29,7 @@ namespace EsiNet.Fragments.Choose
             var groupEvaluated = true;
             foreach (var expression in groupExpression.BooleanExpressions)
             {
-                if (expression.BooleanOperator == BooleanOperator.And && !groupEvaluated) break;
+                if (expression.BooleanOperator == BooleanOperator.And && !groupEvaluated) continue;
                 if (expression.BooleanOperator == BooleanOperator.Or && groupEvaluated) break;
 
                 var expressionEvaluated = Evaluate(expression, variables);
