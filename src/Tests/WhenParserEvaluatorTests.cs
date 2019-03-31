@@ -21,6 +21,12 @@ namespace Tests
         [InlineData("'a'=='a' || '1'=='1' && 'b'=='c'", true)]
         [InlineData("'a'=='a' && '1'=='1' || 'b'=='c'", true)]
         [InlineData("'a'=='b' && '1'=='2' || 'c'=='c'", true)]
+        [InlineData("'a'=='b' && ('1'=='2' || 'c'=='c')", false)]
+        [InlineData("('a'=='b')", false)]
+        [InlineData("('a'=='a')", true)]
+        [InlineData("(('a'=='a'))", true)]
+        [InlineData("('a'=='b' || 'a'=='a') && ('b'=='b' || 'b'=='a')", true)]
+        [InlineData("('a'=='b' || 'a'=='a') && ('b'=='c' || 'b'=='a')", false)]
         public void Parse_and_evaluate(string input, bool expected)
         {
             var variables = new Dictionary<string, string>

@@ -147,5 +147,41 @@ namespace Tests
                         expectedOperator)
                 }, BooleanOperator.And));
         }
+
+        [Theory]
+        [InlineData("$(a)=='1' && ($(b)=='2' || $(b)=='3')")]
+        [InlineData("($(a)=='1') && ($(b)=='2' || $(b)=='3')")]
+        [InlineData("($(a)=='1' && ($(b)=='2' || $(b)=='3'))")]
+        [InlineData("$(a)=='1' && (($(b)=='2' || $(b)=='3'))")]
+        [InlineData("$(a)=='1' && (($(b)=='2') || ($(b)=='3'))")]
+        [InlineData("(($(a)=='1') && ((($(b)=='2') || ($(b)=='3'))))")]
+        [InlineData(" ( ( $(a)=='1' ) && ( ( ( $(b)=='2' ) || ( $(b)=='3' ) ) ) ) ")]
+        public void Compare_with_groups(string input)
+        {
+            var expression = WhenParser.Parse(input);
+
+            expression.ShouldDeepEqual(
+                new GroupExpression(new IWhenExpression[]
+                {
+                    new ComparisonExpression(
+                        new VariableExpression("a"),
+                        new ConstantExpression("1"),
+                        ComparisonOperator.Equal,
+                        BooleanOperator.And),
+                    new GroupExpression(new []
+                    {
+                        new ComparisonExpression(
+                            new VariableExpression("b"),
+                            new ConstantExpression("2"),
+                            ComparisonOperator.Equal,
+                            BooleanOperator.And),
+                        new ComparisonExpression(
+                            new VariableExpression("b"),
+                            new ConstantExpression("3"),
+                            ComparisonOperator.Equal,
+                            BooleanOperator.Or),
+                    }, BooleanOperator.And), 
+                }, BooleanOperator.And));
+        }
     }
 }

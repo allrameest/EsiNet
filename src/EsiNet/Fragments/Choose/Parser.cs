@@ -18,17 +18,18 @@ namespace EsiNet.Fragments.Choose
 
         private static IWhenExpression ParseExpression(ExpressionReader reader, BooleanOperator booleanOperator)
         {
-            var expressions = ParseGroup(reader, booleanOperator).ToList();
-            return expressions.Count == 1
+            var expressions = ParseBooleanExpressions(reader, booleanOperator).ToArray();
+            return expressions.Length == 1
                 ? expressions.Single()
                 : new GroupExpression(expressions, booleanOperator);
         }
 
-        private static IEnumerable<IWhenExpression> ParseGroup(ExpressionReader reader, BooleanOperator booleanOperator)
+        private static IEnumerable<IWhenExpression> ParseBooleanExpressions(
+            ExpressionReader reader, BooleanOperator booleanOperator)
         {
             SkipWhitespace(reader);
 
-            yield return ParseComparison(reader, booleanOperator);
+            yield return ParseExpressionPart(reader, booleanOperator);
 
             SkipWhitespace(reader);
 
@@ -40,9 +41,13 @@ namespace EsiNet.Fragments.Choose
                 {
                     case '|':
                     case '&':
-                        yield return ParseBooleanExpression(reader);
+                        var @operator = ParseBooleanOperator(reader);
+                        SkipWhitespace(reader);
+                        yield return ParseExpressionPart(reader, @operator);
                         SkipWhitespace(reader);
                         break;
+                    case ')':
+                        yield break;
                     default:
                         throw UnexpectedCharacterException(reader);
                 }
@@ -51,11 +56,62 @@ namespace EsiNet.Fragments.Choose
             if (reader.Peek() != -1) throw UnexpectedCharacterException(reader);
         }
 
-        private static IWhenExpression ParseBooleanExpression(ExpressionReader reader)
+        private static IWhenExpression ParseExpressionPart(ExpressionReader reader, BooleanOperator booleanOperator)
         {
-            var booleanOperator = ParseBooleanOperator(reader);
             SkipWhitespace(reader);
-            return ParseComparison(reader, booleanOperator);
+
+            if (reader.PeekChar() != '(')
+            {
+                return ParseComparison(reader, booleanOperator);
+            }
+
+            var expressions = ParseGroup(reader);
+            if (expressions.Count == 1)
+            {
+                return EnsureOperator(expressions.Single(), booleanOperator);
+            }
+
+            return new GroupExpression(expressions, booleanOperator);
+
+        }
+
+        private static IWhenExpression EnsureOperator(IWhenExpression expression, BooleanOperator booleanOperator)
+        {
+            if (expression.BooleanOperator == booleanOperator)
+            {
+                return expression;
+            }
+
+            if (expression is GroupExpression group)
+            {
+                return new GroupExpression(group.BooleanExpressions, booleanOperator);
+            }
+
+            if (expression is ComparisonExpression comparison)
+            {
+                return new ComparisonExpression(
+                    comparison.Left, comparison.Right, comparison.ComparisonOperator, booleanOperator);
+            }
+
+            throw new Exception($"Expression type {expression.GetType().Name} not supported");
+        }
+
+        private static IReadOnlyCollection<IWhenExpression> ParseGroup(ExpressionReader reader)
+        {
+            reader.Read(); //Skip (
+            SkipWhitespace(reader);
+
+            var result = ParseBooleanExpressions(reader, BooleanOperator.And).ToArray();
+
+            SkipWhitespace(reader);
+
+            var c = reader.ReadChar();
+            if (c != ')') // && c != '&' && c != '|'
+            {
+                throw UnexpectedCharacterException(reader);
+            }
+
+            return result;
         }
 
         private static BooleanOperator ParseBooleanOperator(ExpressionReader reader)
