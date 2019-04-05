@@ -19,6 +19,9 @@ namespace EsiNet.Fragments.Choose
         private static IWhenExpression ParseExpression(ExpressionReader reader, BooleanOperator booleanOperator)
         {
             var expressions = ParseBooleanExpressions(reader, booleanOperator).ToArray();
+
+            if (reader.Peek() != -1) throw UnexpectedCharacterException(reader);
+
             return expressions.Length == 1
                 ? expressions.Single()
                 : new GroupExpression(expressions, booleanOperator);

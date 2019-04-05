@@ -20,6 +20,7 @@ namespace Tests
         [InlineData("$(HTTP_HOST)=='example.com'")]
         [InlineData("  $(HTTP_HOST)  ==  'example.com'  ")]
         [InlineData("$( HTTP_HOST )=='example.com'")]
+        [InlineData("($(HTTP_HOST)=='example.com') ")]
         public void Compare_variable_to_constant(string input)
         {
             var expression = WhenParser.Parse(input);
@@ -104,6 +105,7 @@ namespace Tests
         [InlineData("$(HTTP_HOST) == '\\x'", 18)]
         [InlineData("$(HTTP_HOST) == '\\uXXXX'", 19)]
         [InlineData("", 0)]
+        [InlineData("$(HTTP_HOST) == '')", 18)]
         public void Invalid_expression(string input, int position)
         {
             var exception = Record.Exception(() => WhenParser.Parse(input));
