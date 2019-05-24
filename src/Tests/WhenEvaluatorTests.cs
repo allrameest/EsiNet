@@ -9,6 +9,7 @@ namespace Tests
     {
         [Theory]
         [InlineData("HTTP_HOST", "example.com", ComparisonOperator.Equal, true)]
+        [InlineData("http_host", "example.com", ComparisonOperator.Equal, false)]
         [InlineData("HTTP_HOST", "example.com", ComparisonOperator.NotEqual, false)]
         [InlineData("HTTP_HOST", "foo.com", ComparisonOperator.Equal, false)]
         [InlineData("HTTP_HOST", "foo.com", ComparisonOperator.NotEqual, true)]
