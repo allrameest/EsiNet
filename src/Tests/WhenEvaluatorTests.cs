@@ -13,6 +13,8 @@ namespace Tests
         [InlineData("HTTP_HOST", "foo.com", ComparisonOperator.Equal, false)]
         [InlineData("HTTP_HOST", "foo.com", ComparisonOperator.NotEqual, true)]
         [InlineData("HTTP_REFERER", "example.com", ComparisonOperator.Equal, false)]
+        [InlineData("HTTP_REFERER", "", ComparisonOperator.Equal, false)]
+        [InlineData("HTTP_REFERER", "", ComparisonOperator.NotEqual, true)]
         public void Evaluate_single_comparison(
             string variableName, string value, ComparisonOperator comparisonOperator, bool expected)
         {

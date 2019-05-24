@@ -77,7 +77,7 @@ namespace EsiNet.Fragments.Choose
 
             if (valueExpression is SimpleVariableExpression variable)
             {
-                return variables.TryGetValue(variable.Name, out var variableValue) ? variableValue : string.Empty;
+                return variables.TryGetValue(variable.Name, out var variableValue) ? variableValue : null;
             }
 
             throw new Exception($"Value type {valueExpression.GetType().Name} not supported");
