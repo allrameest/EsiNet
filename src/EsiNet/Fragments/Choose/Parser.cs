@@ -203,7 +203,7 @@ namespace EsiNet.Fragments.Choose
             }
         }
 
-        private static VariableExpression ParseVariable(ExpressionReader reader)
+        private static SimpleVariableExpression ParseVariable(ExpressionReader reader)
         {
             reader.Read(); //Skip $
 
@@ -223,7 +223,7 @@ namespace EsiNet.Fragments.Choose
 
             if (reader.Read() != ')') throw UnexpectedCharacterException(reader);
 
-            return new VariableExpression(name.ToString());
+            return new SimpleVariableExpression(name.ToString());
         }
 
         private static ConstantExpression ParseConstant(ExpressionReader reader)

@@ -26,7 +26,7 @@ namespace Tests
             var expression = WhenParser.Parse(input);
             expression.ShouldDeepEqual(
                 new ComparisonExpression(
-                    new VariableExpression("HTTP_HOST"),
+                    new SimpleVariableExpression("HTTP_HOST"),
                     new ConstantExpression("example.com"),
                     ComparisonOperator.Equal,
                     BooleanOperator.And));
@@ -39,8 +39,8 @@ namespace Tests
             var expression = WhenParser.Parse(input);
             expression.ShouldDeepEqual(
                 new ComparisonExpression(
-                    new VariableExpression("HTTP_HOST"),
-                    new VariableExpression("HTTP_REFERER"),
+                    new SimpleVariableExpression("HTTP_HOST"),
+                    new SimpleVariableExpression("HTTP_REFERER"),
                     ComparisonOperator.Equal,
                     BooleanOperator.And));
         }
@@ -138,12 +138,12 @@ namespace Tests
                 new GroupExpression(new[]
                 {
                     new ComparisonExpression(
-                        new VariableExpression("HTTP_HOST"),
+                        new SimpleVariableExpression("HTTP_HOST"),
                         new ConstantExpression("example.com"),
                         ComparisonOperator.Equal,
                         BooleanOperator.And),
                     new ComparisonExpression(
-                        new VariableExpression("HTTP_REFERER"),
+                        new SimpleVariableExpression("HTTP_REFERER"),
                         new ConstantExpression("http://example.com"),
                         ComparisonOperator.Equal,
                         expectedOperator)
@@ -166,19 +166,19 @@ namespace Tests
                 new GroupExpression(new IWhenExpression[]
                 {
                     new ComparisonExpression(
-                        new VariableExpression("a"),
+                        new SimpleVariableExpression("a"),
                         new ConstantExpression("1"),
                         ComparisonOperator.Equal,
                         BooleanOperator.And),
                     new GroupExpression(new []
                     {
                         new ComparisonExpression(
-                            new VariableExpression("b"),
+                            new SimpleVariableExpression("b"),
                             new ConstantExpression("2"),
                             ComparisonOperator.Equal,
                             BooleanOperator.And),
                         new ComparisonExpression(
-                            new VariableExpression("b"),
+                            new SimpleVariableExpression("b"),
                             new ConstantExpression("3"),
                             ComparisonOperator.Equal,
                             BooleanOperator.Or),

@@ -21,7 +21,7 @@ namespace Tests
                 ["HTTP_HOST"] = "example.com"
             };
             var expression = new ComparisonExpression(
-                new VariableExpression(variableName),
+                new SimpleVariableExpression(variableName),
                 new ConstantExpression(value),
                 comparisonOperator,
                 BooleanOperator.And);

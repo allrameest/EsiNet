@@ -75,7 +75,7 @@ namespace EsiNet.Fragments.Choose
                 return constant.Value;
             }
 
-            if (valueExpression is VariableExpression variable)
+            if (valueExpression is SimpleVariableExpression variable)
             {
                 return variables.TryGetValue(variable.Name, out var variableValue) ? variableValue : string.Empty;
             }
