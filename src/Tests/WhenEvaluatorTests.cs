@@ -19,9 +19,9 @@ namespace Tests
         public void Evaluate_single_comparison(
             string variableName, string value, ComparisonOperator comparisonOperator, bool expected)
         {
-            var variables = new Dictionary<string, string>
+            var variables = new Dictionary<string, IVariableValueResolver>
             {
-                ["HTTP_HOST"] = "example.com"
+                ["HTTP_HOST"] = new SimpleVariableValueResolver("example.com")
             };
             var expression = new ComparisonExpression(
                 new SimpleVariableExpression(variableName),
@@ -48,10 +48,12 @@ namespace Tests
         [InlineData("1", "1", ComparisonOperator.LessThanOrEqual, true)]
         [InlineData("2", "1", ComparisonOperator.LessThanOrEqual, false)]
         [InlineData("2", "1000", ComparisonOperator.GreaterThan, true)]
+        [InlineData("0", "", ComparisonOperator.GreaterThan, true)]
+        [InlineData(" ", "", ComparisonOperator.GreaterThan, true)]
         public void Evaluate_greater_less_than(
             string left, string right, ComparisonOperator comparisonOperator, bool expected)
         {
-            var variables = new Dictionary<string, string>();
+            var variables = new Dictionary<string, IVariableValueResolver>();
             var expression = new ComparisonExpression(
                 new ConstantExpression(left),
                 new ConstantExpression(right),
@@ -68,7 +70,7 @@ namespace Tests
         [InlineData(BooleanOperator.Or, true)]
         public void Evaluate_multiple(BooleanOperator booleanOperator, bool expected)
         {
-            var variables = new Dictionary<string, string>();
+            var variables = new Dictionary<string, IVariableValueResolver>();
             var expression = new GroupExpression(new[]
             {
                 new ComparisonExpression(
@@ -91,7 +93,7 @@ namespace Tests
         [Fact]
         public void Evaluate_grouped()
         {
-            var variables = new Dictionary<string, string>();
+            var variables = new Dictionary<string, IVariableValueResolver>();
             var expression = new GroupExpression(new IWhenExpression[]
             {
                 new ComparisonExpression(
@@ -118,6 +120,34 @@ namespace Tests
             var actual = WhenEvaluator.Evaluate(expression, variables);
 
             actual.Should().Be.False();
+        }
+
+        [Theory]
+        [InlineData("HTTP_COOKIE", "showPricesWithVat", "true", ComparisonOperator.Equal, true)]
+        [InlineData("HTTP_COOKIE", "showPricesWithVat", "false", ComparisonOperator.Equal, false)]
+        [InlineData("HTTP_COOKIE", "showPricesWithVat", "TRUE", ComparisonOperator.Equal, false)]
+        [InlineData("HTTP_COOKIE", "SHOWPRICESWITHVAT", "true", ComparisonOperator.Equal, false)]
+        [InlineData("HTTP_COOKIE", "showPricesWithVat", "true", ComparisonOperator.NotEqual, false)]
+        [InlineData("HTTP_COOKIE", "showPricesWithVat", "false", ComparisonOperator.NotEqual, true)]
+        public void Evaluate_dictionary_comparison(
+            string variableName, string key, string value, ComparisonOperator comparisonOperator, bool expected)
+        {
+            var variables = new Dictionary<string, IVariableValueResolver>
+            {
+                ["HTTP_COOKIE"] = new DictionaryVariableValueResolver(new Dictionary<string, string>
+                {
+                    ["showPricesWithVat"] = "true"
+                })
+            };
+            var expression = new ComparisonExpression(
+                new DictionaryVariableExpression(variableName, key),
+                new ConstantExpression(value),
+                comparisonOperator,
+                BooleanOperator.And);
+
+            var actual = WhenEvaluator.Evaluate(expression, variables);
+
+            actual.Should().Be.EqualTo(expected);
         }
     }
 }

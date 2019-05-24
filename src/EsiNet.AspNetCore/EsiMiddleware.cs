@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using EsiNet.AspNetCore.Internal;
 using EsiNet.Caching;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Choose;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
@@ -42,11 +44,7 @@ namespace EsiNet.AspNetCore
 
             var executionContext = new EsiExecutionContext(
                 context.Request.Headers.ToDictionary(),
-                new Dictionary<string, string>
-                {
-                    ["HTTP_HOST"] = context.Request.Host.Host,
-                    ["HTTP_REFERER"] = context.Request.Headers["Referer"].ToString()
-                });
+                GetVariablesFromContext(context));
             var pageUri = GetPageUri(context.Request);
             var (found, cachedResponse) = await _cache.TryGet<FragmentPageResponse>(pageUri, executionContext);
 
@@ -106,6 +104,23 @@ namespace EsiNet.AspNetCore
             var host = request.Host.Value ?? "unknown-host";
             return new Uri(
                 request.Scheme + "://" + host + request.PathBase.Value + request.Path.Value + request.QueryString.Value);
+        }
+
+        private static IReadOnlyDictionary<string, IVariableValueResolver> GetVariablesFromContext(HttpContext context)
+        {
+            var referer = context.Request.Headers.TryGetValue("Referer", out var refererValues)
+                ? refererValues.ToString()
+                : null;
+
+            return new Dictionary<string, IVariableValueResolver>
+            {
+                ["HTTP_HOST"] = new SimpleVariableValueResolver(context.Request.Host.Host),
+                ["HTTP_REFERER"] = new SimpleVariableValueResolver(referer),
+                ["QUERY_STRING"] = new DictionaryVariableValueResolver(
+                    context.Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString())),
+                ["HTTP_COOKIE"] = new DictionaryVariableValueResolver(
+                    context.Request.Cookies.ToDictionary(x => x.Key, x => x.Value))
+            };
         }
     }
 }

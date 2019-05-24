@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EsiNet;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Choose;
 using EsiNet.Pipeline;
 using SharpTestsEx;
 using Tests.Helpers;
@@ -64,7 +65,7 @@ namespace Tests
         private static EsiExecutionContext EmptyExecutionContext()
         {
             return new EsiExecutionContext(
-                new Dictionary<string, IReadOnlyCollection<string>>(), new Dictionary<string, string>());
+                new Dictionary<string, IReadOnlyCollection<string>>(), new Dictionary<string, IVariableValueResolver>());
         }
     }
 

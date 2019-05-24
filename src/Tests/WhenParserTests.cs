@@ -185,5 +185,21 @@ namespace Tests
                     }, BooleanOperator.And), 
                 }, BooleanOperator.And));
         }
+
+        [Theory]
+        [InlineData("$(HTTP_COOKIE{showPricesWithVat})=='true'")]
+        [InlineData("$(HTTP_COOKIE{showPricesWithVat}) == 'true'")]
+        [InlineData("$( HTTP_COOKIE{showPricesWithVat} )=='true'")]
+        [InlineData("$(HTTP_COOKIE {showPricesWithVat})=='true'")]
+        public void Compare_dictionary_variable_to_constant(string input)
+        {
+            var expression = WhenParser.Parse(input);
+            expression.ShouldDeepEqual(
+                new ComparisonExpression(
+                    new DictionaryVariableExpression("HTTP_COOKIE", "showPricesWithVat"),
+                    new ConstantExpression("true"),
+                    ComparisonOperator.Equal,
+                    BooleanOperator.And));
+        }
     }
 }

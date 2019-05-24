@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using EsiNet;
+using EsiNet.Fragments.Choose;
 using EsiNet.Http;
 using EsiNet.Logging;
 using EsiNet.Pipeline;
@@ -125,7 +126,7 @@ namespace Tests.Http
                     ["Cookie"] = new[] {"a=1; b=2"},
                     ["Connection"] = new[] {"Keep-Alive"}
                 },
-                new Dictionary<string, string>());
+                new Dictionary<string, IVariableValueResolver>());
             await loader.Get(new Uri("http://host/path"), executionContext);
 
             request.Headers.TryGetValues("Accept", out var acceptValues).Should().Be.True();
@@ -157,7 +158,7 @@ namespace Tests.Http
         private static EsiExecutionContext EmptyExecutionContext()
         {
             return new EsiExecutionContext(
-                new Dictionary<string, IReadOnlyCollection<string>>(), new Dictionary<string, string>());
+                new Dictionary<string, IReadOnlyCollection<string>>(), new Dictionary<string, IVariableValueResolver>());
         }
 
         private static HttpLoader CreateHttpLoader(HttpClient client,

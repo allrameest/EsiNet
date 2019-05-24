@@ -37,7 +37,7 @@ namespace EsiNet.Fragments
 
         private static IEsiFragment GetFirstSucceedingWhen(
             IEnumerable<EsiWhenFragment> whenFragments,
-            IReadOnlyDictionary<string, string> variables)
+            IReadOnlyDictionary<string, IVariableValueResolver> variables)
         {
             return whenFragments
                 .Where(f => Evaluate(f.Expression, variables))
@@ -45,7 +45,7 @@ namespace EsiNet.Fragments
                 .FirstOrDefault();
         }
 
-        private static bool Evaluate(IWhenExpression expression, IReadOnlyDictionary<string, string> variables)
+        private static bool Evaluate(IWhenExpression expression, IReadOnlyDictionary<string, IVariableValueResolver> variables)
         {
             return WhenEvaluator.Evaluate(expression, variables);
         }

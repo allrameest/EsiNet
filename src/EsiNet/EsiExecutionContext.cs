@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using EsiNet.Fragments.Choose;
 
 namespace EsiNet
 {
@@ -6,13 +7,13 @@ namespace EsiNet
     {
         public EsiExecutionContext(
             IReadOnlyDictionary<string, IReadOnlyCollection<string>> requestHeaders,
-            IReadOnlyDictionary<string, string> variables)
+            IReadOnlyDictionary<string, IVariableValueResolver> variables)
         {
             RequestHeaders = requestHeaders;
             Variables = variables;
         }
 
         public IReadOnlyDictionary<string, IReadOnlyCollection<string>> RequestHeaders { get; }
-        public IReadOnlyDictionary<string, string> Variables { get; }
+        public IReadOnlyDictionary<string, IVariableValueResolver> Variables { get; }
     }
 }

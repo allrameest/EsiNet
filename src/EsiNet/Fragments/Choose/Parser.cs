@@ -203,7 +203,7 @@ namespace EsiNet.Fragments.Choose
             }
         }
 
-        private static SimpleVariableExpression ParseVariable(ExpressionReader reader)
+        private static VariableExpression ParseVariable(ExpressionReader reader)
         {
             reader.Read(); //Skip $
 
@@ -221,9 +221,38 @@ namespace EsiNet.Fragments.Choose
 
             SkipWhitespace(reader);
 
+            VariableExpression variable;
+            if (reader.PeekChar() == '{')
+            {
+                variable = ParseDictionaryVariable(reader, name.ToString());
+            }
+            else
+            {
+                variable = new SimpleVariableExpression(name.ToString());
+            }
+
             if (reader.Read() != ')') throw UnexpectedCharacterException(reader);
 
-            return new SimpleVariableExpression(name.ToString());
+            return variable;
+        }
+
+        private static DictionaryVariableExpression ParseDictionaryVariable(ExpressionReader reader, string name)
+        {
+            reader.Read(); //Skip {
+
+            var key = new StringBuilder();
+            while (reader.Peek() != -1 && reader.PeekChar() != '}')
+            {
+                key.Append(reader.ReadChar());
+            }
+
+            if (key.Length == 0) throw UnexpectedCharacterException(reader);
+
+            if (reader.Read() != '}') throw UnexpectedCharacterException(reader);
+
+            SkipWhitespace(reader);
+
+            return new DictionaryVariableExpression(name, key.ToString());
         }
 
         private static ConstantExpression ParseConstant(ExpressionReader reader)

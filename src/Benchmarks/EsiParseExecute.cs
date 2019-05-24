@@ -8,7 +8,7 @@ using EsiNet;
 using EsiNet.AspNetCore;
 using EsiNet.Caching;
 using EsiNet.Caching.Serialization;
-using EsiNet.Fragments;
+using EsiNet.Fragments.Choose;
 using EsiNet.Pipeline;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -69,8 +69,7 @@ namespace Benchmarks
                     ? CacheControlHeaderValue.Parse($"public,max-age={rootCache.Value}")
                     : null;
 
-                var executionContext = new EsiExecutionContext(
-                    new Dictionary<string, IReadOnlyCollection<string>>(), new Dictionary<string, string>());
+                var executionContext = EmptyExecutionContext();
                 var fragment = await cache.GetOrAdd(new Uri("/", UriKind.Relative), 
                     executionContext,
                     () =>
@@ -186,7 +185,7 @@ namespace Benchmarks
         private static EsiExecutionContext EmptyExecutionContext()
         {
             return new EsiExecutionContext(
-                new Dictionary<string, IReadOnlyCollection<string>>(), new Dictionary<string, string>());
+                new Dictionary<string, IReadOnlyCollection<string>>(), new Dictionary<string, IVariableValueResolver>());
         }
     }
 }

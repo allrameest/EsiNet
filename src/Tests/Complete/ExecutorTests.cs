@@ -9,6 +9,7 @@ using EsiNet;
 using EsiNet.AspNetCore;
 using EsiNet.Caching;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Choose;
 using EsiNet.Http;
 using EsiNet.Logging;
 using EsiNet.Pipeline;
@@ -158,7 +159,7 @@ namespace Tests.Complete
                         kvp => kvp.Key,
                         kvp => (IReadOnlyCollection<string>) new[] {kvp.Value},
                         StringComparer.OrdinalIgnoreCase),
-                new Dictionary<string, string>());
+                new Dictionary<string, IVariableValueResolver>());
         }
     }
 }

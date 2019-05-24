@@ -27,11 +27,18 @@ namespace Tests
         [InlineData("(('a'=='a'))", true)]
         [InlineData("('a'=='b' || 'a'=='a') && ('b'=='b' || 'b'=='a')", true)]
         [InlineData("('a'=='b' || 'a'=='a') && ('b'=='c' || 'b'=='a')", false)]
+        [InlineData("$(HTTP_COOKIE{showPricesWithVat})=='true'", true)]
+        [InlineData("$(HTTP_COOKIE{showPricesWithVat})=='false'", false)]
+        [InlineData("$(WHATEVER{whatever})==''", false)]
         public void Parse_and_evaluate(string input, bool expected)
         {
-            var variables = new Dictionary<string, string>
+            var variables = new Dictionary<string, IVariableValueResolver>
             {
-                ["HTTP_HOST"] = "example.com"
+                ["HTTP_HOST"] = new SimpleVariableValueResolver("example.com"),
+                ["HTTP_COOKIE"] = new DictionaryVariableValueResolver(new Dictionary<string, string>
+                {
+                    ["showPricesWithVat"] = "true"
+                })
             };
 
             var expression = WhenParser.Parse(input);

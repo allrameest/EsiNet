@@ -7,7 +7,7 @@ namespace EsiNet.Fragments.Choose
     {
         private static readonly StringComparer Comparer = StringComparer.CurrentCulture;
 
-        public static bool Evaluate(IWhenExpression expression, IReadOnlyDictionary<string, string> variables)
+        public static bool Evaluate(IWhenExpression expression, IReadOnlyDictionary<string, IVariableValueResolver> variables)
         {
             if (expression is ComparisonExpression comparisonExpression)
             {
@@ -24,7 +24,7 @@ namespace EsiNet.Fragments.Choose
 
         private static bool EvaluateGroup(
             GroupExpression groupExpression,
-            IReadOnlyDictionary<string, string> variables)
+            IReadOnlyDictionary<string, IVariableValueResolver> variables)
         {
             var groupEvaluated = true;
             foreach (var expression in groupExpression.BooleanExpressions)
@@ -43,7 +43,7 @@ namespace EsiNet.Fragments.Choose
 
         private static bool EvaluateComparison(
             ComparisonExpression comparisonExpression,
-            IReadOnlyDictionary<string, string> variables)
+            IReadOnlyDictionary<string, IVariableValueResolver> variables)
         {
             var left = GetValue(comparisonExpression.Left, variables);
             var right = GetValue(comparisonExpression.Right, variables);
@@ -68,19 +68,69 @@ namespace EsiNet.Fragments.Choose
             }
         }
 
-        private static string GetValue(ValueExpression valueExpression, IReadOnlyDictionary<string, string> variables)
+        private static string GetValue(
+            ValueExpression valueExpression, IReadOnlyDictionary<string, IVariableValueResolver> variables)
         {
             if (valueExpression is ConstantExpression constant)
             {
                 return constant.Value;
             }
 
-            if (valueExpression is SimpleVariableExpression variable)
+            if (valueExpression is VariableExpression variable)
             {
-                return variables.TryGetValue(variable.Name, out var variableValue) ? variableValue : null;
+                return GetVariableValue(variable, variables);
             }
 
             throw new Exception($"Value type {valueExpression.GetType().Name} not supported");
+        }
+
+        private static string GetVariableValue(
+            VariableExpression variableExpression, IReadOnlyDictionary<string, IVariableValueResolver> variables)
+        {
+            if (!variables.TryGetValue(variableExpression.Name, out var resolver))
+            {
+                return null;
+            }
+
+            return resolver.TryGetValue(variableExpression);
+        }
+    }
+
+    public interface IVariableValueResolver
+    {
+        string TryGetValue(VariableExpression variable);
+    }
+
+    public class SimpleVariableValueResolver : IVariableValueResolver
+    {
+        private readonly string _value;
+
+        public SimpleVariableValueResolver(string value)
+        {
+            _value = value;
+        }
+
+        public string TryGetValue(VariableExpression variable)
+        {
+            return _value;
+        }
+    }
+
+    public class DictionaryVariableValueResolver : IVariableValueResolver
+    {
+        private readonly IReadOnlyDictionary<string, string> _values;
+
+        public DictionaryVariableValueResolver(IReadOnlyDictionary<string, string> values)
+        {
+            _values = values;
+        }
+
+        public string TryGetValue(VariableExpression variable)
+        {
+            return variable is DictionaryVariableExpression dictionaryVariable &&
+                   _values.TryGetValue(dictionaryVariable.Key, out var value)
+                ? value
+                : null;
         }
     }
 }
