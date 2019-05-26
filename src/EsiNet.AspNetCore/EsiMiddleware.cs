@@ -108,19 +108,26 @@ namespace EsiNet.AspNetCore
 
         private static IReadOnlyDictionary<string, IVariableValueResolver> GetVariablesFromContext(HttpContext context)
         {
-            var referer = context.Request.Headers.TryGetValue("Referer", out var refererValues)
-                ? refererValues.ToString()
-                : null;
-
             return new Dictionary<string, IVariableValueResolver>
             {
-                ["HTTP_HOST"] = new SimpleVariableValueResolver(context.Request.Host.Host),
-                ["HTTP_REFERER"] = new SimpleVariableValueResolver(referer),
+                ["HTTP_HOST"] = new SimpleVariableValueResolver(
+                    new Lazy<string>(
+                        () => context.Request.Host.Host)),
+                ["HTTP_REFERER"] = new SimpleVariableValueResolver(
+                    new Lazy<string>(
+                        () => GetReferer(context))),
                 ["QUERY_STRING"] = new DictionaryVariableValueResolver(
-                    context.Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString())),
+                    new Lazy<IReadOnlyDictionary<string, string>>(
+                        () => context.Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString()))),
                 ["HTTP_COOKIE"] = new DictionaryVariableValueResolver(
-                    context.Request.Cookies.ToDictionary(x => x.Key, x => x.Value))
+                    new Lazy<IReadOnlyDictionary<string, string>>(
+                        () => context.Request.Cookies.ToDictionary(x => x.Key, x => x.Value)))
             };
         }
+
+        private static string GetReferer(HttpContext context) =>
+            context.Request.Headers.TryGetValue("Referer", out var refererValues)
+                ? refererValues.ToString()
+                : null;
     }
 }

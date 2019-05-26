@@ -103,24 +103,24 @@ namespace EsiNet.Fragments.Choose
 
     public class SimpleVariableValueResolver : IVariableValueResolver
     {
-        private readonly string _value;
+        private readonly Lazy<string> _value;
 
-        public SimpleVariableValueResolver(string value)
+        public SimpleVariableValueResolver(Lazy<string> value)
         {
             _value = value;
         }
 
         public string TryGetValue(VariableExpression variable)
         {
-            return _value;
+            return _value.Value;
         }
     }
 
     public class DictionaryVariableValueResolver : IVariableValueResolver
     {
-        private readonly IReadOnlyDictionary<string, string> _values;
+        private readonly Lazy<IReadOnlyDictionary<string, string>> _values;
 
-        public DictionaryVariableValueResolver(IReadOnlyDictionary<string, string> values)
+        public DictionaryVariableValueResolver(Lazy<IReadOnlyDictionary<string, string>> values)
         {
             _values = values;
         }
@@ -128,7 +128,7 @@ namespace EsiNet.Fragments.Choose
         public string TryGetValue(VariableExpression variable)
         {
             return variable is DictionaryVariableExpression dictionaryVariable &&
-                   _values.TryGetValue(dictionaryVariable.Key, out var value)
+                   _values.Value.TryGetValue(dictionaryVariable.Key, out var value)
                 ? value
                 : null;
         }

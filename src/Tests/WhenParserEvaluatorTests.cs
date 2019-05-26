@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using EsiNet.Fragments.Choose;
 using SharpTestsEx;
 using Xunit;
@@ -34,11 +35,12 @@ namespace Tests
         {
             var variables = new Dictionary<string, IVariableValueResolver>
             {
-                ["HTTP_HOST"] = new SimpleVariableValueResolver("example.com"),
-                ["HTTP_COOKIE"] = new DictionaryVariableValueResolver(new Dictionary<string, string>
-                {
-                    ["showPricesWithVat"] = "true"
-                })
+                ["HTTP_HOST"] = new SimpleVariableValueResolver(new Lazy<string>("example.com")),
+                ["HTTP_COOKIE"] = new DictionaryVariableValueResolver(new Lazy<IReadOnlyDictionary<string, string>>(
+                    new Dictionary<string, string>
+                    {
+                        ["showPricesWithVat"] = "true"
+                    }))
             };
 
             var expression = WhenParser.Parse(input);
