@@ -93,7 +93,7 @@ namespace Benchmarks
         {
             var memoryCache = new MemoryCache(new MemoryCacheOptions());
             var distributedCache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()));
-            var serializer = Serializer.Wire();
+            var serializer = Serializer.Hyperion();
             var cache = new TwoStageEsiFragmentCache(memoryCache, distributedCache, serializer);
             return new EsiFragmentCacheFacade(cache, new MemoryVaryHeaderStore());
         }

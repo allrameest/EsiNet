@@ -3,9 +3,9 @@ using System.IO;
 
 namespace EsiNet.Caching.Serialization
 {
-    public class WireSerializer : ISerializer
+    public class HyperionSerializer : ISerializer
     {
-        private readonly Wire.Serializer _serializer = new Wire.Serializer();
+        private readonly Hyperion.Serializer _serializer = new Hyperion.Serializer();
 
         public void Serialize<T>(T value, Stream destination)
         {

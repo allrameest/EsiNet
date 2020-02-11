@@ -7,9 +7,9 @@
             return new BinarySerializer();
         }
 
-        public static ISerializer Wire()
+        public static ISerializer Hyperion()
         {
-            return new WireSerializer();
+            return new HyperionSerializer();
         }
     }
 }
