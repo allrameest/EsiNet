@@ -27,7 +27,7 @@ namespace EsiNet.AspNetCore
                 new TwoStageEsiFragmentCache(
                     sp.GetRequiredService<IMemoryCache>(),
                     sp.GetRequiredService<IDistributedCache>(),
-                    Serializer.Wire().GZip()));
+                    Serializer.Hyperion().GZip()));
 
             services.TryAddSingleton<IVaryHeaderStore, MemoryVaryHeaderStore>();
             services.TryAddSingleton<EsiFragmentCacheFacade>();
