@@ -28,9 +28,9 @@ AddEsiNet adds all services for EsiNet.
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-	services
-		.AddEsiNet()
-		.AddMvc();
+    services
+        .AddEsiNet()
+        .AddMvc();
 }
 ```
 
@@ -41,9 +41,9 @@ UseEsiNet adds the middleware that parses esi tags.
 ```csharp
 public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 {
-	app
-		.UseEsiNet()
-		.UseMvc();
+    app
+        .UseEsiNet()
+        .UseMvc();
 }
 ```
 
