@@ -6,7 +6,9 @@ namespace EsiNet.Fragments.Choose
 {
     public class GroupExpression : IWhenExpression
     {
-        public GroupExpression(IReadOnlyCollection<IWhenExpression> booleanExpressions, BooleanOperator booleanOperator)
+        public GroupExpression(
+            IReadOnlyCollection<IWhenExpression> booleanExpressions,
+            BooleanOperator booleanOperator)
         {
             BooleanExpressions = booleanExpressions;
             BooleanOperator = booleanOperator;
@@ -29,7 +31,11 @@ namespace EsiNet.Fragments.Choose
 
     public class ComparisonExpression : IWhenExpression
     {
-        public ComparisonExpression(ValueExpression left, ValueExpression right, ComparisonOperator comparisonOperator, BooleanOperator booleanOperator)
+        public ComparisonExpression(
+            ValueExpression left,
+            ValueExpression right,
+            ComparisonOperator comparisonOperator,
+            BooleanOperator booleanOperator)
         {
             Left = left ?? throw new ArgumentNullException(nameof(left));
             Right = right ?? throw new ArgumentNullException(nameof(right));

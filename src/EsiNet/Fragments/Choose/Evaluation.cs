@@ -7,7 +7,9 @@ namespace EsiNet.Fragments.Choose
     {
         private static readonly StringComparer Comparer = StringComparer.CurrentCulture;
 
-        public static bool Evaluate(IWhenExpression expression, IReadOnlyDictionary<string, IVariableValueResolver> variables)
+        public static bool Evaluate(
+            IWhenExpression expression,
+            IReadOnlyDictionary<string, IVariableValueResolver> variables)
         {
             if (expression is ComparisonExpression comparisonExpression)
             {
