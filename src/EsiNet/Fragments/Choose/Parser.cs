@@ -109,7 +109,7 @@ namespace EsiNet.Fragments.Choose
             SkipWhitespace(reader);
 
             var c = reader.ReadChar();
-            if (c != ')') // && c != '&' && c != '|'
+            if (c != ')')
             {
                 throw UnexpectedCharacterException(reader);
             }
