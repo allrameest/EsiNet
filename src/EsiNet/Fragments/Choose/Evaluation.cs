@@ -11,6 +11,9 @@ namespace EsiNet.Fragments.Choose
             IWhenExpression expression,
             IReadOnlyDictionary<string, IVariableValueResolver> variables)
         {
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
+            if (variables == null) throw new ArgumentNullException(nameof(variables));
+            
             if (expression is ComparisonExpression comparisonExpression)
             {
                 return EvaluateComparison(comparisonExpression, variables);

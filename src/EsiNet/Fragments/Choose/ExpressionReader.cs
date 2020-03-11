@@ -11,7 +11,7 @@ namespace EsiNet.Fragments.Choose
 
         public ExpressionReader(string text)
         {
-            OriginalText = text;
+            OriginalText = text ?? throw new ArgumentNullException(nameof(text));
             _reader = new StringReader(text);
         }
 
