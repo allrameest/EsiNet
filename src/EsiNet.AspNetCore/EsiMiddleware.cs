@@ -43,9 +43,8 @@ namespace EsiNet.AspNetCore
             }
 
             var executionContext = new EsiExecutionContext(
-                context.Request.Headers.ToDictionary(),
-                GetVariablesFromContext(context));
-            var pageUri = GetPageUri(context.Request);
+                context.Request.Headers.ToDictionary(), context.Request.GetVariablesFromContext());
+            var pageUri = context.Request.GetPageUri();
             var (found, cachedResponse) = await _cache.TryGet<FragmentPageResponse>(pageUri, executionContext);
 
             IEsiFragment fragment;
@@ -98,36 +97,5 @@ namespace EsiNet.AspNetCore
         {
             return context.Response.StatusCode == 200;
         }
-
-        private static Uri GetPageUri(HttpRequest request)
-        {
-            var host = request.Host.Value ?? "unknown-host";
-            return new Uri(
-                request.Scheme + "://" + host + request.PathBase.Value + request.Path.Value + request.QueryString.Value);
-        }
-
-        private static IReadOnlyDictionary<string, IVariableValueResolver> GetVariablesFromContext(HttpContext context)
-        {
-            return new Dictionary<string, IVariableValueResolver>
-            {
-                ["HTTP_HOST"] = new SimpleVariableValueResolver(
-                    new Lazy<string>(
-                        () => context.Request.Host.Host)),
-                ["HTTP_REFERER"] = new SimpleVariableValueResolver(
-                    new Lazy<string>(
-                        () => GetReferer(context))),
-                ["QUERY_STRING"] = new DictionaryVariableValueResolver(
-                    new Lazy<IReadOnlyDictionary<string, string>>(
-                        () => context.Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString()))),
-                ["HTTP_COOKIE"] = new DictionaryVariableValueResolver(
-                    new Lazy<IReadOnlyDictionary<string, string>>(
-                        () => context.Request.Cookies.ToDictionary(x => x.Key, x => x.Value)))
-            };
-        }
-
-        private static string GetReferer(HttpContext context) =>
-            context.Request.Headers.TryGetValue("Referer", out var refererValues)
-                ? refererValues.ToString()
-                : null;
     }
 }
