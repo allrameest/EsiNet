@@ -9,12 +9,6 @@ namespace EsiNet.Fragments
 {
     public class EsiChooseFragmentExecutor
     {
-        private static readonly Dictionary<string, string> Variables = new Dictionary<string, string>
-        {
-            ["HTTP_HOST"] = "localhost",
-            ["HTTP_REFERER"] = "http://www.foo.com/"
-        };
-
         private readonly EsiFragmentExecutor _fragmentExecutor;
         private readonly Log _log;
 
