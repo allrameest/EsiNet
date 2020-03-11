@@ -6,7 +6,7 @@ using System.Text;
 
 namespace EsiNet.Fragments.Choose
 {
-    public class WhenParser
+    public static class WhenParser
     {
         public static IWhenExpression Parse(string text)
         {

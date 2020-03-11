@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EsiNet.Fragments.Choose
 {
-    public class WhenEvaluator
+    public static class WhenEvaluator
     {
         private static readonly StringComparer Comparer = StringComparer.CurrentCulture;
 
