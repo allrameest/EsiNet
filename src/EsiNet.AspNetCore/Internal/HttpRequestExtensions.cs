@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EsiNet.Fragments.Choose;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
 
 namespace EsiNet.AspNetCore.Internal
 {
@@ -36,7 +37,7 @@ namespace EsiNet.AspNetCore.Internal
         }
 
         private static string GetReferer(this HttpRequest request) =>
-            request.Headers.TryGetValue("Referer", out var refererValues)
+            request.Headers.TryGetValue(HeaderNames.Referer, out var refererValues)
                 ? refererValues.ToString()
                 : null;
     }
