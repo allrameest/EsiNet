@@ -24,6 +24,7 @@ namespace EsiNet.AspNetCore
             parsers["esi:comment"] = new EsiIgnoreParser();
             parsers["esi:text"] = new EsiTextParser();
             parsers["esi:try"] = new EsiTryParser(bodyParser);
+            parsers["esi:choose"] = new EsiChooseParser(bodyParser);
 
             return bodyParser;
         }

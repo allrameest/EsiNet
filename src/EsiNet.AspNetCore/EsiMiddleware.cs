@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using EsiNet.AspNetCore.Internal;
 using EsiNet.Caching;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Choose;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
@@ -39,8 +42,9 @@ namespace EsiNet.AspNetCore
                 return;
             }
 
-            var executionContext = new EsiExecutionContext(context.Request.Headers.ToDictionary());
-            var pageUri = GetPageUri(context.Request);
+            var executionContext = new EsiExecutionContext(
+                context.Request.Headers.ToDictionary(), context.Request.GetVariablesFromContext());
+            var pageUri = context.Request.GetPageUri();
             var (found, cachedResponse) = await _cache.TryGet<FragmentPageResponse>(pageUri, executionContext);
 
             IEsiFragment fragment;
@@ -92,13 +96,6 @@ namespace EsiNet.AspNetCore
         private static bool ShouldSetCache(HttpContext context)
         {
             return context.Response.StatusCode == 200;
-        }
-
-        private static Uri GetPageUri(HttpRequest request)
-        {
-            var host = request.Host.Value ?? "unknown-host";
-            return new Uri(
-                request.Scheme + "://" + host + request.PathBase.Value + request.Path.Value + request.QueryString.Value);
         }
     }
 }

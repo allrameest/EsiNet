@@ -6,7 +6,9 @@ using EsiNet.Logging;
 using EsiNet.Polly;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Net.Http.Headers;
 
 namespace Sample
@@ -25,6 +27,7 @@ namespace Sample
                 .AddHttpLoaderPipeline(sp => new RetryHttpLoaderPipeline(
                     sp.GetService<Log>(), 1));
 
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddMvc();
         }
 
