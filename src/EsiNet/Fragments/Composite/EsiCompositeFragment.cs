@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Composite
 {
     [Serializable]
     public class EsiCompositeFragment : IEsiFragment

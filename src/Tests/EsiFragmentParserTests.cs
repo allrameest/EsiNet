@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using EsiNet;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Text;
 using EsiNet.Pipeline;
 using FakeItEasy;
 using SharpTestsEx;

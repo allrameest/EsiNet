@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using EsiNet.Fragments.Choose;
 using EsiNet.Logging;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Choose
 {
     public class EsiChooseFragmentExecutor
     {

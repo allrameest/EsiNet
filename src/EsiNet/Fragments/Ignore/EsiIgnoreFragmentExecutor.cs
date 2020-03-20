@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Ignore
 {
     public class EsiIgnoreFragmentExecutor
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Text
 {
     public class EsiTextParser : IEsiFragmentParser
     {

@@ -2,6 +2,7 @@
 using System.Globalization;
 using EsiNet.AspNetCore;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Include;
 using EsiNet.Logging;
 using EsiNet.Polly;
 using Microsoft.AspNetCore.Builder;

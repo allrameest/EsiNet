@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Ignore
 {
     [Serializable]
     public class EsiIgnoreFragment : IEsiFragment

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using EsiNet.Fragments.Ignore;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Try
 {
     public class EsiTryParser : IEsiFragmentParser
     {

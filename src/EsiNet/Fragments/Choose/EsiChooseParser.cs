@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using EsiNet.Fragments.Choose;
+using EsiNet.Fragments.Ignore;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Choose
 {
     public class EsiChooseParser : IEsiFragmentParser
     {

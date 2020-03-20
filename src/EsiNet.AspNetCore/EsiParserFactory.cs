@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Choose;
+using EsiNet.Fragments.Ignore;
+using EsiNet.Fragments.Include;
+using EsiNet.Fragments.Text;
+using EsiNet.Fragments.Try;
 using EsiNet.Pipeline;
 
 namespace EsiNet.AspNetCore

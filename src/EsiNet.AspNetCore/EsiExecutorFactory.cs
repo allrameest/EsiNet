@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using EsiNet.Caching;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Choose;
+using EsiNet.Fragments.Composite;
+using EsiNet.Fragments.Ignore;
+using EsiNet.Fragments.Include;
+using EsiNet.Fragments.Text;
+using EsiNet.Fragments.Try;
 using EsiNet.Http;
 using EsiNet.Logging;
 

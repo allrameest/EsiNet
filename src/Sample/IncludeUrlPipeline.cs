@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Include;
 using EsiNet.Pipeline;
 
 namespace Sample

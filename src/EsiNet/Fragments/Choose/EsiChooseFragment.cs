@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using EsiNet.Fragments.Choose;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Choose
 {
     [Serializable]
     public class EsiChooseFragment : IEsiFragment

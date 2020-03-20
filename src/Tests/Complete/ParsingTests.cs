@@ -2,6 +2,11 @@
 using DeepEqual.Syntax;
 using EsiNet.AspNetCore;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Composite;
+using EsiNet.Fragments.Ignore;
+using EsiNet.Fragments.Include;
+using EsiNet.Fragments.Text;
+using EsiNet.Fragments.Try;
 using EsiNet.Pipeline;
 using Xunit;
 

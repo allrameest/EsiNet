@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using EsiNet.Logging;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Try
 {
     public class EsiTryFragmentExecutor
     {

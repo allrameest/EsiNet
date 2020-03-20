@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using EsiNet;
 using EsiNet.Fragments;
 using EsiNet.Fragments.Choose;
+using EsiNet.Fragments.Text;
 using EsiNet.Pipeline;
 using SharpTestsEx;
 using Tests.Helpers;

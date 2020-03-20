@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Include
 {
     [Serializable]
     public class EsiIncludeFragment : IEsiFragment

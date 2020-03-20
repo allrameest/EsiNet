@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using EsiNet.Fragments.Ignore;
+using EsiNet.Fragments.Try;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Include
 {
     public class EsiIncludeParser : IEsiFragmentParser
     {

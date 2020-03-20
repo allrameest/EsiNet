@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EsiNet.Fragments
+namespace EsiNet.Fragments.Text
 {
     [Serializable]
     public class EsiTextFragment : IEsiFragment
