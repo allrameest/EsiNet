@@ -28,6 +28,7 @@ namespace EsiNet.Expressions
         Or
     }
 
+    [Serializable]
     public class ComparisonExpression : IBooleanExpression
     {
         public ComparisonExpression(
@@ -58,10 +59,12 @@ namespace EsiNet.Expressions
         LessThanOrEqual,
     }
 
+    [Serializable]
     public abstract class ValueExpression
     {
     }
 
+    [Serializable]
     public class ConstantExpression : ValueExpression
     {
         public ConstantExpression(string value)

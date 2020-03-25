@@ -1,8 +1,11 @@
-﻿namespace EsiNet.Expressions
+﻿using System;
+
+namespace EsiNet.Expressions
 {
-    public class VariableExpression : ValueExpression
+    [Serializable]
+    public abstract class VariableExpression : ValueExpression
     {
-        public VariableExpression(string name)
+        protected VariableExpression(string name)
         {
             Name = name;
         }
@@ -10,6 +13,7 @@
         public string Name { get; }
     }
 
+    [Serializable]
     public class SimpleVariableExpression : VariableExpression
     {
         public SimpleVariableExpression(string name) : base(name)
@@ -17,6 +21,7 @@
         }
     }
 
+    [Serializable]
     public class DictionaryVariableExpression : VariableExpression
     {
         public DictionaryVariableExpression(string name, string key) : base(name)
