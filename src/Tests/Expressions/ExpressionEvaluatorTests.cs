@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using EsiNet.Fragments.Choose;
+using EsiNet.Expressions;
 using SharpTestsEx;
 using Xunit;
 
-namespace Tests
+namespace Tests.Expressions
 {
-    public class WhenEvaluatorTests
+    public class ExpressionEvaluatorTests
     {
         [Theory]
         [InlineData("HTTP_HOST", "example.com", ComparisonOperator.Equal, true)]
@@ -30,7 +30,7 @@ namespace Tests
                 comparisonOperator,
                 BooleanOperator.And);
 
-            var actual = WhenEvaluator.Evaluate(expression, variables);
+            var actual = ExpressionEvaluator.Evaluate(expression, variables);
 
             actual.Should().Be.EqualTo(expected);
         }
@@ -61,7 +61,7 @@ namespace Tests
                 comparisonOperator,
                 BooleanOperator.And);
 
-            var actual = WhenEvaluator.Evaluate(expression, variables);
+            var actual = ExpressionEvaluator.Evaluate(expression, variables);
 
             actual.Should().Be.EqualTo(expected);
         }
@@ -86,7 +86,7 @@ namespace Tests
                     booleanOperator)
             }, BooleanOperator.And);
 
-            var actual = WhenEvaluator.Evaluate(expression, variables);
+            var actual = ExpressionEvaluator.Evaluate(expression, variables);
 
             actual.Should().Be.EqualTo(expected);
         }
@@ -95,7 +95,7 @@ namespace Tests
         public void Evaluate_grouped()
         {
             var variables = new Dictionary<string, IVariableValueResolver>();
-            var expression = new GroupExpression(new IWhenExpression[]
+            var expression = new GroupExpression(new IBooleanExpression[]
             {
                 new ComparisonExpression(
                     new ConstantExpression("a"),
@@ -118,7 +118,7 @@ namespace Tests
                     BooleanOperator.And)
             }, BooleanOperator.And);
 
-            var actual = WhenEvaluator.Evaluate(expression, variables);
+            var actual = ExpressionEvaluator.Evaluate(expression, variables);
 
             actual.Should().Be.False();
         }
@@ -147,7 +147,7 @@ namespace Tests
                 comparisonOperator,
                 BooleanOperator.And);
 
-            var actual = WhenEvaluator.Evaluate(expression, variables);
+            var actual = ExpressionEvaluator.Evaluate(expression, variables);
 
             actual.Should().Be.EqualTo(expected);
         }

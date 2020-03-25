@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using EsiNet.Fragments.Choose;
+using EsiNet.Expressions;
 using SharpTestsEx;
 using Xunit;
 
-namespace Tests
+namespace Tests.Expressions
 {
-    public class WhenParserEvaluatorTests
+    public class ExpressionParserEvaluatorTests
     {
         [Theory]
         [InlineData("$(HTTP_HOST)=='example.com'", true)]
@@ -43,8 +43,8 @@ namespace Tests
                     }))
             };
 
-            var expression = WhenParser.Parse(input);
-            var evaluated = WhenEvaluator.Evaluate(expression, variables);
+            var expression = ExpressionParser.Parse(input);
+            var evaluated = ExpressionEvaluator.Evaluate(expression, variables);
 
             evaluated.Should().Be.EqualTo(expected);
         }

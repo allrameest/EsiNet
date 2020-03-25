@@ -2,21 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using EsiNet.Logging;
+using EsiNet.Expressions;
 
 namespace EsiNet.Fragments.Choose
 {
     public class EsiChooseFragmentExecutor
     {
         private readonly EsiFragmentExecutor _fragmentExecutor;
-        private readonly Log _log;
 
-        public EsiChooseFragmentExecutor(
-            EsiFragmentExecutor fragmentExecutor,
-            Log log)
+        public EsiChooseFragmentExecutor(EsiFragmentExecutor fragmentExecutor)
         {
             _fragmentExecutor = fragmentExecutor ?? throw new ArgumentNullException(nameof(fragmentExecutor));
-            _log = log ?? throw new ArgumentNullException(nameof(log));
         }
 
         public async Task<IEnumerable<string>> Execute(EsiChooseFragment fragment, EsiExecutionContext executionContext)
@@ -38,9 +34,9 @@ namespace EsiNet.Fragments.Choose
                 .FirstOrDefault();
         }
 
-        private static bool Evaluate(IWhenExpression expression, IReadOnlyDictionary<string, IVariableValueResolver> variables)
+        private static bool Evaluate(IBooleanExpression expression, IReadOnlyDictionary<string, IVariableValueResolver> variables)
         {
-            return WhenEvaluator.Evaluate(expression, variables);
+            return ExpressionEvaluator.Evaluate(expression, variables);
         }
     }
 }

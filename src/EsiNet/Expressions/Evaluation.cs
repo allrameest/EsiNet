@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EsiNet.Fragments.Choose
+namespace EsiNet.Expressions
 {
-    public static class WhenEvaluator
+    public static class ExpressionEvaluator
     {
         private static readonly StringComparer Comparer = StringComparer.CurrentCulture;
 
         public static bool Evaluate(
-            IWhenExpression expression,
+            IBooleanExpression expression,
             IReadOnlyDictionary<string, IVariableValueResolver> variables)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
@@ -83,7 +83,7 @@ namespace EsiNet.Fragments.Choose
 
             if (valueExpression is VariableExpression variable)
             {
-                return GetVariableValue(variable, variables);
+                return VariableResolver.ResolveValue(variable, variables);
             }
 
             throw new Exception($"Value type {valueExpression.GetType().Name} not supported");
@@ -98,44 +98,6 @@ namespace EsiNet.Fragments.Choose
             }
 
             return resolver.TryGetValue(variableExpression);
-        }
-    }
-
-    public interface IVariableValueResolver
-    {
-        string TryGetValue(VariableExpression variable);
-    }
-
-    public class SimpleVariableValueResolver : IVariableValueResolver
-    {
-        private readonly Lazy<string> _value;
-
-        public SimpleVariableValueResolver(Lazy<string> value)
-        {
-            _value = value;
-        }
-
-        public string TryGetValue(VariableExpression variable)
-        {
-            return _value.Value;
-        }
-    }
-
-    public class DictionaryVariableValueResolver : IVariableValueResolver
-    {
-        private readonly Lazy<IReadOnlyDictionary<string, string>> _values;
-
-        public DictionaryVariableValueResolver(Lazy<IReadOnlyDictionary<string, string>> values)
-        {
-            _values = values;
-        }
-
-        public string TryGetValue(VariableExpression variable)
-        {
-            return variable is DictionaryVariableExpression dictionaryVariable &&
-                   _values.Value.TryGetValue(dictionaryVariable.Key, out var value)
-                ? value
-                : null;
         }
     }
 }

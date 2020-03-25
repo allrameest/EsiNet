@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EsiNet.Expressions;
 
 namespace EsiNet.Fragments.Choose
 {
@@ -19,13 +20,13 @@ namespace EsiNet.Fragments.Choose
     [Serializable]
     public class EsiWhenFragment : IEsiFragment
     {
-        public EsiWhenFragment(IWhenExpression expression, IEsiFragment innerFragment)
+        public EsiWhenFragment(IBooleanExpression expression, IEsiFragment innerFragment)
         {
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
             InnerFragment = innerFragment ?? throw new ArgumentNullException(nameof(innerFragment));
         }
 
-        public IWhenExpression Expression { get; }
+        public IBooleanExpression Expression { get; }
         public IEsiFragment InnerFragment { get; }
     }
 }

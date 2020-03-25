@@ -1,17 +1,17 @@
 ﻿using System;
 using DeepEqual.Syntax;
-using EsiNet.Fragments.Choose;
+using EsiNet.Expressions;
 using SharpTestsEx;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Tests
+namespace Tests.Expressions
 {
-    public class WhenParserTests
+    public class ExpressionParserTests
     {
         private readonly ITestOutputHelper _output;
 
-        public WhenParserTests(ITestOutputHelper output)
+        public ExpressionParserTests(ITestOutputHelper output)
         {
             _output = output;
         }
@@ -23,7 +23,7 @@ namespace Tests
         [InlineData("($(HTTP_HOST)=='example.com') ")]
         public void Compare_variable_to_constant(string input)
         {
-            var expression = WhenParser.Parse(input);
+            var expression = ExpressionParser.Parse(input);
             expression.ShouldDeepEqual(
                 new ComparisonExpression(
                     new SimpleVariableExpression("HTTP_HOST"),
@@ -36,7 +36,7 @@ namespace Tests
         public void Compare_variable_to_variable()
         {
             var input = "$(HTTP_HOST) == $(HTTP_REFERER)";
-            var expression = WhenParser.Parse(input);
+            var expression = ExpressionParser.Parse(input);
             expression.ShouldDeepEqual(
                 new ComparisonExpression(
                     new SimpleVariableExpression("HTTP_HOST"),
@@ -49,7 +49,7 @@ namespace Tests
         public void Compare_constant_to_constant()
         {
             var input = "'a' == 'b'";
-            var expression = WhenParser.Parse(input);
+            var expression = ExpressionParser.Parse(input);
             expression.ShouldDeepEqual(
                 new ComparisonExpression(
                     new ConstantExpression("a"),
@@ -68,7 +68,7 @@ namespace Tests
         [InlineData(@"$(X) == ' \u1120 '", " \u1120 ")]
         public void Compare_with_special_characters(string input, string expectedConstantValue)
         {
-            var expression = (ComparisonExpression) WhenParser.Parse(input);
+            var expression = (ComparisonExpression) ExpressionParser.Parse(input);
             ((ConstantExpression) expression.Right).Value.Should().Be.EqualTo(expectedConstantValue);
         }
 
@@ -83,7 +83,7 @@ namespace Tests
         [InlineData(@"$(X)>='x'", ComparisonOperator.GreaterThanOrEqual)]
         public void Compare_with_operators(string input, ComparisonOperator expectedComparisonOperator)
         {
-            var expression = (ComparisonExpression) WhenParser.Parse(input);
+            var expression = (ComparisonExpression) ExpressionParser.Parse(input);
             expression.ComparisonOperator.Should().Be.EqualTo(expectedComparisonOperator);
         }
 
@@ -108,13 +108,13 @@ namespace Tests
         [InlineData("$(HTTP_HOST) == '')", 18)]
         public void Invalid_expression(string input, int position)
         {
-            var exception = Record.Exception(() => WhenParser.Parse(input));
+            var exception = Record.Exception(() => ExpressionParser.Parse(input));
 
             var expected =
                 $"Unexpected character at position {position}" + Environment.NewLine +
                 input + Environment.NewLine +
                 new string(' ', position) + '\u21D1';
-            exception.Should().Be.InstanceOf<InvalidWhenExpressionException>();
+            exception.Should().Be.InstanceOf<InvalidExpressionException>();
             Pad(exception.Message).Should().Be.EqualTo(Pad(expected));
 
             _output.WriteLine(Pad(exception.Message));
@@ -132,7 +132,7 @@ namespace Tests
         [InlineData("$(HTTP_HOST)=='example.com' & $(HTTP_REFERER)=='http://example.com'", BooleanOperator.And)]
         public void Compare_multiple_boolean_expressions(string input, BooleanOperator expectedOperator)
         {
-            var expression = WhenParser.Parse(input);
+            var expression = ExpressionParser.Parse(input);
 
             expression.ShouldDeepEqual(
                 new GroupExpression(new[]
@@ -160,10 +160,10 @@ namespace Tests
         [InlineData(" ( ( $(a)=='1' ) && ( ( ( $(b)=='2' ) || ( $(b)=='3' ) ) ) ) ")]
         public void Compare_with_groups(string input)
         {
-            var expression = WhenParser.Parse(input);
+            var expression = ExpressionParser.Parse(input);
 
             expression.ShouldDeepEqual(
-                new GroupExpression(new IWhenExpression[]
+                new GroupExpression(new IBooleanExpression[]
                 {
                     new ComparisonExpression(
                         new SimpleVariableExpression("a"),
@@ -193,7 +193,7 @@ namespace Tests
         [InlineData("$(HTTP_COOKIE {showPricesWithVat})=='true'")]
         public void Compare_dictionary_variable_to_constant(string input)
         {
-            var expression = WhenParser.Parse(input);
+            var expression = ExpressionParser.Parse(input);
             expression.ShouldDeepEqual(
                 new ComparisonExpression(
                     new DictionaryVariableExpression("HTTP_COOKIE", "showPricesWithVat"),

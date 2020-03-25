@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace EsiNet.Fragments.Choose
+namespace EsiNet.Expressions
 {
     public class ExpressionReader : IDisposable
     {

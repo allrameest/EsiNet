@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using EsiNet.Expressions;
 using EsiNet.Fragments.Ignore;
 
 namespace EsiNet.Fragments.Choose
@@ -43,9 +44,9 @@ namespace EsiNet.Fragments.Choose
             return new EsiChooseFragment(whenFragments.ToArray(), otherwiseFragment);
         }
 
-        private static IWhenExpression ParseTestExpression(string test)
+        private static IBooleanExpression ParseTestExpression(string test)
         {
-            return WhenParser.Parse(test);
+            return ExpressionParser.Parse(test);
         }
     }
 }

@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 
-namespace EsiNet.Fragments.Choose
+namespace EsiNet.Expressions
 {
-    public class GroupExpression : IWhenExpression
+    public class GroupExpression : IBooleanExpression
     {
         public GroupExpression(
-            IReadOnlyCollection<IWhenExpression> booleanExpressions,
+            IReadOnlyCollection<IBooleanExpression> booleanExpressions,
             BooleanOperator booleanOperator)
         {
             BooleanExpressions = booleanExpressions;
             BooleanOperator = booleanOperator;
         }
 
-        public IReadOnlyCollection<IWhenExpression> BooleanExpressions { get; }
+        public IReadOnlyCollection<IBooleanExpression> BooleanExpressions { get; }
         public BooleanOperator BooleanOperator { get; }
     }
 
-    public interface IWhenExpression
+    public interface IBooleanExpression
     {
         BooleanOperator BooleanOperator { get; }
     }
@@ -29,7 +28,7 @@ namespace EsiNet.Fragments.Choose
         Or
     }
 
-    public class ComparisonExpression : IWhenExpression
+    public class ComparisonExpression : IBooleanExpression
     {
         public ComparisonExpression(
             ValueExpression left,
@@ -71,32 +70,5 @@ namespace EsiNet.Fragments.Choose
         }
 
         public string Value { get; }
-    }
-
-    public class VariableExpression : ValueExpression
-    {
-        public VariableExpression(string name)
-        {
-            Name = name;
-        }
-
-        public string Name { get; }
-    }
-
-    public class SimpleVariableExpression : VariableExpression
-    {
-        public SimpleVariableExpression(string name) : base(name)
-        {
-        }
-    }
-
-    public class DictionaryVariableExpression : VariableExpression
-    {
-        public DictionaryVariableExpression(string name, string key) : base(name)
-        {
-            Key = key;
-        }
-
-        public string Key { get; }
     }
 }

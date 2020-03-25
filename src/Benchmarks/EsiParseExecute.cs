@@ -8,7 +8,7 @@ using EsiNet;
 using EsiNet.AspNetCore;
 using EsiNet.Caching;
 using EsiNet.Caching.Serialization;
-using EsiNet.Fragments.Choose;
+using EsiNet.Expressions;
 using EsiNet.Pipeline;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;

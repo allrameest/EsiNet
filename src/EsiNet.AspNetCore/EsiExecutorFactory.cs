@@ -37,7 +37,7 @@ namespace EsiNet.AspNetCore
             var textExecutor = new EsiTextFragmentExecutor();
             var compositeExecutor = new EsiCompositeFragmentExecutor(fragmentExecutor);
             var tryExecutor = new EsiTryFragmentExecutor(fragmentExecutor, log);
-            var chooseExecutor = new EsiChooseFragmentExecutor(fragmentExecutor, log);
+            var chooseExecutor = new EsiChooseFragmentExecutor(fragmentExecutor);
 
             executors[typeof(EsiIncludeFragment)] = (f, ec) => includeExecutor.Execute((EsiIncludeFragment) f, ec);
             executors[typeof(EsiIgnoreFragment)] = (f, ec) => ignoreExecutor.Execute((EsiIgnoreFragment) f, ec);

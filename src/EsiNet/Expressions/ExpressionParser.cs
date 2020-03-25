@@ -4,11 +4,11 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 
-namespace EsiNet.Fragments.Choose
+namespace EsiNet.Expressions
 {
-    public static class WhenParser
+    public static class ExpressionParser
     {
-        public static IWhenExpression Parse(string text)
+        public static IBooleanExpression Parse(string text)
         {
             using (var reader = new ExpressionReader(text))
             {
@@ -16,25 +16,25 @@ namespace EsiNet.Fragments.Choose
             }
         }
 
-        private static IWhenExpression ParseExpression(ExpressionReader reader, BooleanOperator booleanOperator)
+        private static IBooleanExpression ParseExpression(ExpressionReader reader, BooleanOperator booleanOperator)
         {
             var expressions = ParseBooleanExpressions(reader, booleanOperator).ToArray();
 
-            if (reader.Peek() != -1) throw UnexpectedCharacterException(reader);
+            if (reader.Peek() != -1) throw reader.UnexpectedCharacterException();
 
             return expressions.Length == 1
                 ? expressions.Single()
                 : new GroupExpression(expressions, booleanOperator);
         }
 
-        private static IEnumerable<IWhenExpression> ParseBooleanExpressions(
+        private static IEnumerable<IBooleanExpression> ParseBooleanExpressions(
             ExpressionReader reader, BooleanOperator booleanOperator)
         {
-            SkipWhitespace(reader);
+            reader.SkipWhitespace();
 
             yield return ParseExpressionPart(reader, booleanOperator);
 
-            SkipWhitespace(reader);
+            reader.SkipWhitespace();
 
             if (reader.Peek() == -1) yield break;
 
@@ -45,23 +45,23 @@ namespace EsiNet.Fragments.Choose
                     case '|':
                     case '&':
                         var @operator = ParseBooleanOperator(reader);
-                        SkipWhitespace(reader);
+                        reader.SkipWhitespace();
                         yield return ParseExpressionPart(reader, @operator);
-                        SkipWhitespace(reader);
+                        reader.SkipWhitespace();
                         break;
                     case ')':
                         yield break;
                     default:
-                        throw UnexpectedCharacterException(reader);
+                        throw reader.UnexpectedCharacterException();
                 }
             }
 
-            if (reader.Peek() != -1) throw UnexpectedCharacterException(reader);
+            if (reader.Peek() != -1) throw reader.UnexpectedCharacterException();
         }
 
-        private static IWhenExpression ParseExpressionPart(ExpressionReader reader, BooleanOperator booleanOperator)
+        private static IBooleanExpression ParseExpressionPart(ExpressionReader reader, BooleanOperator booleanOperator)
         {
-            SkipWhitespace(reader);
+            reader.SkipWhitespace();
 
             if (reader.PeekChar() != '(')
             {
@@ -78,7 +78,7 @@ namespace EsiNet.Fragments.Choose
 
         }
 
-        private static IWhenExpression EnsureOperator(IWhenExpression expression, BooleanOperator booleanOperator)
+        private static IBooleanExpression EnsureOperator(IBooleanExpression expression, BooleanOperator booleanOperator)
         {
             if (expression.BooleanOperator == booleanOperator)
             {
@@ -99,19 +99,19 @@ namespace EsiNet.Fragments.Choose
             throw new Exception($"Expression type {expression.GetType().Name} not supported");
         }
 
-        private static IReadOnlyCollection<IWhenExpression> ParseGroup(ExpressionReader reader)
+        private static IReadOnlyCollection<IBooleanExpression> ParseGroup(ExpressionReader reader)
         {
             reader.Read(); //Skip (
-            SkipWhitespace(reader);
+            reader.SkipWhitespace();
 
             var result = ParseBooleanExpressions(reader, BooleanOperator.And).ToArray();
 
-            SkipWhitespace(reader);
+            reader.SkipWhitespace();
 
             var c = reader.ReadChar();
             if (c != ')')
             {
-                throw UnexpectedCharacterException(reader);
+                throw reader.UnexpectedCharacterException();
             }
 
             return result;
@@ -134,18 +134,18 @@ namespace EsiNet.Fragments.Choose
                 return BooleanOperator.Or;
             }
 
-            throw UnexpectedCharacterException(reader);
+            throw reader.UnexpectedCharacterException();
         }
 
         private static ComparisonExpression ParseComparison(ExpressionReader reader, BooleanOperator booleanOperator)
         {
             var left = ParseValue(reader);
 
-            SkipWhitespace(reader);
+            reader.SkipWhitespace();
 
             var comparisonOperator = ParseOperator(reader);
 
-            SkipWhitespace(reader);
+            reader.SkipWhitespace();
 
             var right = ParseValue(reader);
 
@@ -186,7 +186,7 @@ namespace EsiNet.Fragments.Choose
             if (c == '<')
                 return ComparisonOperator.LessThan;
 
-            throw UnexpectedCharacterException(reader);
+            throw reader.UnexpectedCharacterException();
         }
 
         private static ValueExpression ParseValue(ExpressionReader reader)
@@ -195,64 +195,12 @@ namespace EsiNet.Fragments.Choose
             switch (c)
             {
                 case '$':
-                    return ParseVariable(reader);
+                    return VariableParser.ParseVariable(reader);
                 case '\'':
                     return ParseConstant(reader);
                 default:
-                    throw UnexpectedCharacterException(reader);
+                    throw reader.UnexpectedCharacterException();
             }
-        }
-
-        private static VariableExpression ParseVariable(ExpressionReader reader)
-        {
-            reader.Read(); //Skip $
-
-            if (reader.Read() != '(') throw UnexpectedCharacterException(reader);
-
-            SkipWhitespace(reader);
-
-            var name = new StringBuilder();
-            while (IsNameChar(reader.PeekChar()))
-            {
-                name.Append(reader.ReadChar());
-            }
-
-            if (name.Length == 0) throw UnexpectedCharacterException(reader);
-
-            SkipWhitespace(reader);
-
-            VariableExpression variable;
-            if (reader.PeekChar() == '{')
-            {
-                variable = ParseDictionaryVariable(reader, name.ToString());
-            }
-            else
-            {
-                variable = new SimpleVariableExpression(name.ToString());
-            }
-
-            if (reader.Read() != ')') throw UnexpectedCharacterException(reader);
-
-            return variable;
-        }
-
-        private static DictionaryVariableExpression ParseDictionaryVariable(ExpressionReader reader, string name)
-        {
-            reader.Read(); //Skip {
-
-            var key = new StringBuilder();
-            while (reader.Peek() != -1 && reader.PeekChar() != '}')
-            {
-                key.Append(reader.ReadChar());
-            }
-
-            if (key.Length == 0) throw UnexpectedCharacterException(reader);
-
-            if (reader.Read() != '}') throw UnexpectedCharacterException(reader);
-
-            SkipWhitespace(reader);
-
-            return new DictionaryVariableExpression(name, key.ToString());
         }
 
         private static ConstantExpression ParseConstant(ExpressionReader reader)
@@ -276,7 +224,7 @@ namespace EsiNet.Fragments.Choose
                 }
             }
 
-            throw UnexpectedCharacterException(reader);
+            throw reader.UnexpectedCharacterException();
         }
 
         private static char ParseEscapedCharacter(ExpressionReader reader)
@@ -301,7 +249,7 @@ namespace EsiNet.Fragments.Choose
                 case 'u':
                     return ParseUnicodeCharacter(reader);
                 default:
-                    throw UnexpectedCharacterException(reader);
+                    throw reader.UnexpectedCharacterException();
             }
         }
 
@@ -311,35 +259,16 @@ namespace EsiNet.Fragments.Choose
             for (var i = 0; i < 4; i++)
             {
                 var c = reader.ReadChar();
-                if (!IsHexChar(c)) throw UnexpectedCharacterException(reader);
+                if (!IsHexChar(c)) throw reader.UnexpectedCharacterException();
                 code.Append(c);
             }
 
             return (char) int.Parse(code.ToString(), NumberStyles.HexNumber);
         }
 
-        private static bool IsNameChar(char c) => char.IsLetter(c) || c == '_';
-
         private static bool IsHexChar(char c) =>
             c >= '0' && c <= '9' ||
             c >= 'a' && c <= 'f' ||
             c >= 'A' && c <= 'F';
-
-        private static void SkipWhitespace(ExpressionReader reader)
-        {
-            while (char.IsWhiteSpace(reader.PeekChar()))
-            {
-                reader.Read();
-            }
-        }
-
-        private static Exception UnexpectedCharacterException(ExpressionReader reader)
-        {
-            var position = reader.LastAccessedPosition;
-            return new InvalidWhenExpressionException(
-                $"Unexpected character at position {position}" + Environment.NewLine +
-                reader.OriginalText + Environment.NewLine +
-                new string(' ', position) + '\u21D1');
-        }
     }
 }
