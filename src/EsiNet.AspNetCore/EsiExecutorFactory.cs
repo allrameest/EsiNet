@@ -9,6 +9,7 @@ using EsiNet.Fragments.Ignore;
 using EsiNet.Fragments.Include;
 using EsiNet.Fragments.Text;
 using EsiNet.Fragments.Try;
+using EsiNet.Fragments.Vars;
 using EsiNet.Http;
 using EsiNet.Logging;
 
@@ -38,6 +39,7 @@ namespace EsiNet.AspNetCore
             var compositeExecutor = new EsiCompositeFragmentExecutor(fragmentExecutor);
             var tryExecutor = new EsiTryFragmentExecutor(fragmentExecutor, log);
             var chooseExecutor = new EsiChooseFragmentExecutor(fragmentExecutor);
+            var varsExecutor = new EsiVarsFragmentExecutor();
 
             executors[typeof(EsiIncludeFragment)] = (f, ec) => includeExecutor.Execute((EsiIncludeFragment) f, ec);
             executors[typeof(EsiIgnoreFragment)] = (f, ec) => ignoreExecutor.Execute((EsiIgnoreFragment) f, ec);
@@ -45,6 +47,7 @@ namespace EsiNet.AspNetCore
             executors[typeof(EsiCompositeFragment)] = (f, ec) => compositeExecutor.Execute((EsiCompositeFragment) f, ec);
             executors[typeof(EsiTryFragment)] = (f, ec) => tryExecutor.Execute((EsiTryFragment) f, ec);
             executors[typeof(EsiChooseFragment)] = (f, ec) => chooseExecutor.Execute((EsiChooseFragment) f, ec);
+            executors[typeof(EsiVarsFragment)] = (f, ec) => varsExecutor.Execute((EsiVarsFragment) f, ec);
 
             return fragmentExecutor;
         }

@@ -6,6 +6,7 @@ using EsiNet.Fragments.Ignore;
 using EsiNet.Fragments.Include;
 using EsiNet.Fragments.Text;
 using EsiNet.Fragments.Try;
+using EsiNet.Fragments.Vars;
 using EsiNet.Pipeline;
 
 namespace EsiNet.AspNetCore
@@ -30,6 +31,7 @@ namespace EsiNet.AspNetCore
             parsers["esi:text"] = new EsiTextParser();
             parsers["esi:try"] = new EsiTryParser(bodyParser);
             parsers["esi:choose"] = new EsiChooseParser(bodyParser);
+            parsers["esi:vars"] = new EsiVarsParser();
 
             return bodyParser;
         }
