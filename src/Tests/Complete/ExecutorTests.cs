@@ -12,7 +12,6 @@ using EsiNet.Expressions;
 using EsiNet.Fragments;
 using EsiNet.Fragments.Composite;
 using EsiNet.Fragments.Ignore;
-using EsiNet.Fragments.Include;
 using EsiNet.Fragments.Text;
 using EsiNet.Fragments.Try;
 using EsiNet.Http;
@@ -36,7 +35,7 @@ namespace Tests.Complete
                 {
                     ["http://host/fragment"] = ("Included", null)
                 });
-            var fragment = new EsiIncludeFragment(new Uri("http://host/fragment"));
+            var fragment = EsiIncludeFragmentFactory.Create("http://host/fragment");
 
             var content = await Execute(fragment, fakeStaticHttpLoader);
 
@@ -67,7 +66,7 @@ namespace Tests.Complete
             var log = A.Fake<Log>();
             A.CallTo(() => httpLoader.Get(A<Uri>._, A<EsiExecutionContext>._)).Throws(exception);
             var fragment = new EsiTryFragment(
-                new EsiIncludeFragment(new Uri("http://host/fragment")),
+                EsiIncludeFragmentFactory.Create("http://host/fragment"),
                 new EsiTextFragment("Fallback"));
 
             var content = await Execute(fragment, httpLoader, log);
@@ -94,7 +93,7 @@ namespace Tests.Complete
                     }
                 });
             var uri = new Uri("http://host/fragment");
-            var fragment = new EsiIncludeFragment(uri);
+            var fragment = EsiIncludeFragmentFactory.Create(uri.ToString());
             var executor = CreateExecutor(httpLoader);
             var executionContext = CreateExecutionContext();
 
@@ -124,7 +123,7 @@ namespace Tests.Complete
                     }
                 });
             var uri = new Uri("http://host/fragment");
-            var fragment = new EsiIncludeFragment(uri);
+            var fragment = EsiIncludeFragmentFactory.Create(uri.ToString());
             var executor = CreateExecutor(httpLoader);
 
             await executor.Execute(fragment, CreateExecutionContext(KeyValuePair.Create("Accept", "application/xml")));
@@ -151,9 +150,10 @@ namespace Tests.Complete
                     new MemoryEsiFragmentCache(new MemoryCache(new MemoryCacheOptions())),
                     new MemoryVaryHeaderStore()),
                 httpLoader,
-                EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>(), url => new Uri(url)),
+                EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>()),
                 log ?? ((level, exception, message) => { }),
-                new PipelineContainer().GetInstance);
+                new PipelineContainer().GetInstance,
+                url => new Uri(url));
         }
 
         private static EsiExecutionContext CreateExecutionContext(params KeyValuePair<string, string>[] requestHeaders)

@@ -4,10 +4,10 @@ using EsiNet.AspNetCore;
 using EsiNet.Fragments;
 using EsiNet.Fragments.Composite;
 using EsiNet.Fragments.Ignore;
-using EsiNet.Fragments.Include;
 using EsiNet.Fragments.Text;
 using EsiNet.Fragments.Try;
 using EsiNet.Pipeline;
+using Tests.Helpers;
 using Xunit;
 
 namespace Tests.Complete
@@ -19,7 +19,7 @@ namespace Tests.Complete
         {
             var fragment = Parse(@"<esi:include src=""http://host/fragment""/>");
 
-            var expected = new EsiIncludeFragment(new Uri("http://host/fragment"));
+            var expected = EsiIncludeFragmentFactory.Create("http://host/fragment");
             fragment.ShouldDeepEqual(expected);
         }
 
@@ -49,7 +49,7 @@ namespace Tests.Complete
             var expected = new EsiCompositeFragment(new IEsiFragment[]
             {
                 new EsiTextFragment("Pre"),
-                new EsiIncludeFragment(new Uri("http://host/fragment")),
+                EsiIncludeFragmentFactory.Create("http://host/fragment"),
                 new EsiTextFragment("Post"),
             });
             fragment.ShouldDeepEqual(expected);
@@ -62,7 +62,7 @@ namespace Tests.Complete
                 @"<esi:include src=""http://host/fragment"" onerror=""continue""/>");
 
             var expected = new EsiTryFragment(
-                new EsiIncludeFragment(new Uri("http://host/fragment")),
+                EsiIncludeFragmentFactory.Create("http://host/fragment"),
                 new EsiIgnoreFragment());
             fragment.ShouldDeepEqual(expected);
         }
@@ -74,8 +74,8 @@ namespace Tests.Complete
                 @"<esi:include src=""http://host/fragment"" alt=""http://alt/fragment""/>");
 
             var expected = new EsiTryFragment(
-                new EsiIncludeFragment(new Uri("http://host/fragment")),
-                new EsiIncludeFragment(new Uri("http://alt/fragment")));
+                EsiIncludeFragmentFactory.Create("http://host/fragment"),
+                EsiIncludeFragmentFactory.Create("http://alt/fragment"));
             fragment.ShouldDeepEqual(expected);
         }
 
@@ -123,13 +123,13 @@ namespace Tests.Complete
         {
             var fragment = Parse(@"<esi:include src=""http://host/fragment/fragment?a=1&amp;b=2""/>");
 
-            var expected = new EsiIncludeFragment(new Uri("http://host/fragment/fragment?a=1&b=2"));
+            var expected = EsiIncludeFragmentFactory.Create("http://host/fragment/fragment?a=1&b=2");
             fragment.ShouldDeepEqual(expected);
         }
 
         private static IEsiFragment Parse(string body)
         {
-            var parser = EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>(), url => new Uri(url));
+            var parser = EsiParserFactory.Create(Array.Empty<IFragmentParsePipeline>());
             return parser.Parse(body);
         }
     }

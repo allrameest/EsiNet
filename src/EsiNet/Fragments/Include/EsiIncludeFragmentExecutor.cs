@@ -3,23 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using EsiNet.Caching;
+using EsiNet.Expressions;
 using EsiNet.Http;
 
 namespace EsiNet.Fragments.Include
 {
     public class EsiIncludeFragmentExecutor
     {
+        private readonly IncludeUriParser _uriParser;
         private readonly EsiFragmentCacheFacade _cache;
         private readonly IHttpLoader _httpLoader;
         private readonly EsiBodyParser _esiBodyParser;
         private readonly EsiFragmentExecutor _fragmentExecutor;
 
         public EsiIncludeFragmentExecutor(
+            IncludeUriParser uriParser,
             EsiFragmentCacheFacade cache,
             IHttpLoader httpLoader,
             EsiBodyParser esiBodyParser,
             EsiFragmentExecutor fragmentExecutor)
         {
+            _uriParser = uriParser ?? throw new ArgumentNullException(nameof(uriParser));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _httpLoader = httpLoader ?? throw new ArgumentNullException(nameof(httpLoader));
             _esiBodyParser = esiBodyParser ?? throw new ArgumentNullException(nameof(esiBodyParser));
@@ -32,10 +36,13 @@ namespace EsiNet.Fragments.Include
         {
             if (fragment == null) throw new ArgumentNullException(nameof(fragment));
 
+            var rawUrl = string.Concat(VariableStringResolver.Resolve(executionContext, fragment.Url));
+            var uri = _uriParser(rawUrl);
+            
             var remoteFragment = await _cache.GetOrAdd(
-                fragment.Uri,
+                uri,
                 executionContext,
-                () => RequestAndParse(fragment.Uri, executionContext));
+                () => RequestAndParse(uri, executionContext));
             return await _fragmentExecutor.Execute(remoteFragment, executionContext);
         }
 

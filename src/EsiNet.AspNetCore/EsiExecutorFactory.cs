@@ -22,18 +22,20 @@ namespace EsiNet.AspNetCore
             IHttpLoader httpLoader,
             EsiBodyParser parser,
             Log log,
-            ServiceFactory serviceFactory)
+            ServiceFactory serviceFactory,
+            IncludeUriParser includeUriParser)
         {
             if (cache == null) throw new ArgumentNullException(nameof(cache));
             if (httpLoader == null) throw new ArgumentNullException(nameof(httpLoader));
             if (parser == null) throw new ArgumentNullException(nameof(parser));
             if (log == null) throw new ArgumentNullException(nameof(log));
             if (serviceFactory == null) throw new ArgumentNullException(nameof(serviceFactory));
+            if (includeUriParser == null) throw new ArgumentNullException(nameof(includeUriParser));
 
             var executors = new Dictionary<Type, Func<IEsiFragment, EsiExecutionContext, Task<IEnumerable<string>>>>();
 
             var fragmentExecutor = new EsiFragmentExecutor(executors, serviceFactory);
-            var includeExecutor = new EsiIncludeFragmentExecutor(cache, httpLoader, parser, fragmentExecutor);
+            var includeExecutor = new EsiIncludeFragmentExecutor(includeUriParser, cache, httpLoader, parser, fragmentExecutor);
             var ignoreExecutor = new EsiIgnoreFragmentExecutor();
             var textExecutor = new EsiTextFragmentExecutor();
             var compositeExecutor = new EsiCompositeFragmentExecutor(fragmentExecutor);

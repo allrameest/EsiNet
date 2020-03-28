@@ -1,15 +1,16 @@
 ﻿using System;
+using EsiNet.Expressions;
 
 namespace EsiNet.Fragments.Include
 {
     [Serializable]
     public class EsiIncludeFragment : IEsiFragment
     {
-        public EsiIncludeFragment(Uri uri)
+        public EsiIncludeFragment(VariableString url)
         {
-            Uri = uri ?? throw new ArgumentNullException(nameof(uri));
+            Url = url ?? throw new ArgumentNullException(nameof(url));
         }
 
-        public Uri Uri { get; }
+        public VariableString Url { get; }
     }
 }

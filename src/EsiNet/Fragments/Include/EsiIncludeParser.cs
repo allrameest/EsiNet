@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EsiNet.Expressions;
 using EsiNet.Fragments.Ignore;
 using EsiNet.Fragments.Try;
 
@@ -7,26 +8,19 @@ namespace EsiNet.Fragments.Include
 {
     public class EsiIncludeParser : IEsiFragmentParser
     {
-        private readonly IncludeUriParser _uriParser;
-
-        public EsiIncludeParser(IncludeUriParser uriParser)
-        {
-            _uriParser = uriParser ?? throw new ArgumentNullException(nameof(uriParser));
-        }
-
         public IEsiFragment Parse(IReadOnlyDictionary<string, string> attributes, string body)
         {
             if (attributes == null) throw new ArgumentNullException(nameof(attributes));
             if (body == null) throw new ArgumentNullException(nameof(body));
 
-            var srcUrl = attributes["src"];
+            var srcUrl = VariableStringParser.Parse(attributes["src"]);
 
-            var srcFragment = new EsiIncludeFragment(_uriParser(srcUrl));
+            var srcFragment = new EsiIncludeFragment(srcUrl);
 
             IEsiFragment includeFragment;
             if (attributes.TryGetValue("alt", out var altUrl))
             {
-                var altFragment = new EsiIncludeFragment(_uriParser(altUrl));
+                var altFragment = new EsiIncludeFragment(VariableStringParser.Parse(altUrl));
                 includeFragment = new EsiTryFragment(srcFragment, altFragment);
             }
             else

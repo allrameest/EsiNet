@@ -44,7 +44,7 @@ namespace EsiNet.AspNetCore
             });
 
             services.TryAddSingleton(sp => EsiParserFactory.Create(
-                sp.GetServices<IFragmentParsePipeline>(), sp.GetRequiredService<IncludeUriParser>()));
+                sp.GetServices<IFragmentParsePipeline>()));
 
             services.TryAddSingleton<HttpClientFactory>(sp =>
             {
@@ -63,7 +63,8 @@ namespace EsiNet.AspNetCore
                 var parser = sp.GetRequiredService<EsiBodyParser>();
                 var log = sp.GetRequiredService<Log>();
 
-                return EsiExecutorFactory.Create(cache, httpLoader, parser, log, sp.GetService);
+                return EsiExecutorFactory.Create(
+                    cache, httpLoader, parser, log, sp.GetService, sp.GetRequiredService<IncludeUriParser>());
             });
 
             return builder;
