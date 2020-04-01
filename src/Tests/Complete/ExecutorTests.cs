@@ -10,10 +10,13 @@ using EsiNet.AspNetCore;
 using EsiNet.Caching;
 using EsiNet.Expressions;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Choose;
 using EsiNet.Fragments.Composite;
 using EsiNet.Fragments.Ignore;
+using EsiNet.Fragments.Include;
 using EsiNet.Fragments.Text;
 using EsiNet.Fragments.Try;
+using EsiNet.Fragments.Vars;
 using EsiNet.Http;
 using EsiNet.Logging;
 using EsiNet.Pipeline;
@@ -132,6 +135,96 @@ namespace Tests.Complete
             await executor.Execute(fragment, CreateExecutionContext(KeyValuePair.Create("Accept", "application/json")));
 
             A.CallTo(() => httpLoader.Get(uri, A<EsiExecutionContext>._)).MustHaveHappenedTwiceExactly();
+        }
+
+        [Theory]
+        [InlineData("example.com", "example")]
+        [InlineData("whatever", "not localhost")]
+        [InlineData("localhost", "other")]
+        public async Task Execute_ChooseFragment_ReturnResult(string host, string expected)
+        {
+            var httpLoader = A.Fake<IHttpLoader>();
+            var fragment = new EsiChooseFragment(
+                new[]
+                {
+                    new EsiWhenFragment(
+                        new ComparisonExpression(
+                            new SimpleVariableExpression("HTTP_HOST"),
+                            new ConstantExpression("example.com"),
+                            ComparisonOperator.Equal, BooleanOperator.And),
+                        new EsiTextFragment("example")),
+                    new EsiWhenFragment(
+                        new ComparisonExpression(
+                            new SimpleVariableExpression("HTTP_HOST"),
+                            new ConstantExpression("localhost"),
+                            ComparisonOperator.NotEqual, BooleanOperator.And),
+                        new EsiTextFragment("not localhost"))
+                },
+                new EsiTextFragment("other"));
+            var executionContext = new EsiExecutionContext(
+                new Dictionary<string, IReadOnlyCollection<string>>(),
+                new Dictionary<string, IVariableValueResolver>
+                {
+                    ["HTTP_HOST"] = new SimpleVariableValueResolver(new Lazy<string>(host))
+                });
+
+            var executor = CreateExecutor(httpLoader);
+            var content = await executor.Execute(fragment, executionContext);
+
+            string.Concat(content).Should().Be.EqualTo(expected);
+        }
+
+        [Fact]
+        public async Task Execute_VarsFragment_ReturnResult()
+        {
+            var httpLoader = new FakeStaticHttpLoader(new Dictionary<string, (string, int?)>());
+            var fragment = new EsiVarsFragment(new VariableString(new object[]
+            {
+                "Host: ",
+                new SimpleVariableExpression("HTTP_HOST")
+            }));
+            var executionContext = new EsiExecutionContext(
+                new Dictionary<string, IReadOnlyCollection<string>>(),
+                new Dictionary<string, IVariableValueResolver>
+                {
+                    ["HTTP_HOST"] = new SimpleVariableValueResolver(new Lazy<string>("localhost"))
+                });
+
+            var executor = CreateExecutor(httpLoader);
+            var content = await executor.Execute(fragment, executionContext);
+
+            string.Concat(content).Should().Be.EqualTo("Host: localhost");
+        }
+
+        [Fact]
+        public async Task Execute_IncludeFragmentWithVariables_ReturnContentFromRequest()
+        {
+            var httpLoader = new FakeStaticHttpLoader(
+                new Dictionary<string, (string, int?)>
+                {
+                    ["http://host/ninja"] = ("Included", null)
+                });
+            var fragment = new EsiIncludeFragment(new VariableString(new object[]
+            {
+                "http://host/",
+                new DictionaryVariableExpression("HTTP_COOKIE", "path")
+            }));
+            var executionContext = new EsiExecutionContext(
+                new Dictionary<string, IReadOnlyCollection<string>>(),
+                new Dictionary<string, IVariableValueResolver>
+                {
+                    ["HTTP_COOKIE"] = new DictionaryVariableValueResolver(
+                        new Lazy<IReadOnlyDictionary<string, string>>(
+                            () => new Dictionary<string, string>
+                            {
+                                ["path"] = "ninja"
+                            }))
+                });
+
+            var executor = CreateExecutor(httpLoader);
+            var content = await executor.Execute(fragment, executionContext);
+
+            string.Concat(content).Should().Be.EqualTo("Included");
         }
 
         private static async Task<string> Execute(

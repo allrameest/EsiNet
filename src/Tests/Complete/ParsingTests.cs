@@ -1,11 +1,15 @@
 ﻿using System;
 using DeepEqual.Syntax;
 using EsiNet.AspNetCore;
+using EsiNet.Expressions;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Choose;
 using EsiNet.Fragments.Composite;
 using EsiNet.Fragments.Ignore;
+using EsiNet.Fragments.Include;
 using EsiNet.Fragments.Text;
 using EsiNet.Fragments.Try;
+using EsiNet.Fragments.Vars;
 using EsiNet.Pipeline;
 using Tests.Helpers;
 using Xunit;
@@ -50,7 +54,7 @@ namespace Tests.Complete
             {
                 new EsiTextFragment("Pre"),
                 EsiIncludeFragmentFactory.Create("http://host/fragment"),
-                new EsiTextFragment("Post"),
+                new EsiTextFragment("Post")
             });
             fragment.ShouldDeepEqual(expected);
         }
@@ -124,6 +128,74 @@ namespace Tests.Complete
             var fragment = Parse(@"<esi:include src=""http://host/fragment/fragment?a=1&amp;b=2""/>");
 
             var expected = EsiIncludeFragmentFactory.Create("http://host/fragment/fragment?a=1&b=2");
+            fragment.ShouldDeepEqual(expected);
+        }
+
+        [Fact]
+        public void Parse_ChooseWithWhenAndOtherwise_ChooseFragmentReturned()
+        {
+            var fragment = Parse(
+                @"<esi:choose>" +
+                @"<esi:when test=""$(HTTP_COOKIE{foo})=='bar'"">A</esi:when>" +
+                @"<esi:when test=""$(HTTP_HOST)=='localhost' || $(HTTP_HOST) == '127.0.0.1'"">B</esi:when>" +
+                @"<esi:otherwise>?</esi:otherwise>" +
+                @"</esi:choose>");
+
+            var expected = new EsiChooseFragment(
+                new[]
+                {
+                    new EsiWhenFragment(
+                        new ComparisonExpression(
+                            new DictionaryVariableExpression("HTTP_COOKIE", "foo"),
+                            new ConstantExpression("bar"),
+                            ComparisonOperator.Equal,
+                            BooleanOperator.And),
+                        new EsiTextFragment("A")),
+                    new EsiWhenFragment(
+                        new GroupExpression(new[]
+                        {
+                            new ComparisonExpression(
+                                new SimpleVariableExpression("HTTP_HOST"),
+                                new ConstantExpression("localhost"),
+                                ComparisonOperator.Equal,
+                                BooleanOperator.And),
+                            new ComparisonExpression(
+                                new SimpleVariableExpression("HTTP_HOST"),
+                                new ConstantExpression("127.0.0.1"),
+                                ComparisonOperator.Equal,
+                                BooleanOperator.Or)
+                        }, BooleanOperator.And),
+                        new EsiTextFragment("B"))
+                },
+                new EsiTextFragment("?"));
+            fragment.ShouldDeepEqual(expected);
+        }
+
+        [Fact]
+        public void Parse_VarsWithVariables_VarFragmentReturned()
+        {
+            var fragment = Parse(@"<esi:vars>Cookie: $(HTTP_COOKIE{mycookie}) Host: $(HTTP_HOST)</esi:vars>");
+
+            var expected = new EsiVarsFragment(new VariableString(new object[]
+            {
+                "Cookie: ",
+                new DictionaryVariableExpression("HTTP_COOKIE", "mycookie"),
+                " Host: ",
+                new SimpleVariableExpression("HTTP_HOST")
+            }));
+            fragment.ShouldDeepEqual(expected);
+        }
+
+        [Fact]
+        public void Parse_IncludeTagWithVariable_IncludeFragmentWithVariableReturned()
+        {
+            var fragment = Parse(@"<esi:include src=""http://host/fragment?referer=$(HTTP_REFERER)""/>");
+
+            var expected = new EsiIncludeFragment(new VariableString(new object[]
+            {
+                "http://host/fragment?referer=",
+                new SimpleVariableExpression("HTTP_REFERER")
+            }));
             fragment.ShouldDeepEqual(expected);
         }
 
