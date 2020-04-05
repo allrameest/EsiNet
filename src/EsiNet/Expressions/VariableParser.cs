@@ -14,13 +14,7 @@ namespace EsiNet.Expressions
 
             reader.SkipWhitespace();
 
-            var name = new StringBuilder();
-            while (IsNameChar(reader.PeekChar()))
-            {
-                name.Append(reader.ReadChar());
-            }
-
-            if (name.Length == 0) throw reader.UnexpectedCharacterException();
+            var name = ParseVariableName(reader);
 
             reader.SkipWhitespace();
 
@@ -29,18 +23,33 @@ namespace EsiNet.Expressions
             {
                 var dictionaryKey = ParseDictionaryKey(reader);
                 var defaultValue = ParseDefaultValue(reader);
-                variable = new DictionaryVariableExpression(name.ToString(), dictionaryKey, defaultValue);
+                variable = new DictionaryVariableExpression(name, dictionaryKey, defaultValue);
             }
             else
             {
                 var defaultValue = ParseDefaultValue(reader);
-                variable = new SimpleVariableExpression(name.ToString(), defaultValue);
+                variable = new SimpleVariableExpression(name, defaultValue);
             }
 
             if (reader.ReadChar() != ')') throw reader.UnexpectedCharacterException();
 
             return variable;
         }
+
+        private static string ParseVariableName(ExpressionReader reader)
+        {
+            var name = new StringBuilder();
+            while (IsNameChar(reader.PeekChar()))
+            {
+                name.Append(reader.ReadChar());
+            }
+
+            if (name.Length == 0) throw reader.UnexpectedCharacterException();
+            
+            return name.ToString();
+        }
+
+        private static bool IsNameChar(char c) => char.IsLetter(c) || c == '_';
 
         private static string ParseDictionaryKey(ExpressionReader reader)
         {
@@ -83,8 +92,6 @@ namespace EsiNet.Expressions
 
             return value.ToString();
         }
-
-        private static bool IsNameChar(char c) => char.IsLetter(c) || c == '_';
         
         private static bool IsValidDefaultChar(char c) => char.IsLetter(c) || char.IsDigit(c);
     }
