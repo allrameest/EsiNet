@@ -2,6 +2,7 @@
 
 namespace EsiNet.Caching
 {
+    [Serializable]
     public class CacheEnvelope<T>
     {
         public CacheEnvelope(T body, TimeSpan expirationTime)

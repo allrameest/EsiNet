@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Text;
 using EsiNet.Pipeline;
 
 namespace EsiNet

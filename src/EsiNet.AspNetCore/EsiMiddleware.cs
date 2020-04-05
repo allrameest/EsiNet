@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using EsiNet.AspNetCore.Internal;
 using EsiNet.Caching;
 using EsiNet.Fragments;
-using EsiNet.Fragments.Choose;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;

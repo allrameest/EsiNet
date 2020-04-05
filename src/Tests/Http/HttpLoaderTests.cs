@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using EsiNet;
-using EsiNet.Fragments.Choose;
+using EsiNet.Expressions;
 using EsiNet.Http;
 using EsiNet.Logging;
 using EsiNet.Pipeline;

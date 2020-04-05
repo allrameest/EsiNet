@@ -8,7 +8,7 @@ using EsiNet;
 using EsiNet.AspNetCore;
 using EsiNet.Caching;
 using EsiNet.Caching.Serialization;
-using EsiNet.Fragments.Choose;
+using EsiNet.Expressions;
 using EsiNet.Pipeline;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -101,8 +101,7 @@ namespace Benchmarks
         private static EsiBodyParser CreateParser()
         {
             return EsiParserFactory.Create(
-                Array.Empty<IFragmentParsePipeline>(),
-                url => new Uri(url, UriKind.RelativeOrAbsolute));
+                Array.Empty<IFragmentParsePipeline>());
         }
 
         private static EsiFragmentExecutor CreateExecutor(
@@ -115,7 +114,8 @@ namespace Benchmarks
                 new FakeStaticHttpLoader(urlContentMap),
                 parser,
                 (level, exception, message) => { },
-                NullPipelineFactory.Create);
+                NullPipelineFactory.Create,
+                url => new Uri(url, UriKind.RelativeOrAbsolute));
         }
 
         private async Task<string> Benchmark(Func<Stream, Task> action, int count = 1000)

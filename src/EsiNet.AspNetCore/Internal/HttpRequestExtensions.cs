@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EsiNet.Fragments.Choose;
+using EsiNet.Expressions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 

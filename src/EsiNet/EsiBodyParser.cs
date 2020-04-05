@@ -4,6 +4,9 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Composite;
+using EsiNet.Fragments.Ignore;
+using EsiNet.Fragments.Text;
 
 namespace EsiNet
 {

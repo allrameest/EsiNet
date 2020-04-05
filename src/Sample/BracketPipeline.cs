@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using EsiNet;
 using EsiNet.Fragments;
+using EsiNet.Fragments.Include;
 using EsiNet.Pipeline;
 
 namespace Sample
