@@ -10,7 +10,7 @@ namespace EsiNet.Expressions
         {
             if (!variables.TryGetValue(variableExpression.Name, out var resolver))
             {
-                return null;
+                return variableExpression.DefaultValue;
             }
 
             return resolver.TryGetValue(variableExpression);
@@ -51,7 +51,7 @@ namespace EsiNet.Expressions
             return variable is DictionaryVariableExpression dictionaryVariable &&
                    _values.Value.TryGetValue(dictionaryVariable.Key, out var value)
                 ? value
-                : null;
+                : variable.DefaultValue;
         }
     }
 }

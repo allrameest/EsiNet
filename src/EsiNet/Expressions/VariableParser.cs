@@ -9,8 +9,8 @@ namespace EsiNet.Expressions
         {
             if (reader == null) throw new ArgumentNullException(nameof(reader));
 
-            if (reader.Read() != '$') throw reader.UnexpectedCharacterException();
-            if (reader.Read() != '(') throw reader.UnexpectedCharacterException();
+            if (reader.ReadChar() != '$') throw reader.UnexpectedCharacterException();
+            if (reader.ReadChar() != '(') throw reader.UnexpectedCharacterException();
 
             reader.SkipWhitespace();
 
@@ -27,19 +27,22 @@ namespace EsiNet.Expressions
             VariableExpression variable;
             if (reader.PeekChar() == '{')
             {
-                variable = ParseDictionaryVariable(reader, name.ToString());
+                var dictionaryKey = ParseDictionaryKey(reader);
+                var defaultValue = ParseDefaultValue(reader);
+                variable = new DictionaryVariableExpression(name.ToString(), dictionaryKey, defaultValue);
             }
             else
             {
-                variable = new SimpleVariableExpression(name.ToString());
+                var defaultValue = ParseDefaultValue(reader);
+                variable = new SimpleVariableExpression(name.ToString(), defaultValue);
             }
 
-            if (reader.Read() != ')') throw reader.UnexpectedCharacterException();
+            if (reader.ReadChar() != ')') throw reader.UnexpectedCharacterException();
 
             return variable;
         }
 
-        private static DictionaryVariableExpression ParseDictionaryVariable(ExpressionReader reader, string name)
+        private static string ParseDictionaryKey(ExpressionReader reader)
         {
             reader.Read(); //Skip {
 
@@ -55,9 +58,34 @@ namespace EsiNet.Expressions
 
             reader.SkipWhitespace();
 
-            return new DictionaryVariableExpression(name, key.ToString());
+            return key.ToString();
+        }
+
+        private static string ParseDefaultValue(ExpressionReader reader)
+        {
+            if (reader.PeekChar() != '|')
+            {
+                return null;
+            }
+
+            reader.Read();
+            
+            if (reader.PeekChar() == '\'')
+            {
+                return ConstantParser.Parse(reader);
+            }
+
+            var value = new StringBuilder();
+            while (IsValidDefaultChar(reader.PeekChar()))
+            {
+                value.Append(reader.ReadChar());
+            }
+
+            return value.ToString();
         }
 
         private static bool IsNameChar(char c) => char.IsLetter(c) || c == '_';
+        
+        private static bool IsValidDefaultChar(char c) => char.IsLetter(c) || char.IsDigit(c);
     }
 }
