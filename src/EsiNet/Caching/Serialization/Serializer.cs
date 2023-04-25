@@ -2,11 +2,6 @@
 {
     public static class Serializer
     {
-        public static ISerializer Binary()
-        {
-            return new BinarySerializer();
-        }
-
         public static ISerializer Hyperion()
         {
             return new HyperionSerializer();

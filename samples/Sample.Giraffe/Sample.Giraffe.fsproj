@@ -1,41 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-    <DebugType>portable</DebugType>
-    <AssemblyName>Sample.Giraffe</AssemblyName>
     <OutputType>Exe</OutputType>
-    <RuntimeFrameworkVersion>2.0.0</RuntimeFrameworkVersion>
-    <EnableDefaultContentItems>false</EnableDefaultContentItems>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.1.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.1.0" />
-    <PackageReference Include="Giraffe" Version="1.1.*" />
-  </ItemGroup>
 
   <ItemGroup>
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="web.config" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="WebRoot\**\*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <PackageReference Include="Giraffe" Version="6.0.0" />
+    <PackageReference Include="Giraffe.ViewEngine" Version="1.4.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\EsiNet.AspNetCore\EsiNet.AspNetCore.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.5.0" />
-  </ItemGroup>
-
 
 </Project>
