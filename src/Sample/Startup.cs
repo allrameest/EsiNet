@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Globalization;
 using EsiNet.AspNetCore;
-using EsiNet.Fragments;
 using EsiNet.Fragments.Include;
 using EsiNet.Logging;
 using EsiNet.Polly;
@@ -29,10 +28,10 @@ namespace Sample
                     sp.GetService<Log>(), 1));
 
             services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddMvc();
+            services.AddMvc(opt => opt.EnableEndpointRouting = false);
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseResponseCompression();
 

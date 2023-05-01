@@ -1,40 +1,43 @@
-﻿using EsiNet.AspNetCore;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Ocelot.DependencyInjection;
-using Ocelot.Middleware;
+using EsiNet.AspNetCore;
+using Yarp.ReverseProxy.Configuration;
 
-namespace Sample.Gateway
+var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddMemoryCache();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddEsiNet();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services
+    .AddReverseProxy()
+    .LoadFromMemory(
+    new List<RouteConfig>() { GetRouteConfig() },
+    new List<ClusterConfig>() { GetClusterConfig() });
+
+var app = builder.Build();
+
+app.UseEsiNet();
+app.MapReverseProxy();
+app.MapGet("/", () => "Hello from Gateway!");
+
+app.Run();
+
+static RouteConfig GetRouteConfig() => new()
 {
-    public class Program
-    {
-        public static void Main(string[] args) => BuildWebHost(args).Run();
-
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .ConfigureServices(services =>
-                {
-                    services.AddResponseCompression();
-                    services.AddDistributedMemoryCache();
-                    services.AddOcelot();
-                    services.AddEsiNet();
-                })
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    config
-                        .SetBasePath(hostingContext.HostingEnvironment.ContentRootPath)
-                        .AddJsonFile("ocelot.json")
-                        .AddEnvironmentVariables();
-                })
-                .Configure(app =>
-                {
-                    app.UseResponseCompression();
-                    app.UseEsiNet();
-                    app.UseOcelot().Wait();
-                })
-                .Build();
+    RouteId = "route1",
+    ClusterId = "cluster1",
+    Match = new() { Path = "test/{**catchall}" },
+    Transforms = new List<IReadOnlyDictionary<string, string>>()
+    { new Dictionary<string, string>() {
+            { "PathPattern", "{**catchall}" }
+        }
     }
-}
+};
+
+static ClusterConfig GetClusterConfig() => new()
+{
+    ClusterId = "cluster1",
+    Destinations = new Dictionary<string, DestinationConfig> {
+            { "destination1", new DestinationConfig() { Address = "http://localhost:50932" }
+            }
+        }
+};

@@ -18,13 +18,13 @@ namespace EsiNet.Polly
 
             _retryPolicy = Policy
                 .Handle<HttpRequestException>()
-                .RetryAsync(retryCount,
+                .Retry(retryCount,
                     (exception, _) => { log.Information(() => "Error making http call. Retrying.", exception); });
         }
 
         public Task<HttpResponseMessage> Handle(Uri uri, EsiExecutionContext executionContext, HttpLoadDelegate next)
         {
-            return _retryPolicy.ExecuteAsync(() => next(uri, executionContext));
+            return _retryPolicy.Execute(() => next(uri, executionContext));
         }
     }
 }

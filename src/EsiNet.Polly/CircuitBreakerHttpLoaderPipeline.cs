@@ -34,7 +34,7 @@ namespace EsiNet.Polly
         public Task<HttpResponseMessage> Handle(Uri uri, EsiExecutionContext executionContext, HttpLoadDelegate next)
         {
             var breakerPolicy = _breakerPolicies.GetOrAdd(_breakerKeyFactory(uri), _ => CreatePolicy());
-            return breakerPolicy.ExecuteAsync(() => next(uri, executionContext));
+            return breakerPolicy.Execute(() => next(uri, executionContext));
         }
 
         private CircuitBreakerPolicy CreatePolicy()
@@ -42,7 +42,7 @@ namespace EsiNet.Polly
             return Policy
                 .Handle<HttpRequestException>()
                 .Or<TaskCanceledException>()
-                .CircuitBreakerAsync(
+                .CircuitBreaker(
                     _exceptionsAllowedBeforeBreaking,
                     _durationOfBreak,
                     (exception, time) =>

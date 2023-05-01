@@ -13,7 +13,10 @@ namespace Sample.Gateway.Target
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .Configure(config => config.UseStaticFiles())
+                .Configure(config =>
+                config
+                .UseDefaultFiles()
+                .UseStaticFiles())
                 .Build();
     }
 }
